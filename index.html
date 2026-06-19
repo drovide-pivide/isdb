@@ -452,7 +452,7 @@ class Component extends DCLogic {
           onLeave:(e)=>{ this.setState(s=>(s.hover&&s.hover.m===m)?{hover:null}:null); e.currentTarget.querySelectorAll('.cell-flag').forEach(f=>{ f.style.opacity='0'; f.style.transform='scale(0.7)'; }); }
         };
       });
-      rows.push({label:'M'+(r+1), cells});
+      rows.push({label: sort==='rating' ? '#'+(r+1) : 'M'+(r+1), cells});
     }
 
     const rowLabelStyle={height:H+'px', display:'flex', alignItems:'center', justifyContent:'flex-end', paddingRight:'8px', fontFamily:"'DM Mono',monospace", fontSize:'10.5px', color:'#5b6473'};
