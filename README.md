@@ -93,5 +93,5 @@ python3 update_matches.py --dry-run
 | Full refresh | Step 1 → Step 2 → Step 3 |
 
 ### However,
-you can always run all them together (wont hurt)
-python3 imdb_rating.py tt32915471 --output ../data/imdb/wc2026.json && python3 update_schedule.py && python3 update_matches.py
+you can always run all them together (wont hurt):
+```python3 imdb_rating.py tt32915471 --output ../data/imdb/wc2026.json && python3 update_schedule.py && python3 update_matches.py```
