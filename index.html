@@ -77,7 +77,7 @@
     <!-- GRID PANEL -->
     <div style="background:#0e121a;border:1px solid rgba(255,255,255,0.07);border-radius:18px;padding:18px 20px 22px">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
-        <div style="font-family:'Saira',sans-serif;font-size:11px;color:#7d8696">{{ shownCount }} matches · avg {{ avgScore }} · {{ realCount }} results in</div>
+        <div style="font-family:'Saira',sans-serif;font-size:11px;color:#7d8696">{{ shownCount }} matches · {{ avgLabel }} {{ avgScore }} · {{ realCount }} rated</div>
         <div style="font-family:'Saira',sans-serif;font-size:11px;color:#7d8696">{{ sortNote }}</div>
       </div>
       <div style="overflow-x:auto">
@@ -110,10 +110,12 @@
 
           <!-- GRADIENT LEGEND -->
     <div style="display:flex;flex-direction:column;gap:10px;background:#11151d;border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:15px 18px;min-width:248px">
-      <div style="font-family:'Saira',sans-serif;font-size:10px;letter-spacing:1.5px;color:#7d8696">Color legend</div>
-      <div style="height:12px;border-radius:6px;background:linear-gradient(90deg, rgb(194,57,43), rgb(230,126,34), rgb(241,196,15), rgb(120,193,70), rgb(30,158,87))"></div>
-      <div style="display:flex;justify-content:space-between;font-family:'Saira',sans-serif;font-size:10.5px;color:#9aa3b2">
-        <span>3 · Dire</span><span>6 · Watchable</span><span>9 · Classic</span>
+      <div style="font-family:'Saira',sans-serif;font-size:10px;letter-spacing:1.5px;color:#7d8696">Color legend</div>      
+      <div style="position:relative;height:12px;border-radius:6px;background:linear-gradient(90deg, rgb(194,57,43), rgb(230,126,34), rgb(241,196,15), rgb(120,193,70), rgb(30,158,87))">
+        <div style="position:absolute;top:0;bottom:0;width:2px;background:rgba(255,255,255,0.9);border-radius:1px;left:{{ avgLinePos }}%;transform:translateX(-50%)"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-family:'Saira',sans-serif;font-size:10.5px;color:#9aa3b2;position:relative;margin-top:6px">
+        <span>3 · Dire</span><span style="position:absolute;left:{{ avgLinePos }}%;transform:translateX(-50%);font-weight:700;white-space:nowrap">{{ avgLabel }} {{ avgScore }}</span><span>9 · Classic</span>
       </div>
     </div>
 
@@ -484,6 +486,8 @@ class Component extends DCLogic {
     const realCount=shown.filter(m=>m.isReal).length;
     const ratedMatches=shown.filter(m=>m.rating!==null);
     const avgScore=ratedMatches.length?(ratedMatches.reduce((s,m)=>s+m.rating,0)/ratedMatches.length).toFixed(2):'–';
+    const avgLabel=ratedMatches.length>=5?'Average':'avg';
+    const avgLinePos=ratedMatches.length>=5?((parseFloat(avgScore)-3)/(9-3)*100).toFixed(1):50;
     const sortNote = sort==='rating' ? 'ranked best → worst per stage' : 'in fixture order';
 
     const grad=(t)=>'linear-gradient(90deg,'+t.c1+' 0 50%,'+t.c2+' 50% 100%)';
@@ -544,7 +548,7 @@ class Component extends DCLogic {
 
     return {
       accent, rows, rowLabelStyle, headers, groupPills, sortPills,
-      shownCount, realCount, avgScore, sortNote,
+      shownCount, realCount, avgScore, avgLabel, avgLinePos, sortNote,
       hover, sel, closeDrawer:()=>this.setState({sel:null}), closeHover:{background:'#252b37', color:'#fff'}
     };
   }
