@@ -313,7 +313,10 @@ class Component extends DCLogic {
 
     const real = {};
     matchesRaw.forEach(m => {
-      if(m.hg !== null && m.ag !== null) real[m.home + '|' + m.away] = { hg: m.hg, ag: m.ag, imdb_score: m.imdb_score ?? null };
+      if(m.hg !== null && m.ag !== null) {
+        real[m.home + '|' + m.away] = { hg: m.hg, ag: m.ag, imdb_score: m.imdb_score ?? null };
+        real[m.away + '|' + m.home] = { hg: m.ag, ag: m.hg, imdb_score: m.imdb_score ?? null };
+      }
     });
 
     const cols={MD1:[],MD2:[],MD3:[],R32:[],R16:[],QF:[],SF:[],FIN:[]};
