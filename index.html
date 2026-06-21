@@ -70,10 +70,7 @@
 
     <!-- GRID PANEL -->
     <div style="background:#0e121a;border:1px solid rgba(255,255,255,0.07);border-radius:18px;padding:18px 20px 22px">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
-        <div style="font-family:'Saira',sans-serif;font-size:11px;color:#7d8696">{{ shownCount }} matches · {{ avgLabel }} {{ avgScore }} · {{ realCount }} rated</div>
-        <div style="font-family:'Saira',sans-serif;font-size:11px;color:#7d8696">{{ sortNote }}</div>
-      </div>
+
       <div style="overflow-x:auto;container-type:inline-size;container-name:grid-container">
         <div data-grid style="display:grid;grid-template-columns:32px repeat(8, minmax({{ gridColMin }}, 1fr));gap:6px;align-items:start">
           <!-- corner -->
@@ -97,6 +94,7 @@
           </sc-for>
         </div>
       </div>
+
     </div>
 
     <p style="margin:18px 0 7px;font-family:'Saira',sans-serif;font-size:13px;font-weight:400;color:#9aa3b2;line-height:1.6"><span style="color:#eef1f6;font-weight:500">Scoring method</span> <span style="color:#5b6473">(as of Jun 19)</span>: retrieving directly from IMDb, testing the front-end to early users.</p>
@@ -104,7 +102,7 @@
 
           <!-- GRADIENT LEGEND -->
     <div style="display:flex;flex-direction:column;gap:10px;background:#11151d;border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:15px 18px;min-width:248px">
-      <div style="font-family:'Saira',sans-serif;font-size:10px;letter-spacing:1.5px;color:#7d8696">Color legend</div>      
+      <div style="font-family:'Saira',sans-serif;font-size:11px;color:#7d8696">{{ shownCount }} matches · {{ avgLabel }} {{ avgScore }} · {{ realCount }} rated</div>      
       <div style="position:relative;height:12px;border-radius:6px;background:linear-gradient(90deg, rgb(194,57,43), rgb(230,126,34), rgb(241,196,15), rgb(120,193,70), rgb(30,158,87))">
         <div style="position:absolute;top:0;bottom:0;width:2px;background:rgba(255,255,255,0.9);border-radius:1px;left:{{ avgLinePos }}%;transform:translateX(-50%)"></div>
       </div>
