@@ -87,9 +87,9 @@
             <div style="{{ rowLabelStyle }}">{{ row.label }}</div>
             <sc-for list="{{ row.cells }}" as="cell" hint-placeholder-count="8">
               <div class="isdb-cell" style="{{ cell.style }}" style-hover="{{ cell.hover }}" onClick="{{ cell.onClick }}" onMouseEnter="{{ cell.onEnter }}" onMouseMove="{{ cell.onMove }}" onMouseLeave="{{ cell.onLeave }}">
-                <img class="cell-flag" src="{{ cell.homeFlag }}" style="{{ cell.flagIconStyle }}" />
+                <img class="cell-flag" src="{{ cell.homeFlag }}" style="{{ cell.homeFlagStyle }}" />
                 <div style="{{ cell.scoreRowStyle }}">{{ cell.score }}</div>
-                <img class="cell-flag" src="{{ cell.awayFlag }}" style="{{ cell.flagIconStyle }}" />
+                <img class="cell-flag" src="{{ cell.awayFlag }}" style="{{ cell.awayFlagStyle }}" />
               </div>
             </sc-for>
           </sc-for>
@@ -427,25 +427,29 @@ class Component extends DCLogic {
         const iconH = compact ? 16 : 18;
         const showFlags = sort === 'rating' && m.rating !== null;
         const tint = (m.hasScore && m.rating !== null) ? m.bg.replace('rgb(','rgba(').replace(')',',0.30)') : 'rgba(255,255,255,0.08)';
-        const flagIconStyle = (hasTeams && showFlags) ? {width:iconW+'px', height:iconH+'px', borderRadius:'4px', objectFit:'cover', flexShrink:0, boxShadow:'inset 0 0 0 '+iconW+'px '+tint+', 0 1px 3px rgba(0,0,0,0.45)'} : {display:'none'};
+        // Always display:none when not showing flags — so score stays centered in flex.
+        // On hover (if cell is wide enough) we swap to visible via JS directly.
+        const flagBase2 = {position:'absolute', width:iconW+'px', height:iconH+'px', borderRadius:'4px', objectFit:'cover', boxShadow:'inset 0 0 0 '+iconW+'px '+tint+', 0 1px 3px rgba(0,0,0,0.45)'};
+        const homeFlagStyle = (hasTeams && showFlags) ? {...flagBase2, left:'6px'} : {display:'none'};
+        const awayFlagStyle = (hasTeams && showFlags) ? {...flagBase2, right:'6px'} : {display:'none'};
         // minWidth: rating sort needs 2 flags + score + padding; fixture sort just needs score
         const minWidth = showFlags ? (iconW*2 + 36 + 16)+'px' : '28px';
         const bg = (m.hasScore && m.rating !== null) ? m.bg : (m.hasScore ? '#1a1f2a' : 'transparent');
         const fg = (m.hasScore && m.rating !== null) ? m.fg : (m.hasScore ? '#5b6473' : '#5b6473');
         const selShadow = seld ? `, 0 0 0 2px #0e121a, 0 0 0 4px ${accent}` : '';
-        const style={position:'relative', height:H+'px', minWidth, borderRadius:'7px', display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0 6px', gap:'4px', overflow:'hidden', background:bg, color:fg, cursor:'pointer', transition:'transform .09s ease, box-shadow .09s ease', boxShadow: outline+selShadow};
-        const scoreRowStyle = {flex:1, display:'flex', alignItems:'center', justifyContent:'center', fontFamily:"'DM Mono',monospace", fontSize:(compact?11:12)+'px', fontWeight:500};
+        const style={position:'relative', height:H+'px', minWidth, borderRadius:'7px', display:'flex', alignItems:'center', justifyContent:'center', padding:'0 6px', gap:'4px', overflow:'hidden', background:bg, color:fg, cursor:'pointer', transition:'transform .09s ease, box-shadow .09s ease', boxShadow: outline+selShadow};
+        const scoreRowStyle = {display:'flex', alignItems:'center', justifyContent:'center', fontFamily:"'DM Mono',monospace", fontSize:(compact?11:12)+'px', fontWeight:500, position:'relative', zIndex:1};
         const cellHoverStyle={transform:'scale(1.09)', zIndex:5, boxShadow:'0 8px 20px rgba(0,0,0,0.55)'};
         return {
           homeFlag: m.home.flag, awayFlag: m.away.flag,
           hasTeams, hasScore: m.hasScore,
           score: m.hasScore ? (m.rating !== null ? m.rating.toFixed(1) : '–') : '',
-          style, flagIconStyle, scoreRowStyle,
+          style, homeFlagStyle, awayFlagStyle, scoreRowStyle,
           hover: cellHoverStyle,
           onClick:()=>this.setState({sel:m, hover:null}),
-          onEnter:(e)=>this.setState({hover:{m, x:e.clientX, y:e.clientY}}),
+          onEnter:(e)=>{ const w=e.currentTarget.offsetWidth; const wide=w>=(iconW*2+35); if(wide){ const flags=[...e.currentTarget.querySelectorAll('.cell-flag')]; if(flags[0]){ flags[0].style.display='block'; flags[0].style.position='absolute'; flags[0].style.left='6px'; flags[0].style.width=iconW+'px'; flags[0].style.height=iconH+'px'; flags[0].style.borderRadius='4px'; flags[0].style.objectFit='cover'; } if(flags[1]){ flags[1].style.display='block'; flags[1].style.position='absolute'; flags[1].style.right='6px'; flags[1].style.width=iconW+'px'; flags[1].style.height=iconH+'px'; flags[1].style.borderRadius='4px'; flags[1].style.objectFit='cover'; } } this.setState({hover:{m, x:e.clientX, y:e.clientY}}); },
           onMove:(e)=>this.setState(s=>(s.hover&&s.hover.m===m)?{hover:{m,x:e.clientX,y:e.clientY}}:null),
-          onLeave:(e)=>this.setState(s=>(s.hover&&s.hover.m===m)?{hover:null}:null)
+          onLeave:(e)=>{ e.currentTarget.querySelectorAll('.cell-flag').forEach(f=>{ f.style.display='none'; }); this.setState(s=>(s.hover&&s.hover.m===m)?{hover:null}:null); }
         };
       });
       rows.push({label: sort==='rating' ? '#'+(r+1) : 'M'+(r+1), cells});
