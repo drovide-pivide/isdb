@@ -73,13 +73,13 @@
         <div style="font-family:'Saira',sans-serif;font-size:11px;color:#7d8696">{{ sortNote }}</div>
       </div>
       <div style="overflow-x:auto">
-        <div style="display:grid;grid-template-columns:32px repeat(8, minmax({{ gridColMin }}, 1fr));gap:6px;align-items:start">
+        <div data-grid style="display:grid;grid-template-columns:32px repeat(8, minmax({{ gridColMin }}, 1fr));gap:6px;align-items:start">
           <!-- corner -->
           <div></div>
           <sc-for list="{{ headers }}" as="h" hint-placeholder-count="8">
             <div style="display:flex;flex-direction:column;align-items:center;gap:2px;padding-bottom:6px">
               <span style="font-weight:800;font-size:16px;letter-spacing:-0.5px;color:{{ h.color }}">{{ h.abbr }}</span>
-              <span style="font-family:'Saira',sans-serif;font-size:8.5px;color:#6b7280;letter-spacing:0.4px;text-align:center;white-space:nowrap">{{ h.name }}</span>
+              <span style="{{ h.nameStyle }}">{{ h.name }}</span>
             </div>
           </sc-for>
           <!-- rows -->
@@ -215,6 +215,21 @@ class Component extends DCLogic {
     };
     this.data = null;
     this._loadData();
+    this._ro = null;
+  }
+
+  onMount(el){
+    this._ro = new ResizeObserver(entries => {
+      const w = entries[0].contentRect.width;
+      // 8 columns + 32px label + 7*6px gaps = 32+42 = 74px overhead; each col gets (w-74)/8
+      const colW = (w - 74) / 8;
+      this.setState({ narrowCols: colW < 48 });
+    });
+    const grid = el.querySelector('[data-grid]');
+    if(grid) this._ro.observe(grid);
+  }
+  onUnmount(){
+    if(this._ro) this._ro.disconnect();
   }
 
   async _loadData(){
@@ -457,15 +472,18 @@ class Component extends DCLogic {
 
     const rowLabelStyle={height:H+'px', display:'flex', alignItems:'center', justifyContent:'flex-end', paddingRight:'8px', fontFamily:"'DM Mono',monospace", fontSize:'10.5px', color:'#5b6473'};
 
+    const subLabelStyle = "font-family:'Saira',sans-serif;font-size:8.5px;color:#6b7280;letter-spacing:0.4px;text-align:center;white-space:nowrap";
+    const subLabelHide = "display:none";
+    const narrow = this.state.narrowCols;
     const headers=[
-      {abbr:'MD1', name:'GROUP D1', color:'#eef1f6'},
-      {abbr:'MD2', name:'GROUP D2', color:'#eef1f6'},
-      {abbr:'MD3', name:'GROUP D3', color:'#eef1f6'},
-      {abbr:'R32', name:'ROUND OF 32', color:accent},
-      {abbr:'R16', name:'ROUND OF 16', color:accent},
-      {abbr:'QF', name:'QUARTERS', color:accent},
-      {abbr:'SF', name:'SEMIS', color:accent},
-      {abbr:'F', name:'FINAL', color:'#ff4d8d'}
+      {abbr:'MD1', name:'GROUP D1', color:'#eef1f6', nameStyle: narrow ? subLabelHide : subLabelStyle},
+      {abbr:'MD2', name:'GROUP D2', color:'#eef1f6', nameStyle: narrow ? subLabelHide : subLabelStyle},
+      {abbr:'MD3', name:'GROUP D3', color:'#eef1f6', nameStyle: narrow ? subLabelHide : subLabelStyle},
+      {abbr:'R32', name:'ROUND OF 32', color:accent, nameStyle: narrow ? subLabelHide : subLabelStyle},
+      {abbr:'R16', name:'ROUND OF 16', color:accent, nameStyle: narrow ? subLabelHide : subLabelStyle},
+      {abbr:'QF', name:'QUARTERS', color:accent, nameStyle: narrow ? subLabelHide : subLabelStyle},
+      {abbr:'SF', name:'SEMIS', color:accent, nameStyle: narrow ? subLabelHide : subLabelStyle},
+      {abbr:'F', name:'FINAL', color:'#ff4d8d', nameStyle: narrow ? subLabelHide : subLabelStyle}
     ];
 
     const gps=['All','A','B','C','D','E','F','G','H','I','J','K','L'];
