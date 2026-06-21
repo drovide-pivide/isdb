@@ -501,7 +501,7 @@ class Component extends DCLogic {
     const avgScore=ratedMatches.length?(ratedMatches.reduce((s,m)=>s+m.rating,0)/ratedMatches.length).toFixed(2):'–';
     const avgLabel=ratedMatches.length>=5?'Average':'avg';
     const avgLinePos=ratedMatches.length>=5?((parseFloat(avgScore)-3)/(9-3)*100).toFixed(1):50;
-    const sortNote = sort==='rating' ? 'ranked best → worst per stage' : 'in fixture order';
+    const sortNote = sort==='rating' ? 'ranked best → worst' : 'fixture order';
 
     const iconW = compact ? 21 : 24;
     const gridColMin = sort === 'rating' ? (iconW*2 + 36 + 16)+'px' : '0px';
