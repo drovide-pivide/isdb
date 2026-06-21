@@ -74,7 +74,7 @@
       <div style="overflow-x:auto;container-type:inline-size;container-name:grid-container">
         <div data-grid style="display:grid;grid-template-columns:32px repeat(8, minmax({{ gridColMin }}, 1fr));gap:6px;align-items:start">
           <!-- corner -->
-          <div></div>
+          <div style="position:sticky;left:0;z-index:4;background:#0e121a"></div>
           <sc-for list="{{ headers }}" as="h" hint-placeholder-count="8">
             <div style="display:flex;flex-direction:column;align-items:center;gap:2px;padding-bottom:6px">
               <span style="font-weight:800;font-size:16px;letter-spacing:-0.5px;color:{{ h.color }}">{{ h.abbr }}</span>
@@ -455,8 +455,7 @@ class Component extends DCLogic {
       rows.push({label: sort==='rating' ? '#'+(r+1) : 'M'+(r+1), cells});
     }
 
-    const rowLabelStyle={height:H+'px', display:'flex', alignItems:'center', justifyContent:'flex-end', paddingRight:'8px', fontFamily:"'DM Mono',monospace", fontSize:'10.5px', color:'#5b6473'};
-
+    const rowLabelStyle={position:'sticky', left:'0', zIndex:3, height:H+'px', display:'flex', alignItems:'center', justifyContent:'flex-end', paddingRight:'8px', fontFamily:"'DM Mono',monospace", fontSize:'10.5px', color:'#5b6473', background:'#0e121a'};
     const headers=[
       {abbr:'MD1', name:'GROUP D1', color:'#eef1f6'},
       {abbr:'MD2', name:'GROUP D2', color:'#eef1f6'},
