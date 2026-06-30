@@ -284,7 +284,7 @@
     "stadium": "Gillette Stadium",
     "city": "Foxborough",
     "country_played": "USA",
-    "imdb_score": 6.7,
+    "imdb_score": 6.6,
     "oneline_comment": ""
   },
   {
@@ -652,7 +652,7 @@
     "stadium": "AT&T Stadium",
     "city": "Arlington",
     "country_played": "USA",
-    "imdb_score": 7.2,
+    "imdb_score": 7.1,
     "oneline_comment": ""
   },
   {
@@ -668,7 +668,7 @@
     "stadium": "Lincoln Financial Field",
     "city": "Philadelphia",
     "country_played": "USA",
-    "imdb_score": 5.7,
+    "imdb_score": 5.6,
     "oneline_comment": ""
   },
   {
@@ -748,7 +748,7 @@
     "stadium": "BMO Field",
     "city": "Toronto",
     "country_played": "Canada",
-    "imdb_score": 4.9,
+    "imdb_score": 4.8,
     "oneline_comment": ""
   },
   {
@@ -812,7 +812,7 @@
     "stadium": "Hard Rock Stadium",
     "city": "Miami Gardens",
     "country_played": "USA",
-    "imdb_score": 6.5,
+    "imdb_score": 6.4,
     "oneline_comment": ""
   },
   {
@@ -876,7 +876,7 @@
     "stadium": "Lincoln Financial Field",
     "city": "Philadelphia",
     "country_played": "USA",
-    "imdb_score": 5.3,
+    "imdb_score": 5.2,
     "oneline_comment": ""
   },
   {
@@ -924,7 +924,7 @@
     "stadium": "Arrowhead Stadium",
     "city": "Kansas City",
     "country_played": "USA",
-    "imdb_score": 5.8,
+    "imdb_score": 5.7,
     "oneline_comment": ""
   },
   {
@@ -956,7 +956,7 @@
     "stadium": "Levi's Stadium",
     "city": "Santa Clara",
     "country_played": "USA",
-    "imdb_score": 3.6,
+    "imdb_score": 3.3,
     "oneline_comment": ""
   },
   {
@@ -972,7 +972,7 @@
     "stadium": "Gillette Stadium",
     "city": "Foxborough",
     "country_played": "USA",
-    "imdb_score": 6.8,
+    "imdb_score": 6.3,
     "oneline_comment": ""
   },
   {
@@ -988,7 +988,7 @@
     "stadium": "BMO Field",
     "city": "Toronto",
     "country_played": "Canada",
-    "imdb_score": 6.6,
+    "imdb_score": 6.1,
     "oneline_comment": ""
   },
   {
@@ -1004,7 +1004,7 @@
     "stadium": "NRG Stadium",
     "city": "Houston",
     "country_played": "USA",
-    "imdb_score": 4.9,
+    "imdb_score": 5.0,
     "oneline_comment": ""
   },
   {
@@ -1020,7 +1020,7 @@
     "stadium": "Estadio Akron",
     "city": "Zapopan",
     "country_played": "Mexico",
-    "imdb_score": 5.2,
+    "imdb_score": 5.0,
     "oneline_comment": ""
   },
   {
@@ -1036,7 +1036,7 @@
     "stadium": "Lumen Field",
     "city": "Seattle",
     "country_played": "USA",
-    "imdb_score": null,
+    "imdb_score": 6.9,
     "oneline_comment": ""
   },
   {
@@ -1052,14 +1052,14 @@
     "stadium": "BC Place",
     "city": "Vancouver",
     "country_played": "Canada",
-    "imdb_score": null,
+    "imdb_score": 6.2,
     "oneline_comment": ""
   },
   {
     "home": "PAN",
     "away": "ENG",
-    "hg": null,
-    "ag": null,
+    "hg": 0,
+    "ag": 2,
     "match_id": 67,
     "date": "2026-06-27",
     "time_et": "17:00",
@@ -1068,14 +1068,14 @@
     "stadium": "MetLife Stadium",
     "city": "East Rutherford",
     "country_played": "USA",
-    "imdb_score": null,
+    "imdb_score": 6.0,
     "oneline_comment": ""
   },
   {
     "home": "CRO",
     "away": "GHA",
-    "hg": null,
-    "ag": null,
+    "hg": 2,
+    "ag": 1,
     "match_id": 68,
     "date": "2026-06-27",
     "time_et": "17:00",
@@ -1084,14 +1084,14 @@
     "stadium": "Lincoln Financial Field",
     "city": "Philadelphia",
     "country_played": "USA",
-    "imdb_score": null,
+    "imdb_score": 6.1,
     "oneline_comment": ""
   },
   {
     "home": "COL",
     "away": "POR",
-    "hg": null,
-    "ag": null,
+    "hg": 0,
+    "ag": 0,
     "match_id": 69,
     "date": "2026-06-27",
     "time_et": "19:30",
@@ -1106,8 +1106,8 @@
   {
     "home": "COD",
     "away": "UZB",
-    "hg": null,
-    "ag": null,
+    "hg": 3,
+    "ag": 1,
     "match_id": 70,
     "date": "2026-06-27",
     "time_et": "19:30",
@@ -1122,8 +1122,8 @@
   {
     "home": "ALG",
     "away": "AUT",
-    "hg": null,
-    "ag": null,
+    "hg": 3,
+    "ag": 3,
     "match_id": 71,
     "date": "2026-06-27",
     "time_et": "22:00",
@@ -1138,8 +1138,8 @@
   {
     "home": "JOR",
     "away": "ARG",
-    "hg": null,
-    "ag": null,
+    "hg": 1,
+    "ag": 3,
     "match_id": 72,
     "date": "2026-06-27",
     "time_et": "22:00",

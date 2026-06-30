@@ -380,7 +380,7 @@
     "stadium": "Estadio Azteca",
     "city": "Mexico City",
     "country_played": "Mexico",
-    "imdb_score": 6.6,
+    "imdb_score": 6.5,
     "oneline_comment": ""
   },
   {
@@ -396,7 +396,7 @@
     "stadium": "Mercedes-Benz Stadium",
     "city": "Atlanta",
     "country_played": "USA",
-    "imdb_score": 4.8,
+    "imdb_score": 4.7,
     "oneline_comment": ""
   },
   {
@@ -444,7 +444,7 @@
     "stadium": "Estadio Akron",
     "city": "Zapopan",
     "country_played": "Mexico",
-    "imdb_score": 5.3,
+    "imdb_score": 5.4,
     "oneline_comment": ""
   },
   {
@@ -652,7 +652,7 @@
     "stadium": "AT&T Stadium",
     "city": "Arlington",
     "country_played": "USA",
-    "imdb_score": 7.1,
+    "imdb_score": 7.2,
     "oneline_comment": ""
   },
   {
@@ -684,7 +684,7 @@
     "stadium": "MetLife Stadium",
     "city": "East Rutherford",
     "country_played": "USA",
-    "imdb_score": 7.4,
+    "imdb_score": 7.3,
     "oneline_comment": ""
   },
   {
@@ -716,7 +716,7 @@
     "stadium": "NRG Stadium",
     "city": "Houston",
     "country_played": "USA",
-    "imdb_score": 6.7,
+    "imdb_score": 6.8,
     "oneline_comment": ""
   },
   {
@@ -764,7 +764,7 @@
     "stadium": "Estadio Akron",
     "city": "Zapopan",
     "country_played": "Mexico",
-    "imdb_score": 6.1,
+    "imdb_score": 6.0,
     "oneline_comment": ""
   },
   {
@@ -796,7 +796,7 @@
     "stadium": "Lumen Field",
     "city": "Seattle",
     "country_played": "USA",
-    "imdb_score": 6.0,
+    "imdb_score": 5.8,
     "oneline_comment": ""
   },
   {
@@ -812,7 +812,7 @@
     "stadium": "Hard Rock Stadium",
     "city": "Miami Gardens",
     "country_played": "USA",
-    "imdb_score": 6.4,
+    "imdb_score": 6.5,
     "oneline_comment": ""
   },
   {
@@ -828,7 +828,7 @@
     "stadium": "Mercedes-Benz Stadium",
     "city": "Atlanta",
     "country_played": "USA",
-    "imdb_score": 8.0,
+    "imdb_score": 7.6,
     "oneline_comment": ""
   },
   {
@@ -844,7 +844,7 @@
     "stadium": "Estadio Azteca",
     "city": "Mexico City",
     "country_played": "Mexico",
-    "imdb_score": 6.2,
+    "imdb_score": 6.1,
     "oneline_comment": ""
   },
   {
@@ -860,7 +860,7 @@
     "stadium": "Estadio BBVA",
     "city": "Monterrey",
     "country_played": "Mexico",
-    "imdb_score": 5.1,
+    "imdb_score": 5.2,
     "oneline_comment": ""
   },
   {
@@ -876,7 +876,7 @@
     "stadium": "Lincoln Financial Field",
     "city": "Philadelphia",
     "country_played": "USA",
-    "imdb_score": 5.2,
+    "imdb_score": 5.3,
     "oneline_comment": ""
   },
   {
@@ -924,7 +924,7 @@
     "stadium": "Arrowhead Stadium",
     "city": "Kansas City",
     "country_played": "USA",
-    "imdb_score": 5.7,
+    "imdb_score": 5.8,
     "oneline_comment": ""
   },
   {
@@ -940,7 +940,7 @@
     "stadium": "SoFi Stadium",
     "city": "Inglewood",
     "country_played": "USA",
-    "imdb_score": 6.9,
+    "imdb_score": 7.1,
     "oneline_comment": ""
   },
   {
@@ -956,7 +956,7 @@
     "stadium": "Levi's Stadium",
     "city": "Santa Clara",
     "country_played": "USA",
-    "imdb_score": 3.3,
+    "imdb_score": 3.2,
     "oneline_comment": ""
   },
   {
@@ -972,7 +972,7 @@
     "stadium": "Gillette Stadium",
     "city": "Foxborough",
     "country_played": "USA",
-    "imdb_score": 6.3,
+    "imdb_score": 6.2,
     "oneline_comment": ""
   },
   {
@@ -1052,7 +1052,7 @@
     "stadium": "BC Place",
     "city": "Vancouver",
     "country_played": "Canada",
-    "imdb_score": 6.2,
+    "imdb_score": 6.1,
     "oneline_comment": ""
   },
   {
@@ -1068,7 +1068,7 @@
     "stadium": "MetLife Stadium",
     "city": "East Rutherford",
     "country_played": "USA",
-    "imdb_score": 6.0,
+    "imdb_score": 5.3,
     "oneline_comment": ""
   },
   {
@@ -1084,7 +1084,7 @@
     "stadium": "Lincoln Financial Field",
     "city": "Philadelphia",
     "country_played": "USA",
-    "imdb_score": 6.1,
+    "imdb_score": 6.0,
     "oneline_comment": ""
   },
   {
@@ -1100,7 +1100,7 @@
     "stadium": "Hard Rock Stadium",
     "city": "Miami Gardens",
     "country_played": "USA",
-    "imdb_score": null,
+    "imdb_score": 6.5,
     "oneline_comment": ""
   },
   {
@@ -1116,7 +1116,7 @@
     "stadium": "Mercedes-Benz Stadium",
     "city": "Atlanta",
     "country_played": "USA",
-    "imdb_score": null,
+    "imdb_score": 6.1,
     "oneline_comment": ""
   },
   {
@@ -1132,7 +1132,7 @@
     "stadium": "Arrowhead Stadium",
     "city": "Kansas City",
     "country_played": "USA",
-    "imdb_score": null,
+    "imdb_score": 8.2,
     "oneline_comment": ""
   },
   {
@@ -1148,14 +1148,14 @@
     "stadium": "AT&T Stadium",
     "city": "Arlington",
     "country_played": "USA",
-    "imdb_score": null,
+    "imdb_score": 6.4,
     "oneline_comment": ""
   },
   {
     "home": "RSA",
     "away": "CAN",
-    "hg": null,
-    "ag": null,
+    "hg": 0,
+    "ag": 1,
     "match_id": 73,
     "date": "2026-06-28",
     "time_et": "15:00",
@@ -1163,6 +1163,86 @@
     "group": null,
     "stadium": "SoFi Stadium",
     "city": "Inglewood",
+    "country_played": "USA",
+    "imdb_score": 5.3,
+    "oneline_comment": ""
+  },
+  {
+    "home": "GER",
+    "away": "PAR",
+    "hg": 1,
+    "ag": 1,
+    "match_id": 74,
+    "date": "2026-06-29",
+    "time_et": "13:00",
+    "stage": "Round of 32",
+    "group": null,
+    "stadium": "NRG Stadium",
+    "city": "Houston",
+    "country_played": "USA",
+    "imdb_score": 7.8,
+    "oneline_comment": ""
+  },
+  {
+    "home": "FRA",
+    "away": "SWE",
+    "hg": null,
+    "ag": null,
+    "match_id": 77,
+    "date": "2026-06-30",
+    "time_et": "13:00",
+    "stage": "Round of 32",
+    "group": null,
+    "stadium": "AT&T Stadium",
+    "city": "Arlington",
+    "country_played": "USA",
+    "imdb_score": null,
+    "oneline_comment": ""
+  },
+  {
+    "home": "ENG",
+    "away": "COD",
+    "hg": null,
+    "ag": null,
+    "match_id": 80,
+    "date": "2026-07-01",
+    "time_et": "12:00",
+    "stage": "Round of 32",
+    "group": null,
+    "stadium": "Mercedes-Benz Stadium",
+    "city": "Atlanta",
+    "country_played": "USA",
+    "imdb_score": null,
+    "oneline_comment": ""
+  },
+  {
+    "home": "POR",
+    "away": "CRO",
+    "hg": null,
+    "ag": null,
+    "match_id": 83,
+    "date": "2026-07-02",
+    "time_et": "15:00",
+    "stage": "Round of 32",
+    "group": null,
+    "stadium": "SoFi Stadium",
+    "city": "Inglewood",
+    "country_played": "USA",
+    "imdb_score": null,
+    "oneline_comment": ""
+  },
+  {
+    "home": "ARG",
+    "away": "CPV",
+    "hg": null,
+    "ag": null,
+    "match_id": 86,
+    "date": "2026-07-03",
+    "time_et": "14:00",
+    "stage": "Round of 32",
+    "group": null,
+    "stadium": "AT&T Stadium",
+    "city": "Arlington",
     "country_played": "USA",
     "imdb_score": null,
     "oneline_comment": ""

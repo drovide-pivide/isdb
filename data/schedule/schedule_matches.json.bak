@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-06-19T00:00:00Z",
+  "last_updated": "2026-06-26T14:36:44Z",
   "source": "FIFA World Cup 2026 Official Schedule",
   "total_matches": 104,
   "matches": [
@@ -876,8 +876,8 @@
       "stadium": "SoFi Stadium",
       "city": "Inglewood",
       "country_played": "USA",
-      "home": "",
-      "away": ""
+      "home": "RSA",
+      "away": "CAN"
     },
     {
       "match_id": 74,
