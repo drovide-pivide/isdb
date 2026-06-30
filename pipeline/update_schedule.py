@@ -171,7 +171,17 @@ def apply_results(
             continue
 
         # Knockout: home/away empty — find match on same date in scraped
-        same_day = [r for r in scraped if r["date"] == date]
+        # Exclude scraped matches already filled in the schedule
+        filled_pairs_on_date = {
+            frozenset([m2["home"], m2["away"]])
+            for m2 in schedule
+            if m2["date"] == date and m2.get("home") and m2.get("away")
+        }
+        same_day = [
+            r for r in scraped
+            if r["date"] == date
+            and frozenset([r["home"], r["away"]]) not in filled_pairs_on_date
+        ]
         # Find empty slots on this date in schedule
         empty_on_date = [
             m for m in schedule

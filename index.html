@@ -361,15 +361,36 @@ class Component extends DCLogic {
       pairs.forEach(p=>{
         const h=p[0]??TBD, a=p[1]??TBD;
         const id=stageKey+'-'+(gidx++);
-        const m=this.makeMatch(id,stageKey,roundName,h,a,0,0,false);
+        const key=h.code+'|'+a.code;
+        let hg=0,ag=0,isReal=false,imdb=null;
+        if(real[key]){ hg=real[key].hg; ag=real[key].ag; isReal=true; imdb=real[key].imdb_score; }
+        const m=this.makeMatch(id,stageKey,roundName,h,a,hg,ag,isReal,imdb);
         cols[stageKey].push(m);
-        outW.push(TBD); outL.push(TBD);
+        if(isReal){
+          outW.push(hg>ag?h:(ag>hg?a:h));
+          outL.push(hg>ag?a:(ag>hg?h:a));
+        } else {
+          outW.push(TBD); outL.push(TBD);
+        }
       });
       return {outW, outL};
     };
+
     const pairSeq=(arr)=>{ const p=[]; for(let i=0;i<arr.length;i+=2) p.push([arr[i],arr[i+1]]); return p; };
 
-    const r32=playKO('R32','Round of 32', r32pairs);
+    // Use actual bracket from schedule data instead of computed seeding
+    const koFromSchedule = (stage) => {
+      return matchesRaw
+        .filter(m => m.stage === stage && m.home && m.away)
+        .map(m => {
+          const allTeams = Object.values(teams).flat();
+          const h = allTeams.find(t => t.code === m.home) ?? TBD;
+          const a = allTeams.find(t => t.code === m.away) ?? TBD;
+          return [h, a];
+        });
+    };
+    const schedR32 = koFromSchedule('Round of 32');
+    const r32=playKO('R32','Round of 32', schedR32.length ? schedR32 : r32pairs);
     const r16=playKO('R16','Round of 16', pairSeq(r32.outW));
     const qf=playKO('QF','Quarter-final', pairSeq(r16.outW));
     const sf=playKO('SF','Semi-final', pairSeq(qf.outW));
