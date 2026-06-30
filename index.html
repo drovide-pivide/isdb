@@ -22,6 +22,12 @@
   @keyframes isdbFlagIn{from{opacity:0;transform:scale(1.06)}to{opacity:1;transform:scale(1)}}
   .col-sublabel { display: block; }
   @container grid-container (max-width: 480px) { .col-sublabel { display: none; } }
+  .bracket-wrap{overflow-x:auto;padding:8px 0 18px}
+  .bracket-grid{display:flex;align-items:flex-start;gap:0;min-width:max-content}
+  .bracket-col{display:flex;flex-direction:column;position:relative}
+  .bracket-col-head{font-family:'Saira',sans-serif;font-size:11px;letter-spacing:1.5px;color:#7d8696;text-align:center;padding:0 0 10px;white-space:nowrap}
+  .bracket-connector{position:absolute}
+
 </style>
 </helmet>
 
@@ -60,15 +66,26 @@
           <div style="{{ pill.style }}" style-hover="{{ pill.hover }}" onClick="{{ pill.onClick }}">{{ pill.label }}</div>
         </sc-for>
       </div>
-      <div style="display:flex;align-items:center;gap:10px">
-        <span style=";font-size:11px;letter-spacing:1.5px;color:#7d8696">SORT</span>
-        <sc-for list="{{ sortPills }}" as="pill" hint-placeholder-count="2">
-          <div style="{{ pill.style }}" style-hover="{{ pill.hover }}" onClick="{{ pill.onClick }}">{{ pill.label }}</div>
-        </sc-for>
+      <div style="display:flex;align-items:center;gap:18px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="font-family:'Saira',sans-serif;font-size:11px;letter-spacing:1.5px;color:#7d8696">VIEW</span>
+          <sc-for list="{{ viewPills }}" as="pill" hint-placeholder-count="2">
+            <div style="{{ pill.style }}" style-hover="{{ pill.hover }}" onClick="{{ pill.onClick }}">{{ pill.label }}</div>
+          </sc-for>
+        </div>
+        <sc-if value="{{ showSort }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style=";font-size:11px;letter-spacing:1.5px;color:#7d8696">SORT</span>
+            <sc-for list="{{ sortPills }}" as="pill" hint-placeholder-count="2">
+              <div style="{{ pill.style }}" style-hover="{{ pill.hover }}" onClick="{{ pill.onClick }}">{{ pill.label }}</div>
+            </sc-for>
+          </div>
+        </sc-if>
       </div>
     </div>
 
     <!-- GRID PANEL -->
+    <sc-if value="{{ showGrid }}" hint-placeholder-val="{{ true }}">
     <div style="background:#0e121a;border:1px solid rgba(255,255,255,0.07);border-radius:18px;padding:18px 20px 22px">
 
       <div style="overflow-x:auto;container-type:inline-size;container-name:grid-container">
@@ -96,6 +113,37 @@
       </div>
 
     </div>
+    </sc-if>
+
+    <!-- BRACKET PANEL -->
+    <sc-if value="{{ showBracket }}" hint-placeholder-val="{{ false }}">
+    <div style="background:#0e121a;border:1px solid rgba(255,255,255,0.07);border-radius:18px;padding:18px 20px 22px">
+      <div class="bracket-wrap">
+        <div class="bracket-grid">
+          <sc-for list="{{ bracketCols }}" as="bcol" hint-placeholder-count="5">
+            <div class="bracket-col" style="{{ bcol.colStyle }}">
+              <div class="bracket-col-head" style="{{ bcol.headStyle }}">{{ bcol.label }}</div>
+              <sc-for list="{{ bcol.matches }}" as="bm" hint-placeholder-count="16">
+                <div style="{{ bm.wrapStyle }}">
+                  <sc-if value="{{ bm.showLabel }}" hint-placeholder-val="{{ false }}">
+                    <div style="font-family:'Saira',sans-serif;font-size:9px;letter-spacing:1.5px;color:#5b6473;text-align:center;margin-bottom:6px">{{ bm.labelText }}</div>
+                  </sc-if>
+                  <div class="isdb-cell" style="{{ bm.style }}" style-hover="{{ bm.hover }}" onClick="{{ bm.onClick }}" onMouseEnter="{{ bm.onEnter }}" onMouseMove="{{ bm.onMove }}" onMouseLeave="{{ bm.onLeave }}">
+                    <img class="cell-flag" src="{{ bm.homeFlag }}" style="{{ bm.homeFlagStyle }}" />
+                    <div style="{{ bm.scoreRowStyle }}">{{ bm.score }}</div>
+                    <img class="cell-flag" src="{{ bm.awayFlag }}" style="{{ bm.awayFlagStyle }}" />
+                  </div>
+                  <sc-for list="{{ bm.connectors }}" as="conn" hint-placeholder-count="0">
+                    <div class="bracket-connector" style="{{ conn.style }}"></div>
+                  </sc-for>
+                </div>
+              </sc-for>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+    </sc-if>
 
     <p style="margin:18px 0 7px;font-family:'Saira',sans-serif;font-size:13px;font-weight:400;color:#9aa3b2;line-height:1.6"><span style="color:#eef1f6;font-weight:500">Scoring method</span> <span style="color:#5b6473">(as of Jun 19)</span>: retrieving directly from IMDb, testing the front-end to early users.</p>
     <p style="margin:0 0 14px;font-family:'Saira',sans-serif;font-size:13px;font-weight:400;color:#9aa3b2;line-height:1.6"><span style="color:#eef1f6;font-weight:500">Proposed</span>: using match events and statistics to predict the match excitingness score, on an IMDb scale of 1–10.</p>
@@ -204,7 +252,7 @@
 class Component extends DCLogic {
   constructor(props){
     super(props);
-    this.state = { group:'All', sort:'order', sel:null, hover:null, ready:false };
+    this.state = { group:'All', sort:'order', view:'grid', sel:null, hover:null, ready:false };
     this.VERDICTS = {
       Classic:['An instant classic — football at its absolute peak.','One for the ages. Drama from first whistle to last.','Pure theatre. They will replay this for decades.'],
       Thriller:['A thrilling, end-to-end contest with real quality.','Tense, technical and hugely entertaining throughout.','Two good sides going at it — proper tournament football.'],
@@ -496,6 +544,103 @@ class Component extends DCLogic {
     });
     const sortPills=[['order','Schedule'],['rating','Rating']].map(p=>({label:p[1], style:this.pillStyle(p[0]===sort, accent), hover: p[0]===sort?undefined:pillHover, onClick:()=>this.setState({sort:p[0]})}));
 
+    const currentView = this.state.view;
+    const viewPills=[['grid','Grid'],['bracket','Bracket']].map(p=>({label:p[1], style:this.pillStyle(p[0]===currentView, accent), hover: p[0]===currentView?undefined:pillHover, onClick:()=>this.setState({view:p[0]})}));
+    const showSort = currentView === 'grid';
+    const showGrid = currentView === 'grid';
+    const showBracket = currentView === 'bracket';
+
+    // Build bracket data
+    const bracketCols = [];
+    if(showBracket){
+      const koStages = ['R32','R16','QF','SF','FIN'];
+      const koLabels = ['ROUND OF 32','ROUND OF 16','QUARTER-FINALS','SEMI-FINALS','FINAL'];
+      const bubbleH = H; // same height as grid cells
+      const baseGap = 10;
+      const baseUnit = bubbleH + baseGap;
+      const bubbleW = 110; // fixed width for bracket bubbles
+      const iconW = compact ? 21 : 24;
+      const iconH = compact ? 16 : 18;
+
+      koStages.forEach((stageKey, ci) => {
+        let stageMatches = this.data.cols[stageKey].filter(filt);
+        const count = stageMatches.length;
+        const spacing = baseUnit * Math.pow(2, ci);
+        const gap = spacing - bubbleH;
+        const topOffset = ci === 0 ? 0 : (spacing - baseUnit) / 2;
+
+        // For FIN: reorder so Final comes first, 3rd place second
+        if(stageKey === 'FIN' && stageMatches.length === 2){
+          stageMatches = [stageMatches[1], stageMatches[0]];
+        }
+
+        const matches = stageMatches.map((m, mi) => {
+          const hasTeams = m.home.code !== 'TBD';
+          const isPlayed = m.hasScore;
+          const hasRating = m.rating !== null;
+
+          // Exact same color logic as grid cells
+          const bg = (isPlayed && hasRating) ? m.bg : (isPlayed ? '#1a1f2a' : 'transparent');
+          const fg = (isPlayed && hasRating) ? m.fg : (isPlayed ? '#5b6473' : '#5b6473');
+          const stageColor = {'R32':'rgba(91,140,255,0.35)','R16':'rgba(91,140,255,0.35)','QF':'rgba(91,140,255,0.35)','SF':'rgba(91,140,255,0.35)','FIN':'rgba(255,77,141,0.45)'}[m.stageKey] ?? 'rgba(255,255,255,0.12)';
+          const outline = `inset 0 1px 0 rgba(255,255,255,0.13), inset 0 -1px 0 rgba(0,0,0,0.25), 0 0 0 1px ${stageColor}`;
+
+          // Exact same flag styling as grid cells in rating sort mode (always show flags)
+          const showFlags = hasRating;
+          const tint = (isPlayed && hasRating) ? m.bg.replace('rgb(','rgba(').replace(')',',0.30)') : 'rgba(255,255,255,0.08)';
+          const flagBase = {position:'absolute', width:iconW+'px', height:iconH+'px', borderRadius:'4px', objectFit:'cover', boxShadow:'inset 0 0 0 '+iconW+'px '+tint+', 0 1px 3px rgba(0,0,0,0.45)'};
+          const homeFlagStyle = (hasTeams && showFlags) ? {...flagBase, left:'6px'} : {display:'none'};
+          const awayFlagStyle = (hasTeams && showFlags) ? {...flagBase, right:'6px'} : {display:'none'};
+
+          // Exact same cell style as grid
+          const style = {position:'relative', width:bubbleW+'px', height:bubbleH+'px', borderRadius:'7px', display:'flex', alignItems:'center', justifyContent:'center', padding:'0 6px', overflow:'hidden', background:bg, color:fg, cursor:'pointer', transition:'transform .09s ease, box-shadow .09s ease', boxShadow:outline};
+          const scoreRowStyle = {display:'flex', alignItems:'center', justifyContent:'center', fontFamily:"'DM Mono',monospace", fontSize:(compact?11:12)+'px', fontWeight:500, position:'relative', zIndex:1};
+          const cellHoverStyle = {transform:'scale(1.09)', zIndex:5, boxShadow:'0 8px 20px rgba(0,0,0,0.55)'};
+
+          // Connector lines
+          const connectors = [];
+          if(ci > 0 && !(stageKey === 'FIN' && mi === 1)){
+            connectors.push({style:{position:'absolute', left:'-21px', top:(bubbleH/2)+'px', width:'21px', height:'2px', background:'rgba(255,255,255,0.12)'}});
+          }
+          if(stageKey !== 'FIN'){
+            const mid = bubbleH / 2;
+            connectors.push({style:{position:'absolute', right:'-21px', top:mid+'px', width:'21px', height:'2px', background:'rgba(255,255,255,0.12)'}});
+            if(mi % 2 === 0 && mi + 1 < count){
+              connectors.push({style:{position:'absolute', right:'-21px', top:mid+'px', width:'2px', height:(gap + bubbleH)+'px', background:'rgba(255,255,255,0.12)'}});
+            }
+          }
+
+          const mb = (mi < count - 1) ? (stageKey === 'FIN' ? 24 : gap) : 0;
+          const wrapStyle = {position:'relative', marginBottom: mb + 'px'};
+
+          return {
+            wrapStyle,
+            showLabel: stageKey === 'FIN' && mi === 1,
+            labelText: '3RD PLACE',
+            // Identical bubble props
+            style, hover: cellHoverStyle,
+            homeFlag: m.home.flag, awayFlag: m.away.flag,
+            homeFlagStyle, awayFlagStyle,
+            score: isPlayed ? (hasRating ? m.rating.toFixed(1) : '–') : '',
+            scoreRowStyle,
+            connectors,
+            onClick: () => this.setState({sel: m, hover: null}),
+            onEnter: (e) => { const w=e.currentTarget.offsetWidth; const wide=w>=(iconW*2+16); if(wide){ const flags=[...e.currentTarget.querySelectorAll('.cell-flag')]; if(flags[0]){flags[0].style.display='block';flags[0].style.position='absolute';flags[0].style.left='6px';flags[0].style.width=iconW+'px';flags[0].style.height=iconH+'px';flags[0].style.borderRadius='4px';flags[0].style.objectFit='cover';} if(flags[1]){flags[1].style.display='block';flags[1].style.position='absolute';flags[1].style.right='6px';flags[1].style.width=iconW+'px';flags[1].style.height=iconH+'px';flags[1].style.borderRadius='4px';flags[1].style.objectFit='cover';}} this.setState({hover:{m, x:e.clientX, y:e.clientY}}); },
+            onMove: (e) => this.setState(s=>(s.hover&&s.hover.m===m)?{hover:{m,x:e.clientX,y:e.clientY}}:null),
+            onLeave: (e) => { e.currentTarget.querySelectorAll('.cell-flag').forEach(f=>{f.style.display='none';}); this.setState(s=>(s.hover&&s.hover.m===m)?{hover:null}:null); }
+          };
+        });
+
+        const headColor = stageKey === 'FIN' ? '#ff4d8d' : accent;
+        bracketCols.push({
+          label: koLabels[ci],
+          colStyle: {paddingTop: topOffset+'px', marginRight:'42px', minWidth:bubbleW+'px'},
+          headStyle: {color: headColor},
+          matches
+        });
+      });
+    }
+
     const shown=[].concat(...colLists);
     const shownCount=shown.length;
     const realCount=shown.filter(m=>m.isReal).length;
@@ -564,7 +709,8 @@ class Component extends DCLogic {
     }
 
     return {
-      accent, rows, rowLabelStyle, headers, groupPills, sortPills, gridColMin,
+      accent, rows, rowLabelStyle, headers, groupPills, sortPills, viewPills, gridColMin,
+      showSort, showGrid, showBracket, bracketCols,
       shownCount, realCount, avgScore, avgLabel, avgLinePos, sortNote,
       hover, sel, closeDrawer:()=>this.setState({sel:null}), closeHover:{background:'#252b37', color:'#fff'}
     };
