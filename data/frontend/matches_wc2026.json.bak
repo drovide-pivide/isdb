@@ -204,7 +204,7 @@
     "stadium": "Mercedes-Benz Stadium",
     "city": "Atlanta",
     "country_played": "USA",
-    "imdb_score": 6.2,
+    "imdb_score": 6.3,
     "oneline_comment": ""
   },
   {
@@ -396,7 +396,7 @@
     "stadium": "Mercedes-Benz Stadium",
     "city": "Atlanta",
     "country_played": "USA",
-    "imdb_score": 4.7,
+    "imdb_score": 4.8,
     "oneline_comment": ""
   },
   {
@@ -652,7 +652,7 @@
     "stadium": "AT&T Stadium",
     "city": "Arlington",
     "country_played": "USA",
-    "imdb_score": 7.2,
+    "imdb_score": 7.1,
     "oneline_comment": ""
   },
   {
@@ -700,7 +700,7 @@
     "stadium": "Levi's Stadium",
     "city": "Santa Clara",
     "country_played": "USA",
-    "imdb_score": 5.5,
+    "imdb_score": 5.4,
     "oneline_comment": ""
   },
   {
@@ -764,7 +764,7 @@
     "stadium": "Estadio Akron",
     "city": "Zapopan",
     "country_played": "Mexico",
-    "imdb_score": 6.0,
+    "imdb_score": 5.9,
     "oneline_comment": ""
   },
   {
@@ -780,7 +780,7 @@
     "stadium": "BC Place",
     "city": "Vancouver",
     "country_played": "Canada",
-    "imdb_score": 6.2,
+    "imdb_score": 6.3,
     "oneline_comment": ""
   },
   {
@@ -860,7 +860,7 @@
     "stadium": "Estadio BBVA",
     "city": "Monterrey",
     "country_played": "Mexico",
-    "imdb_score": 5.2,
+    "imdb_score": 5.3,
     "oneline_comment": ""
   },
   {
@@ -892,7 +892,7 @@
     "stadium": "MetLife Stadium",
     "city": "East Rutherford",
     "country_played": "USA",
-    "imdb_score": 7.3,
+    "imdb_score": 7.4,
     "oneline_comment": ""
   },
   {
@@ -924,7 +924,7 @@
     "stadium": "Arrowhead Stadium",
     "city": "Kansas City",
     "country_played": "USA",
-    "imdb_score": 5.8,
+    "imdb_score": 5.7,
     "oneline_comment": ""
   },
   {
@@ -940,7 +940,7 @@
     "stadium": "SoFi Stadium",
     "city": "Inglewood",
     "country_played": "USA",
-    "imdb_score": 7.1,
+    "imdb_score": 6.8,
     "oneline_comment": ""
   },
   {
@@ -956,7 +956,7 @@
     "stadium": "Levi's Stadium",
     "city": "Santa Clara",
     "country_played": "USA",
-    "imdb_score": 3.2,
+    "imdb_score": 3.4,
     "oneline_comment": ""
   },
   {
@@ -972,7 +972,7 @@
     "stadium": "Gillette Stadium",
     "city": "Foxborough",
     "country_played": "USA",
-    "imdb_score": 6.2,
+    "imdb_score": 6.3,
     "oneline_comment": ""
   },
   {
@@ -988,7 +988,7 @@
     "stadium": "BMO Field",
     "city": "Toronto",
     "country_played": "Canada",
-    "imdb_score": 6.1,
+    "imdb_score": 6.0,
     "oneline_comment": ""
   },
   {
@@ -1036,7 +1036,7 @@
     "stadium": "Lumen Field",
     "city": "Seattle",
     "country_played": "USA",
-    "imdb_score": 6.9,
+    "imdb_score": 6.5,
     "oneline_comment": ""
   },
   {
@@ -1068,7 +1068,7 @@
     "stadium": "MetLife Stadium",
     "city": "East Rutherford",
     "country_played": "USA",
-    "imdb_score": 5.3,
+    "imdb_score": 5.4,
     "oneline_comment": ""
   },
   {
@@ -1084,7 +1084,7 @@
     "stadium": "Lincoln Financial Field",
     "city": "Philadelphia",
     "country_played": "USA",
-    "imdb_score": 6.0,
+    "imdb_score": 5.7,
     "oneline_comment": ""
   },
   {
@@ -1116,7 +1116,7 @@
     "stadium": "Mercedes-Benz Stadium",
     "city": "Atlanta",
     "country_played": "USA",
-    "imdb_score": 6.1,
+    "imdb_score": 5.9,
     "oneline_comment": ""
   },
   {
@@ -1164,7 +1164,7 @@
     "stadium": "SoFi Stadium",
     "city": "Inglewood",
     "country_played": "USA",
-    "imdb_score": 5.3,
+    "imdb_score": 5.2,
     "oneline_comment": ""
   },
   {
@@ -1180,14 +1180,46 @@
     "stadium": "NRG Stadium",
     "city": "Houston",
     "country_played": "USA",
-    "imdb_score": 7.8,
+    "imdb_score": 7.6,
+    "oneline_comment": ""
+  },
+  {
+    "home": "NED",
+    "away": "MAR",
+    "hg": 1,
+    "ag": 1,
+    "match_id": 75,
+    "date": "2026-06-29",
+    "time_et": "16:30",
+    "stage": "Round of 32",
+    "group": null,
+    "stadium": "Gillette Stadium",
+    "city": "Foxborough",
+    "country_played": "USA",
+    "imdb_score": 7.9,
+    "oneline_comment": ""
+  },
+  {
+    "home": "BRA",
+    "away": "JPN",
+    "hg": 2,
+    "ag": 1,
+    "match_id": 76,
+    "date": "2026-06-29",
+    "time_et": "21:00",
+    "stage": "Round of 32",
+    "group": null,
+    "stadium": "Estadio BBVA",
+    "city": "Monterrey",
+    "country_played": "Mexico",
+    "imdb_score": 7.5,
     "oneline_comment": ""
   },
   {
     "home": "FRA",
     "away": "SWE",
-    "hg": null,
-    "ag": null,
+    "hg": 3,
+    "ag": 0,
     "match_id": 77,
     "date": "2026-06-30",
     "time_et": "13:00",
@@ -1196,14 +1228,46 @@
     "stadium": "AT&T Stadium",
     "city": "Arlington",
     "country_played": "USA",
-    "imdb_score": null,
+    "imdb_score": 6.8,
+    "oneline_comment": ""
+  },
+  {
+    "home": "CIV",
+    "away": "NOR",
+    "hg": 1,
+    "ag": 2,
+    "match_id": 78,
+    "date": "2026-06-30",
+    "time_et": "17:00",
+    "stage": "Round of 32",
+    "group": null,
+    "stadium": "MetLife Stadium",
+    "city": "East Rutherford",
+    "country_played": "USA",
+    "imdb_score": 6.9,
+    "oneline_comment": ""
+  },
+  {
+    "home": "MEX",
+    "away": "ECU",
+    "hg": 2,
+    "ag": 0,
+    "match_id": 79,
+    "date": "2026-06-30",
+    "time_et": "21:00",
+    "stage": "Round of 32",
+    "group": null,
+    "stadium": "Estadio Azteca",
+    "city": "Mexico City",
+    "country_played": "Mexico",
+    "imdb_score": 7.0,
     "oneline_comment": ""
   },
   {
     "home": "ENG",
     "away": "COD",
-    "hg": null,
-    "ag": null,
+    "hg": 2,
+    "ag": 1,
     "match_id": 80,
     "date": "2026-07-01",
     "time_et": "12:00",
@@ -1212,14 +1276,46 @@
     "stadium": "Mercedes-Benz Stadium",
     "city": "Atlanta",
     "country_played": "USA",
-    "imdb_score": null,
+    "imdb_score": 6.9,
+    "oneline_comment": ""
+  },
+  {
+    "home": "USA",
+    "away": "BIH",
+    "hg": 2,
+    "ag": 0,
+    "match_id": 81,
+    "date": "2026-07-01",
+    "time_et": "16:00",
+    "stage": "Round of 32",
+    "group": null,
+    "stadium": "Lumen Field",
+    "city": "Seattle",
+    "country_played": "USA",
+    "imdb_score": 6.2,
+    "oneline_comment": ""
+  },
+  {
+    "home": "BEL",
+    "away": "SEN",
+    "hg": 2,
+    "ag": 2,
+    "match_id": 82,
+    "date": "2026-07-01",
+    "time_et": "20:00",
+    "stage": "Round of 32",
+    "group": null,
+    "stadium": "Levi's Stadium",
+    "city": "Santa Clara",
+    "country_played": "USA",
+    "imdb_score": 8.3,
     "oneline_comment": ""
   },
   {
     "home": "POR",
     "away": "CRO",
-    "hg": null,
-    "ag": null,
+    "hg": 2,
+    "ag": 1,
     "match_id": 83,
     "date": "2026-07-02",
     "time_et": "15:00",
@@ -1228,6 +1324,38 @@
     "stadium": "SoFi Stadium",
     "city": "Inglewood",
     "country_played": "USA",
+    "imdb_score": null,
+    "oneline_comment": ""
+  },
+  {
+    "home": "ESP",
+    "away": "AUT",
+    "hg": 3,
+    "ag": 0,
+    "match_id": 84,
+    "date": "2026-07-02",
+    "time_et": "19:00",
+    "stage": "Round of 32",
+    "group": null,
+    "stadium": "BMO Field",
+    "city": "Toronto",
+    "country_played": "Canada",
+    "imdb_score": 6.6,
+    "oneline_comment": ""
+  },
+  {
+    "home": "SUI",
+    "away": "ALG",
+    "hg": 2,
+    "ag": 0,
+    "match_id": 85,
+    "date": "2026-07-02",
+    "time_et": "23:00",
+    "stage": "Round of 32",
+    "group": null,
+    "stadium": "BC Place",
+    "city": "Vancouver",
+    "country_played": "Canada",
     "imdb_score": null,
     "oneline_comment": ""
   },
@@ -1244,6 +1372,102 @@
     "stadium": "AT&T Stadium",
     "city": "Arlington",
     "country_played": "USA",
+    "imdb_score": null,
+    "oneline_comment": ""
+  },
+  {
+    "home": "COL",
+    "away": "GHA",
+    "hg": null,
+    "ag": null,
+    "match_id": 87,
+    "date": "2026-07-03",
+    "time_et": "18:00",
+    "stage": "Round of 32",
+    "group": null,
+    "stadium": "Hard Rock Stadium",
+    "city": "Miami Gardens",
+    "country_played": "USA",
+    "imdb_score": null,
+    "oneline_comment": ""
+  },
+  {
+    "home": "AUS",
+    "away": "EGY",
+    "hg": null,
+    "ag": null,
+    "match_id": 88,
+    "date": "2026-07-03",
+    "time_et": "21:30",
+    "stage": "Round of 32",
+    "group": null,
+    "stadium": "Arrowhead Stadium",
+    "city": "Kansas City",
+    "country_played": "USA",
+    "imdb_score": null,
+    "oneline_comment": ""
+  },
+  {
+    "home": "PAR",
+    "away": "FRA",
+    "hg": null,
+    "ag": null,
+    "match_id": 89,
+    "date": "2026-07-04",
+    "time_et": "13:00",
+    "stage": "Round of 16",
+    "group": null,
+    "stadium": "NRG Stadium",
+    "city": "Houston",
+    "country_played": "USA",
+    "imdb_score": null,
+    "oneline_comment": ""
+  },
+  {
+    "home": "CAN",
+    "away": "MAR",
+    "hg": null,
+    "ag": null,
+    "match_id": 90,
+    "date": "2026-07-04",
+    "time_et": "17:00",
+    "stage": "Round of 16",
+    "group": null,
+    "stadium": "Lincoln Financial Field",
+    "city": "Philadelphia",
+    "country_played": "USA",
+    "imdb_score": null,
+    "oneline_comment": ""
+  },
+  {
+    "home": "BRA",
+    "away": "NOR",
+    "hg": null,
+    "ag": null,
+    "match_id": 91,
+    "date": "2026-07-05",
+    "time_et": "16:00",
+    "stage": "Round of 16",
+    "group": null,
+    "stadium": "MetLife Stadium",
+    "city": "East Rutherford",
+    "country_played": "USA",
+    "imdb_score": null,
+    "oneline_comment": ""
+  },
+  {
+    "home": "MEX",
+    "away": "ENG",
+    "hg": null,
+    "ag": null,
+    "match_id": 92,
+    "date": "2026-07-05",
+    "time_et": "20:00",
+    "stage": "Round of 16",
+    "group": null,
+    "stadium": "Estadio Azteca",
+    "city": "Mexico City",
+    "country_played": "Mexico",
     "imdb_score": null,
     "oneline_comment": ""
   }

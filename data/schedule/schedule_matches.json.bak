@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-06-30T12:36:46Z",
+  "last_updated": "2026-07-03T06:43:22Z",
   "source": "FIFA World Cup 2026 Official Schedule",
   "total_matches": 104,
   "matches": [
@@ -900,8 +900,8 @@
       "stadium": "Gillette Stadium",
       "city": "Foxborough",
       "country_played": "USA",
-      "home": "",
-      "away": ""
+      "home": "NED",
+      "away": "MAR"
     },
     {
       "match_id": 76,
@@ -912,8 +912,8 @@
       "stadium": "Estadio BBVA",
       "city": "Monterrey",
       "country_played": "Mexico",
-      "home": "",
-      "away": ""
+      "home": "BRA",
+      "away": "JPN"
     },
     {
       "match_id": 77,
@@ -936,8 +936,8 @@
       "stadium": "MetLife Stadium",
       "city": "East Rutherford",
       "country_played": "USA",
-      "home": "",
-      "away": ""
+      "home": "CIV",
+      "away": "NOR"
     },
     {
       "match_id": 79,
@@ -948,8 +948,8 @@
       "stadium": "Estadio Azteca",
       "city": "Mexico City",
       "country_played": "Mexico",
-      "home": "",
-      "away": ""
+      "home": "MEX",
+      "away": "ECU"
     },
     {
       "match_id": 80,
@@ -972,8 +972,8 @@
       "stadium": "Lumen Field",
       "city": "Seattle",
       "country_played": "USA",
-      "home": "",
-      "away": ""
+      "home": "USA",
+      "away": "BIH"
     },
     {
       "match_id": 82,
@@ -984,8 +984,8 @@
       "stadium": "Levi's Stadium",
       "city": "Santa Clara",
       "country_played": "USA",
-      "home": "",
-      "away": ""
+      "home": "BEL",
+      "away": "SEN"
     },
     {
       "match_id": 83,
@@ -1008,8 +1008,8 @@
       "stadium": "BMO Field",
       "city": "Toronto",
       "country_played": "Canada",
-      "home": "",
-      "away": ""
+      "home": "ESP",
+      "away": "AUT"
     },
     {
       "match_id": 85,
@@ -1020,8 +1020,8 @@
       "stadium": "BC Place",
       "city": "Vancouver",
       "country_played": "Canada",
-      "home": "",
-      "away": ""
+      "home": "SUI",
+      "away": "ALG"
     },
     {
       "match_id": 86,
@@ -1044,8 +1044,8 @@
       "stadium": "Hard Rock Stadium",
       "city": "Miami Gardens",
       "country_played": "USA",
-      "home": "",
-      "away": ""
+      "home": "COL",
+      "away": "GHA"
     },
     {
       "match_id": 88,
@@ -1056,8 +1056,8 @@
       "stadium": "Arrowhead Stadium",
       "city": "Kansas City",
       "country_played": "USA",
-      "home": "",
-      "away": ""
+      "home": "AUS",
+      "away": "EGY"
     },
     {
       "match_id": 89,
@@ -1068,8 +1068,8 @@
       "stadium": "NRG Stadium",
       "city": "Houston",
       "country_played": "USA",
-      "home": "",
-      "away": ""
+      "home": "PAR",
+      "away": "FRA"
     },
     {
       "match_id": 90,
@@ -1080,8 +1080,8 @@
       "stadium": "Lincoln Financial Field",
       "city": "Philadelphia",
       "country_played": "USA",
-      "home": "",
-      "away": ""
+      "home": "CAN",
+      "away": "MAR"
     },
     {
       "match_id": 91,
@@ -1092,8 +1092,8 @@
       "stadium": "MetLife Stadium",
       "city": "East Rutherford",
       "country_played": "USA",
-      "home": "",
-      "away": ""
+      "home": "BRA",
+      "away": "NOR"
     },
     {
       "match_id": 92,
@@ -1104,8 +1104,8 @@
       "stadium": "Estadio Azteca",
       "city": "Mexico City",
       "country_played": "Mexico",
-      "home": "",
-      "away": ""
+      "home": "MEX",
+      "away": "ENG"
     },
     {
       "match_id": 93,
