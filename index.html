@@ -437,13 +437,27 @@ class Component extends DCLogic {
           return [h, a];
         });
     };
+    // Prefer the real bracket pairings from the schedule; only fall back to
+    // computed seeding/sequential pairing for stages that don't have real
+    // teams assigned yet (future rounds still marked TBD in the schedule).
+    const hasRealTeams = (pairs) => pairs.length > 0 && pairs.every(([h,a]) => h.code!=='TBD' && a.code!=='TBD');
+
     const schedR32 = koFromSchedule('Round of 32');
-    const r32=playKO('R32','Round of 32', schedR32.length ? schedR32 : r32pairs);
-    const r16=playKO('R16','Round of 16', pairSeq(r32.outW));
-    const qf=playKO('QF','Quarter-final', pairSeq(r16.outW));
-    const sf=playKO('SF','Semi-final', pairSeq(qf.outW));
-    playKO('FIN','Third place', [[sf.outL[0], sf.outL[1]]]);
-    playKO('FIN','Final', [[sf.outW[0], sf.outW[1]]]);
+    const r32=playKO('R32','Round of 32', hasRealTeams(schedR32) ? schedR32 : r32pairs);
+
+    const schedR16 = koFromSchedule('Round of 16');
+    const r16=playKO('R16','Round of 16', hasRealTeams(schedR16) ? schedR16 : pairSeq(r32.outW));
+
+    const schedQF = koFromSchedule('Quarterfinal');
+    const qf=playKO('QF','Quarter-final', hasRealTeams(schedQF) ? schedQF : pairSeq(r16.outW));
+
+    const schedSF = koFromSchedule('Semifinal');
+    const sf=playKO('SF','Semi-final', hasRealTeams(schedSF) ? schedSF : pairSeq(qf.outW));
+
+    const schedThird = koFromSchedule('Third Place');
+    const schedFinal = koFromSchedule('Final');
+    playKO('FIN','Third place', hasRealTeams(schedThird) ? schedThird : [[sf.outL[0], sf.outL[1]]]);
+    playKO('FIN','Final', hasRealTeams(schedFinal) ? schedFinal : [[sf.outW[0], sf.outW[1]]]);
 
     let realCount=0; Object.values(cols).forEach(l=>l.forEach(m=>{ if(m.isReal) realCount++; }));
     return {cols, order, realCount};
