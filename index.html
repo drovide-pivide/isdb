@@ -118,10 +118,10 @@
     <!-- BRACKET PANEL -->
     <sc-if value="{{ showBracket }}" hint-placeholder-val="{{ false }}">
     <div style="background:#0e121a;border:1px solid rgba(255,255,255,0.07);border-radius:18px;padding:18px 20px 22px">
-      <div class="bracket-wrap">
+      <div class="bracket-wrap" data-key="{{ bracketScrollKey }}">
         <div class="bracket-grid">
           <sc-for list="{{ bracketCols }}" as="bcol" hint-placeholder-count="5">
-            <div class="bracket-col" style="{{ bcol.colStyle }}">
+            <div class="bracket-col" id="{{ bcol.id }}" style="{{ bcol.colStyle }}">
               <div class="bracket-col-head" style="{{ bcol.headStyle }}">{{ bcol.label }}</div>
               <sc-for list="{{ bcol.matches }}" as="bm" hint-placeholder-count="16">
                 <div style="{{ bm.wrapStyle }}">
@@ -355,8 +355,8 @@ class Component extends DCLogic {
     const real = {};
     matchesRaw.forEach(m => {
       if(m.hg !== null && m.ag !== null) {
-        real[m.home + '|' + m.away] = { hg: m.hg, ag: m.ag, imdb_score: m.imdb_score ?? null };
-        real[m.away + '|' + m.home] = { hg: m.ag, ag: m.hg, imdb_score: m.imdb_score ?? null };
+        real[m.home + '|' + m.away] = { hg: m.hg, ag: m.ag, imdb_score: m.imdb_score ?? null, date: m.date, time_et: m.time_et };
+        real[m.away + '|' + m.home] = { hg: m.ag, ag: m.hg, imdb_score: m.imdb_score ?? null, date: m.date, time_et: m.time_et };
       }
     });
 
@@ -370,13 +370,17 @@ class Component extends DCLogic {
       let hg=0,ag=0,isReal=false;
       if(real[key]){ hg=real[key].hg; ag=real[key].ag; isReal=true; }
       if(isReal){ addPts(g,home,hg,ag); addPts(g,away,ag,hg); }
-      cols[stageKey].push(this.makeMatch(id,stageKey,roundName,home,away,hg,ag,isReal,real[key]?.imdb_score ?? null));
+      const m=this.makeMatch(id,stageKey,roundName,home,away,hg,ag,isReal,real[key]?.imdb_score ?? null);
+      m.date = real[key]?.date ?? null;
+      m.time_et = real[key]?.time_et ?? null;
+      cols[stageKey].push(m);
     };
     order.forEach(g=>{ const t=teams[g];
       mkGroup('MD1','Matchday 1',g,t[0],t[1]); mkGroup('MD1','Matchday 1',g,t[2],t[3]);
       mkGroup('MD2','Matchday 2',g,t[0],t[2]); mkGroup('MD2','Matchday 2',g,t[1],t[3]);
       mkGroup('MD3','Matchday 3',g,t[0],t[3]); mkGroup('MD3','Matchday 3',g,t[1],t[2]);
     });
+
 
     const rankFn=(a,b)=> b.pts-a.pts || (b.gf-b.ga)-(a.gf-a.ga) || b.gf-a.gf || (b.t.str??70)-(a.t.str??70);
     const TBD = {code:'TBD', name:'TBD', c1:'#333', c2:'#555', str:70, flag:'', grp:''};
@@ -484,7 +488,8 @@ class Component extends DCLogic {
     const filt=m=> grp==='All' || m.home.grp===grp || m.away.grp===grp;
 
     const colLists=order.map(k=>{
-      let list=this.data.cols[k].filter(filt);
+      // Skip placeholder TBD vs TBD matches here too — same reasoning as the bracket view.
+      let list=this.data.cols[k].filter(filt).filter(m => m.home.code !== 'TBD' && m.away.code !== 'TBD');
       if(sort==='rating') list=list.slice().sort((a,b)=>{
         if(a.rating===null && b.rating===null) return 0;
         if(a.rating===null) return 1;
@@ -576,8 +581,78 @@ class Component extends DCLogic {
       const iconW = compact ? 21 : 24;
       const iconH = compact ? 16 : 18;
 
+      // Shared bubble color/flag logic (used for both knockout and group cells)
+      const buildBubbleCommon = (m) => {
+        const hasTeams = m.home.code !== 'TBD';
+        const isPlayed = m.hasScore;
+        const hasRating = m.rating !== null;
+        const bg = (isPlayed && hasRating) ? m.bg : (isPlayed ? '#1a1f2a' : 'transparent');
+        const fg = (isPlayed && hasRating) ? m.fg : (isPlayed ? '#5b6473' : '#5b6473');
+        const showFlags = hasRating;
+        const tint = (isPlayed && hasRating) ? m.bg.replace('rgb(','rgba(').replace(')',',0.30)') : 'rgba(255,255,255,0.08)';
+        const flagBase = {position:'absolute', width:iconW+'px', height:iconH+'px', borderRadius:'4px', objectFit:'cover', boxShadow:'inset 0 0 0 '+iconW+'px '+tint+', 0 1px 3px rgba(0,0,0,0.45)'};
+        return {hasTeams, isPlayed, hasRating, bg, fg,
+          homeFlagStyle: (hasTeams && showFlags) ? {...flagBase, left:'6px'} : {display:'none'},
+          awayFlagStyle: (hasTeams && showFlags) ? {...flagBase, right:'6px'} : {display:'none'}};
+      };
+
+      // Group-stage columns: one per group (A–L), all 6 matches, sorted
+      // by actual kickoff time (date + time_et) rather than matchday order.
+      this.data.order.forEach((g) => {
+        const groupMatches = []
+          .concat(this.data.cols.MD1, this.data.cols.MD2, this.data.cols.MD3)
+          .filter(m => m.home.grp === g)
+          .filter(filt)
+          .sort((a, b) => {
+            const ka = (a.date ?? '') + 'T' + (a.time_et ?? '');
+            const kb = (b.date ?? '') + 'T' + (b.time_et ?? '');
+            return ka.localeCompare(kb);
+          });
+        if(groupMatches.length === 0) return;
+
+        const count = groupMatches.length;
+        const matches = groupMatches.map((m, mi) => {
+          const {bg, fg, homeFlagStyle, awayFlagStyle, isPlayed, hasRating} = buildBubbleCommon(m);
+          const stageColor = 'rgba(255,255,255,0.12)';
+          const outline = `inset 0 1px 0 rgba(255,255,255,0.13), inset 0 -1px 0 rgba(0,0,0,0.25), 0 0 0 1px ${stageColor}`;
+          const style = {position:'relative', width:bubbleW+'px', height:bubbleH+'px', borderRadius:'7px', display:'flex', alignItems:'center', justifyContent:'center', padding:'0 6px', overflow:'hidden', background:bg, color:fg, cursor:'pointer', transition:'transform .09s ease, box-shadow .09s ease', boxShadow:outline};
+          const scoreRowStyle = {display:'flex', alignItems:'center', justifyContent:'center', fontFamily:"'DM Mono',monospace", fontSize:(compact?11:12)+'px', fontWeight:500, position:'relative', zIndex:1};
+          const cellHoverStyle = {transform:'scale(1.09)', zIndex:5, boxShadow:'0 8px 20px rgba(0,0,0,0.55)'};
+          const mb = (mi < count - 1) ? baseGap : 0;
+          const wrapStyle = {position:'relative', marginBottom: mb + 'px'};
+
+          return {
+            wrapStyle,
+            showLabel: false,
+            labelText: '',
+            style, hover: cellHoverStyle,
+            homeFlag: m.home.flag, awayFlag: m.away.flag,
+            homeFlagStyle, awayFlagStyle,
+            score: isPlayed ? (hasRating ? m.rating.toFixed(1) : '–') : '',
+            scoreRowStyle,
+            connectors: [],
+            onClick: () => this.setState({sel: m, hover: null}),
+            onEnter: (e) => { const w=e.currentTarget.offsetWidth; const wide=w>=(iconW*2+16); if(wide){ const flags=[...e.currentTarget.querySelectorAll('.cell-flag')]; if(flags[0]){flags[0].style.display='block';flags[0].style.position='absolute';flags[0].style.left='6px';flags[0].style.width=iconW+'px';flags[0].style.height=iconH+'px';flags[0].style.borderRadius='4px';flags[0].style.objectFit='cover';} if(flags[1]){flags[1].style.display='block';flags[1].style.position='absolute';flags[1].style.right='6px';flags[1].style.width=iconW+'px';flags[1].style.height=iconH+'px';flags[1].style.borderRadius='4px';flags[1].style.objectFit='cover';}} this.setState({hover:{m, x:e.clientX, y:e.clientY}}); },
+            onMove: (e) => this.setState(s=>(s.hover&&s.hover.m===m)?{hover:{m,x:e.clientX,y:e.clientY}}:null),
+            onLeave: (e) => { e.currentTarget.querySelectorAll('.cell-flag').forEach(f=>{f.style.display='none';}); this.setState(s=>(s.hover&&s.hover.m===m)?{hover:null}:null); }
+          };
+        });
+
+        bracketCols.push({
+          id: '',
+          label: 'GROUP ' + g,
+          colStyle: {paddingTop: '0px', marginRight:'42px', minWidth:bubbleW+'px'},
+          headStyle: {color: accent},
+          matches
+        });
+      });
+      const groupColCount = bracketCols.length;
+
       koStages.forEach((stageKey, ci) => {
-        let stageMatches = this.data.cols[stageKey].filter(filt);
+        // Only show bubbles for matches whose teams are actually known —
+        // skip placeholder TBD vs TBD matches in rounds that haven't
+        // been determined yet (e.g. QF/SF/Final before earlier rounds finish).
+        let stageMatches = this.data.cols[stageKey].filter(filt).filter(m => m.home.code !== 'TBD');
         const count = stageMatches.length;
         const spacing = baseUnit * Math.pow(2, ci);
         const gap = spacing - bubbleH;
@@ -646,14 +721,33 @@ class Component extends DCLogic {
         });
 
         const headColor = stageKey === 'FIN' ? '#ff4d8d' : accent;
+        const isFirstKoCol = ci === 0;
+        const dividerStyle = (isFirstKoCol && groupColCount > 0)
+          ? {borderLeft:'1px dashed rgba(255,255,255,0.16)', paddingLeft:'28px', marginLeft:'6px'}
+          : {};
         bracketCols.push({
+          id: isFirstKoCol ? 'ko-start' : '',
           label: koLabels[ci],
-          colStyle: {paddingTop: topOffset+'px', marginRight:'42px', minWidth:bubbleW+'px'},
+          colStyle: {paddingTop: topOffset+'px', marginRight:'42px', minWidth:bubbleW+'px', ...dividerStyle},
           headStyle: {color: headColor},
           matches
         });
       });
+
+      // Trailing spacer after the Final column. Its width is set by JS at
+      // runtime to exactly (viewport width − bracket width), so the max
+      // scroll position lands precisely with R32 flush against the left
+      // edge — never further, and never short of it.
+      bracketCols.push({
+        id: 'bracket-spacer',
+        label: '',
+        colStyle: {minWidth:'0px'},
+        headStyle: {},
+        matches: []
+      });
     }
+    const bracketScrollKey = grp + ':' + bracketCols.length;
+
 
     const shown=[].concat(...colLists);
     const shownCount=shown.length;
@@ -724,12 +818,50 @@ class Component extends DCLogic {
 
     return {
       accent, rows, rowLabelStyle, headers, groupPills, sortPills, viewPills, gridColMin,
-      showSort, showGrid, showBracket, bracketCols,
+      showSort, showGrid, showBracket, bracketCols, bracketScrollKey,
       shownCount, realCount, avgScore, avgLabel, avgLinePos, sortNote,
       hover, sel, closeDrawer:()=>this.setState({sel:null}), closeHover:{background:'#252b37', color:'#fff'}
     };
   }
 }
+</script>
+<script>
+(function(){
+  var lastKey = null;
+  var hadWrap = false;
+
+  function sizeSpacer(wrap, marker, spacer){
+    // Width of everything from R32 through Final, excluding the spacer —
+    // measured via bounding rects so it's unaffected by current scroll.
+    var bracketWidth = spacer.getBoundingClientRect().left - marker.getBoundingClientRect().left;
+    var needed = Math.max(0, wrap.clientWidth - bracketWidth);
+    spacer.style.width = needed + 'px';
+    spacer.style.minWidth = needed + 'px';
+  }
+
+  function layout(force){
+    var wrap = document.querySelector('.bracket-wrap');
+    if(!wrap){ hadWrap = false; lastKey = null; return; }
+    var marker = wrap.querySelector('#ko-start');
+    var spacer = wrap.querySelector('#bracket-spacer');
+    if(!marker || !spacer){ hadWrap = true; return; }
+    var key = wrap.getAttribute('data-key');
+    if(force || !hadWrap || key !== lastKey){
+      sizeSpacer(wrap, marker, spacer);
+      // Align the start of the knockout bracket to the left edge. Because
+      // the spacer is sized to exactly fill the remaining viewport width,
+      // this is also the furthest right the container can scroll — R32
+      // flush left is the max, groups are the min.
+      marker.scrollIntoView({inline: 'start', block: 'nearest'});
+      lastKey = key;
+    }
+    hadWrap = true;
+  }
+
+  new MutationObserver(function(){ layout(false); }).observe(document.documentElement, {childList:true, subtree:true});
+  window.addEventListener('resize', function(){ layout(true); });
+  layout(true);
+})();
 </script>
 </body>
 </html>
