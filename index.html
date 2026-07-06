@@ -120,6 +120,26 @@
     <div style="background:#0e121a;border:1px solid rgba(255,255,255,0.07);border-radius:18px;padding:18px 20px 22px">
       <div class="bracket-wrap" data-key="{{ bracketScrollKey }}">
         <div class="bracket-grid">
+          <div class="groups-block" style="{{ groupsBlockStyle }}">
+            <sc-for list="{{ groupRows }}" as="grow" hint-placeholder-count="2">
+              <div class="groups-row" style="display:flex">
+                <sc-for list="{{ grow }}" as="bcol" hint-placeholder-count="6">
+                  <div class="bracket-col" style="{{ bcol.colStyle }}">
+                    <div class="bracket-col-head" style="{{ bcol.headStyle }}">{{ bcol.label }}</div>
+                    <sc-for list="{{ bcol.matches }}" as="bm" hint-placeholder-count="6">
+                      <div style="{{ bm.wrapStyle }}">
+                        <div class="isdb-cell" style="{{ bm.style }}" style-hover="{{ bm.hover }}" onClick="{{ bm.onClick }}" onMouseEnter="{{ bm.onEnter }}" onMouseMove="{{ bm.onMove }}" onMouseLeave="{{ bm.onLeave }}">
+                          <img class="cell-flag" src="{{ bm.homeFlag }}" style="{{ bm.homeFlagStyle }}" />
+                          <div style="{{ bm.scoreRowStyle }}">{{ bm.score }}</div>
+                          <img class="cell-flag" src="{{ bm.awayFlag }}" style="{{ bm.awayFlagStyle }}" />
+                        </div>
+                      </div>
+                    </sc-for>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-for>
+          </div>
           <sc-for list="{{ bracketCols }}" as="bcol" hint-placeholder-count="5">
             <div class="bracket-col" id="{{ bcol.id }}" style="{{ bcol.colStyle }}">
               <div class="bracket-col-head" style="{{ bcol.headStyle }}">{{ bcol.label }}</div>
@@ -571,6 +591,8 @@ class Component extends DCLogic {
 
     // Build bracket data
     const bracketCols = [];
+    let groupRows = [];
+    let groupsBlockStyle = {display:'none'};
     if(showBracket){
       const koStages = ['R32','R16','QF','SF','FIN'];
       const koLabels = ['ROUND OF 32','ROUND OF 16','QUARTER-FINALS','SEMI-FINALS','FINAL'];
@@ -596,9 +618,11 @@ class Component extends DCLogic {
           awayFlagStyle: (hasTeams && showFlags) ? {...flagBase, right:'6px'} : {display:'none'}};
       };
 
-      // Group-stage columns: one per group (A–L), all 6 matches, sorted
-      // by actual kickoff time (date + time_et) rather than matchday order.
-      this.data.order.forEach((g) => {
+      // Group-stage columns: A–L split into two rows of six (A–F on top,
+      // G–L below) instead of one long row of 12 — there's vertical room
+      // next to the knockout rounds, so this halves the horizontal space
+      // the groups take up.
+      const groupCols = this.data.order.map((g) => {
         const groupMatches = []
           .concat(this.data.cols.MD1, this.data.cols.MD2, this.data.cols.MD3)
           .filter(m => m.home.grp === g)
@@ -608,7 +632,7 @@ class Component extends DCLogic {
             const kb = (b.date ?? '') + 'T' + (b.time_et ?? '');
             return ka.localeCompare(kb);
           });
-        if(groupMatches.length === 0) return;
+        if(groupMatches.length === 0) return null;
 
         const count = groupMatches.length;
         const matches = groupMatches.map((m, mi) => {
@@ -638,15 +662,21 @@ class Component extends DCLogic {
           };
         });
 
-        bracketCols.push({
+        return {
           id: '',
           label: 'GROUP ' + g,
-          colStyle: {paddingTop: '0px', marginRight:'42px', minWidth:bubbleW+'px'},
+          colStyle: {paddingTop: '0px', marginRight:'18px', minWidth:bubbleW+'px'},
           headStyle: {color: accent},
           matches
-        });
-      });
-      const groupColCount = bracketCols.length;
+        };
+      }).filter(Boolean);
+
+      const half = Math.ceil(this.data.order.length / 2);
+      groupRows = [groupCols.slice(0, half), groupCols.slice(half)].filter(row => row.length > 0);
+      const hasGroups = groupRows.length > 0;
+      groupsBlockStyle = hasGroups
+        ? {display:'flex', flexDirection:'column', gap:'18px', borderRight:'1px dashed rgba(255,255,255,0.16)', paddingRight:'28px', marginRight:'34px'}
+        : {display:'none'};
 
       koStages.forEach((stageKey, ci) => {
         // Only show bubbles for matches whose teams are actually known —
@@ -722,13 +752,10 @@ class Component extends DCLogic {
 
         const headColor = stageKey === 'FIN' ? '#ff4d8d' : accent;
         const isFirstKoCol = ci === 0;
-        const dividerStyle = (isFirstKoCol && groupColCount > 0)
-          ? {borderLeft:'1px dashed rgba(255,255,255,0.16)', paddingLeft:'28px', marginLeft:'6px'}
-          : {};
         bracketCols.push({
           id: isFirstKoCol ? 'ko-start' : '',
           label: koLabels[ci],
-          colStyle: {paddingTop: topOffset+'px', marginRight:'42px', minWidth:bubbleW+'px', ...dividerStyle},
+          colStyle: {paddingTop: topOffset+'px', marginRight:'42px', minWidth:bubbleW+'px'},
           headStyle: {color: headColor},
           matches
         });
@@ -818,7 +845,7 @@ class Component extends DCLogic {
 
     return {
       accent, rows, rowLabelStyle, headers, groupPills, sortPills, viewPills, gridColMin,
-      showSort, showGrid, showBracket, bracketCols, bracketScrollKey,
+      showSort, showGrid, showBracket, bracketCols, bracketScrollKey, groupRows, groupsBlockStyle,
       shownCount, realCount, avgScore, avgLabel, avgLinePos, sortNote,
       hover, sel, closeDrawer:()=>this.setState({sel:null}), closeHover:{background:'#252b37', color:'#fff'}
     };
