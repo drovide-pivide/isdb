@@ -20,12 +20,10 @@
   ::-webkit-scrollbar-track{background:transparent}
   @keyframes isdbDrawer{from{transform:translateX(30px);opacity:0}to{transform:translateX(0);opacity:1}}
   @keyframes isdbFlagIn{from{opacity:0;transform:scale(1.06)}to{opacity:1;transform:scale(1)}}
-  .col-sublabel { display: block; }
-  @container grid-container (max-width: 480px) { .col-sublabel { display: none; } }
   .bracket-wrap{overflow-x:auto;padding:8px 0 18px}
   .bracket-grid{display:flex;align-items:flex-start;gap:0;min-width:max-content}
   .bracket-col{display:flex;flex-direction:column;position:relative}
-  .bracket-col-head{font-family:'Saira',sans-serif;font-size:11px;letter-spacing:1.5px;color:#7d8696;text-align:center;padding:0 0 10px;white-space:nowrap}
+  .bracket-col-head{font-family:'Saira',sans-serif;font-weight:800;font-size:16px;letter-spacing:-0.5px;text-align:center;padding:0 0 6px;white-space:nowrap}
   .bracket-connector{position:absolute}
 
 </style>
@@ -60,18 +58,15 @@
 
     <!-- CONTROLS -->
     <div style="display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;margin-bottom:16px">
-      <div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap">
-        <span style="font-family:'Saira',sans-serif;font-size:11px;letter-spacing:1.5px;color:#7d8696">GROUP</span>
-        <sc-for list="{{ groupPills }}" as="pill" hint-placeholder-count="13">
-          <div style="{{ pill.style }}" style-hover="{{ pill.hover }}" onClick="{{ pill.onClick }}">{{ pill.label }}</div>
-        </sc-for>
-      </div>
-      <div style="display:flex;align-items:center;gap:18px">
+      <div style="display:flex;align-items:center;gap:18px;flex-wrap:wrap">
         <div style="display:flex;align-items:center;gap:10px">
           <span style="font-family:'Saira',sans-serif;font-size:11px;letter-spacing:1.5px;color:#7d8696">VIEW</span>
-          <sc-for list="{{ viewPills }}" as="pill" hint-placeholder-count="2">
-            <div style="{{ pill.style }}" style-hover="{{ pill.hover }}" onClick="{{ pill.onClick }}">{{ pill.label }}</div>
-          </sc-for>
+          <div style="{{ viewSwitch.trackStyle }}">
+            <div style="{{ viewSwitch.thumbStyle }}"></div>
+            <sc-for list="{{ viewSwitch.options }}" as="opt" hint-placeholder-count="2">
+              <div style="{{ opt.style }}" onClick="{{ opt.onClick }}">{{ opt.label }}</div>
+            </sc-for>
+          </div>
         </div>
         <sc-if value="{{ showSort }}" hint-placeholder-val="{{ true }}">
           <div style="display:flex;align-items:center;gap:10px">
@@ -95,7 +90,6 @@
           <sc-for list="{{ headers }}" as="h" hint-placeholder-count="8">
             <div style="display:flex;flex-direction:column;align-items:center;gap:2px;padding-bottom:6px">
               <span style="font-weight:800;font-size:16px;letter-spacing:-0.5px;color:{{ h.color }}">{{ h.abbr }}</span>
-              <span class="col-sublabel" style="font-family:'Saira',sans-serif;font-size:8.5px;color:#6b7280;letter-spacing:0.4px;text-align:center;white-space:nowrap">{{ h.name }}</span>
             </div>
           </sc-for>
           <!-- rows -->
@@ -121,6 +115,7 @@
       <div class="bracket-wrap" data-key="{{ bracketScrollKey }}">
         <div class="bracket-grid">
           <div class="groups-block" style="{{ groupsBlockStyle }}">
+            <div style="{{ groupStageLabelStyle }}">GROUP STAGE</div>
             <sc-for list="{{ groupRows }}" as="grow" hint-placeholder-count="2">
               <div class="groups-row" style="display:flex">
                 <sc-for list="{{ grow }}" as="bcol" hint-placeholder-count="6">
@@ -272,7 +267,7 @@
 class Component extends DCLogic {
   constructor(props){
     super(props);
-    this.state = { group:'All', sort:'order', view:'grid', sel:null, hover:null, ready:false };
+    this.state = { group:'All', sort:'order', view:'bracket', sel:null, hover:null, ready:false };
     this.VERDICTS = {
       Classic:['An instant classic — football at its absolute peak.','One for the ages. Drama from first whistle to last.','Pure theatre. They will replay this for decades.'],
       Thriller:['A thrilling, end-to-end contest with real quality.','Tense, technical and hugely entertaining throughout.','Two good sides going at it — proper tournament football.'],
@@ -575,27 +570,41 @@ class Component extends DCLogic {
       {abbr:'F', name:'FINAL', color:'#ff4d8d'}
     ];
 
-    const gps=['All','A','B','C','D','E','F','G','H','I','J','K','L'];
     const pillHover={background:'#1f2532', color:'#dfe4ec'};
-    const groupPills=gps.map(g=>{
-      const s=this.pillStyle(g===grp, accent);
-      return {label:g, style: g==='All' ? {...s, padding: (typeof window !== 'undefined' && window.innerWidth < 640) ? '4px 14px' : '6px 24px'} : s, hover: g===grp?undefined:pillHover, onClick:()=>this.setState({group:g, sel:null})};
-    });
     const sortPills=[['order','Schedule'],['rating','Rating']].map(p=>({label:p[1], style:this.pillStyle(p[0]===sort, accent), hover: p[0]===sort?undefined:pillHover, onClick:()=>this.setState({sort:p[0]})}));
 
     const currentView = this.state.view;
-    const viewPills=[['grid','Grid'],['bracket','Bracket']].map(p=>({label:p[1], style:this.pillStyle(p[0]===currentView, accent), hover: p[0]===currentView?undefined:pillHover, onClick:()=>this.setState({view:p[0]})}));
     const showSort = currentView === 'grid';
     const showGrid = currentView === 'grid';
     const showBracket = currentView === 'bracket';
+
+    // Slide-switch style VIEW toggle (distinct from the pill buttons used elsewhere)
+    const mobileNow = typeof window !== 'undefined' && window.innerWidth < 640;
+    const switchOptDefs = [['grid','Grid'],['bracket','Bracket']];
+    const switchOptW = mobileNow ? 58 : 68;
+    const switchOptH = mobileNow ? 24 : 28;
+    const activeIdx = switchOptDefs.findIndex(p=>p[0]===currentView);
+    const viewSwitch = {
+      trackStyle: {position:'relative', display:'flex', alignItems:'center', gap:'2px', background:'#161b25', border:'1px solid rgba(255,255,255,0.08)', borderRadius:'999px', padding:'3px', userSelect:'none'},
+      thumbStyle: {position:'absolute', top:'3px', left:'3px', width:switchOptW+'px', height:switchOptH+'px', borderRadius:'999px', background:accent, boxShadow:'0 2px 8px rgba(0,0,0,0.35)', transition:'transform .18s cubic-bezier(.2,.7,.2,1)', transform:'translateX('+(activeIdx*(switchOptW+2))+'px)'},
+      options: switchOptDefs.map(p=>{
+        const active = p[0]===currentView;
+        return {
+          label:p[1],
+          style:{position:'relative', zIndex:1, width:switchOptW+'px', height:switchOptH+'px', display:'flex', alignItems:'center', justifyContent:'center', borderRadius:'999px', fontFamily:"'Saira',sans-serif", fontWeight:600, fontSize:(mobileNow?11:12.5)+'px', cursor:'pointer', color: active ? '#0b0e14' : '#aeb6c4', transition:'color .15s'},
+          onClick:()=>this.setState({view:p[0]})
+        };
+      })
+    };
 
     // Build bracket data
     const bracketCols = [];
     let groupRows = [];
     let groupsBlockStyle = {display:'none'};
+    let groupStageLabelStyle = {display:'none'};
     if(showBracket){
       const koStages = ['R32','R16','QF','SF','FIN'];
-      const koLabels = ['ROUND OF 32','ROUND OF 16','QUARTER-FINALS','SEMI-FINALS','FINAL'];
+      const koLabels = ['R32','R16','QF','SF','F'];
       const bubbleH = H; // same height as grid cells
       const baseGap = 10;
       const baseUnit = bubbleH + baseGap;
@@ -664,9 +673,9 @@ class Component extends DCLogic {
 
         return {
           id: '',
-          label: 'GROUP ' + g,
+          label: g,
           colStyle: {paddingTop: '0px', marginRight:'18px', minWidth:bubbleW+'px'},
-          headStyle: {color: accent},
+          headStyle: {fontWeight:600, fontSize:'14px', letterSpacing:'0.5px', color: accent},
           matches
         };
       }).filter(Boolean);
@@ -676,6 +685,9 @@ class Component extends DCLogic {
       const hasGroups = groupRows.length > 0;
       groupsBlockStyle = hasGroups
         ? {display:'flex', flexDirection:'column', gap:'18px', borderRight:'1px dashed rgba(255,255,255,0.16)', paddingRight:'28px', marginRight:'34px'}
+        : {display:'none'};
+      groupStageLabelStyle = hasGroups
+        ? {fontFamily:"'Saira',sans-serif", fontWeight:800, fontSize:'16px', letterSpacing:'-0.5px', color:'#eef1f6', textAlign:'left', padding:'0 0 4px', whiteSpace:'nowrap'}
         : {display:'none'};
 
       koStages.forEach((stageKey, ci) => {
@@ -844,8 +856,8 @@ class Component extends DCLogic {
     }
 
     return {
-      accent, rows, rowLabelStyle, headers, groupPills, sortPills, viewPills, gridColMin,
-      showSort, showGrid, showBracket, bracketCols, bracketScrollKey, groupRows, groupsBlockStyle,
+      accent, rows, rowLabelStyle, headers, sortPills, viewSwitch, gridColMin,
+      showSort, showGrid, showBracket, bracketCols, bracketScrollKey, groupRows, groupsBlockStyle, groupStageLabelStyle,
       shownCount, realCount, avgScore, avgLabel, avgLinePos, sortNote,
       hover, sel, closeDrawer:()=>this.setState({sel:null}), closeHover:{background:'#252b37', color:'#fff'}
     };
@@ -866,6 +878,14 @@ class Component extends DCLogic {
     spacer.style.minWidth = needed + 'px';
   }
 
+  function scrollWrapToMarker(wrap, marker){
+    // Scroll only wrap's own horizontal scrollbar so switching into bracket
+    // view never causes the page itself to scroll vertically.
+    var markerLeft = marker.getBoundingClientRect().left;
+    var wrapLeft = wrap.getBoundingClientRect().left;
+    wrap.scrollLeft = wrap.scrollLeft + (markerLeft - wrapLeft);
+  }
+
   function layout(force){
     var wrap = document.querySelector('.bracket-wrap');
     if(!wrap){ hadWrap = false; lastKey = null; return; }
@@ -879,7 +899,7 @@ class Component extends DCLogic {
       // the spacer is sized to exactly fill the remaining viewport width,
       // this is also the furthest right the container can scroll — R32
       // flush left is the max, groups are the min.
-      marker.scrollIntoView({inline: 'start', block: 'nearest'});
+      scrollWrapToMarker(wrap, marker);
       lastKey = key;
     }
     hadWrap = true;
