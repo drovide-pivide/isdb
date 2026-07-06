@@ -100,6 +100,8 @@
                 <img class="cell-flag" src="{{ cell.homeFlag }}" style="{{ cell.homeFlagStyle }}" />
                 <div style="{{ cell.scoreRowStyle }}">{{ cell.score }}</div>
                 <img class="cell-flag" src="{{ cell.awayFlag }}" style="{{ cell.awayFlagStyle }}" />
+                <img class="decided-icon" src="{{ cell.decidedIcon1Src }}" style="{{ cell.decidedIcon1Style }}" />
+                <img class="decided-icon" src="{{ cell.decidedIcon2Src }}" style="{{ cell.decidedIcon2Style }}" />
               </div>
             </sc-for>
           </sc-for>
@@ -127,6 +129,8 @@
                           <img class="cell-flag" src="{{ bm.homeFlag }}" style="{{ bm.homeFlagStyle }}" />
                           <div style="{{ bm.scoreRowStyle }}">{{ bm.score }}</div>
                           <img class="cell-flag" src="{{ bm.awayFlag }}" style="{{ bm.awayFlagStyle }}" />
+                          <img class="decided-icon" src="{{ bm.decidedIcon1Src }}" style="{{ bm.decidedIcon1Style }}" />
+                          <img class="decided-icon" src="{{ bm.decidedIcon2Src }}" style="{{ bm.decidedIcon2Style }}" />
                         </div>
                       </div>
                     </sc-for>
@@ -147,6 +151,8 @@
                     <img class="cell-flag" src="{{ bm.homeFlag }}" style="{{ bm.homeFlagStyle }}" />
                     <div style="{{ bm.scoreRowStyle }}">{{ bm.score }}</div>
                     <img class="cell-flag" src="{{ bm.awayFlag }}" style="{{ bm.awayFlagStyle }}" />
+                    <img class="decided-icon" src="{{ bm.decidedIcon1Src }}" style="{{ bm.decidedIcon1Style }}" />
+                    <img class="decided-icon" src="{{ bm.decidedIcon2Src }}" style="{{ bm.decidedIcon2Style }}" />
                   </div>
                   <sc-for list="{{ bm.connectors }}" as="conn" hint-placeholder-count="0">
                     <div class="bracket-connector" style="{{ conn.style }}"></div>
@@ -200,6 +206,15 @@
           <span style="font-size:10px;color:#9aa3b2;font-weight:600;letter-spacing:0.3px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:68px">{{ hover.away.name }}</span>
         </div>
       </div>
+      <sc-if value="{{ hover.showDecided }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;justify-content:center;align-items:center;gap:5px;margin:-2px 0 8px">
+          <img src="{{ hover.decidedIcon1Src }}" style="{{ hover.decidedIcon1Style }}" />
+          <img src="{{ hover.decidedIcon2Src }}" style="{{ hover.decidedIcon2Style }}" />
+        </div>
+      </sc-if>
+      <sc-if value="{{ hover.showResultNote }}" hint-placeholder-val="{{ false }}">
+        <div style="text-align:center;font-family:'Saira',sans-serif;font-size:10px;letter-spacing:0.3px;color:#7d8696;margin:-4px 0 8px">{{ hover.resultNote }}</div>
+      </sc-if>
       <div style="border-top:1px solid rgba(255,255,255,0.07);padding-top:8px;font-size:11px;color:#8891a0;line-height:1.5;font-style:italic">{{ hover.verdict }}</div>
     </div>
   </sc-if>
@@ -240,6 +255,12 @@
           </div>
           <span style="font-family:'Saira',sans-serif;font-size:26px;font-weight:500;color:{{ sel.away.scoreColor }}">{{ sel.away.g }}</span>
         </div>
+        <sc-if value="{{ sel.showExtra }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-top:10px;padding-top:10px;border-top:1px dashed rgba(255,255,255,0.08);font-family:'Saira',sans-serif;font-size:11px;color:#7d8696">
+            <span>{{ sel.extraLabel }}</span>
+            <span style="font-family:'DM Mono',monospace;font-size:13px;color:#c4cbd6">{{ sel.extraScore }}</span>
+          </div>
+        </sc-if>
         <div style="font-family:'Saira',sans-serif;font-size:11px;color:#6b7280;text-align:right;margin-top:8px">{{ sel.resultNote }}</div>
       </div>
 
@@ -276,8 +297,43 @@ class Component extends DCLogic {
       Forgettable:['Forgettable. Chances came and went without spark.','A bit flat — one for the completists only.','Cagey and low on rhythm.'],
       Dire:['A real slog. Low on quality and lower on chances.','Hard to love — both sides cancelled the fun out.','Tournament football at its most cynical and dull.']
     };
+    // Small monochrome corner icons used to flag matches decided beyond
+    // 90 minutes: a stopwatch for extra time, a football for a shootout.
+    // Built as inline SVG data-URIs (not emoji) so they render identically
+    // everywhere at the tiny sizes these cells allow. Color is templated
+    // in per-call so the icon can match each cell's rating text color.
+    this._iconTemplates = {
+      et: (c) => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">'
+        + '<line x1="9" y1="2" x2="15" y2="2" stroke="'+c+'" stroke-width="2" stroke-linecap="round"/>'
+        + '<line x1="12" y1="2" x2="12" y2="5" stroke="'+c+'" stroke-width="2" stroke-linecap="round"/>'
+        + '<circle cx="12" cy="14" r="8" fill="none" stroke="'+c+'" stroke-width="2"/>'
+        + '<line x1="12" y1="14" x2="12" y2="9" stroke="'+c+'" stroke-width="2" stroke-linecap="round"/>'
+        + '<line x1="12" y1="14" x2="15.5" y2="16" stroke="'+c+'" stroke-width="2" stroke-linecap="round"/>'
+        + '</svg>',
+      pens: (c) => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">'
+        + '<circle cx="12" cy="12" r="9.5" fill="none" stroke="'+c+'" stroke-width="1.4"/>'
+        + '<polygon points="12,7.6 16.18,10.64 14.59,15.56 9.41,15.56 7.82,10.64" fill="'+c+'"/>'
+        + '<line x1="12" y1="7.6" x2="12" y2="2.5" stroke="'+c+'" stroke-width="1.2" stroke-linecap="round"/>'
+        + '<line x1="16.18" y1="10.64" x2="21.04" y2="9.06" stroke="'+c+'" stroke-width="1.2" stroke-linecap="round"/>'
+        + '<line x1="14.59" y1="15.56" x2="17.58" y2="19.69" stroke="'+c+'" stroke-width="1.2" stroke-linecap="round"/>'
+        + '<line x1="9.41" y1="15.56" x2="6.42" y2="19.69" stroke="'+c+'" stroke-width="1.2" stroke-linecap="round"/>'
+        + '<line x1="7.82" y1="10.64" x2="2.96" y2="9.06" stroke="'+c+'" stroke-width="1.2" stroke-linecap="round"/>'
+        + '</svg>'
+    };
+    this._iconCache = new Map();
+
     this.data = null;
     this._loadData();
+  }
+
+  // Data-URI for a corner icon in a given color, memoized so repeated
+  // renders don't re-encode the same SVG string over and over.
+  iconSrc(type, color){
+    const key = type + '|' + color;
+    if(this._iconCache.has(key)) return this._iconCache.get(key);
+    const src = 'data:image/svg+xml,' + encodeURIComponent(this._iconTemplates[type](color));
+    this._iconCache.set(key, src);
+    return src;
   }
 
   async _loadData(){
@@ -326,7 +382,7 @@ class Component extends DCLogic {
 
   pois(l, rnd){ const L=Math.exp(-l); let k=0, p=1; do{ k++; p*=rnd(); }while(p>L); return Math.min(k-1, 7); }
 
-  makeMatch(id, stageKey, round, home, away, hg, ag, isReal, imdbScore=null){
+  makeMatch(id, stageKey, round, home, away, hg, ag, isReal, imdbScore=null, et=null, pens=null){
     const hasScore = isReal;
     if(!hasScore){
       return {
@@ -334,7 +390,7 @@ class Component extends DCLogic {
         home: {...home, g: null}, away: {...away, g: null},
         rating: null, bg: null, fg: null, tier: null,
         verdict:'', poss:null, shots:null, xg:null, votes:null,
-        winner: null, pens:''
+        winner: null, decidedBy:'ft', et:null, pens:null
       };
     }
     const rnd = this.rng('rate'+id);
@@ -347,11 +403,22 @@ class Component extends DCLogic {
     const shots = [6+Math.floor(rnd()*14), 6+Math.floor(rnd()*14)];
     const xg = [(0.3+rnd()*2.6).toFixed(1), (0.3+rnd()*2.6).toFixed(1)];
     const votes = rt !== null ? (3+rnd()*44).toFixed(1)+'k' : '–';
+
+    // Determine who actually advanced: penalties override extra time,
+    // extra time overrides the 90-minute score. A 90-minute draw with no
+    // et/pens data (shouldn't happen for knockout matches, but guards
+    // against bad data) falls back to 'd' rather than silently picking home.
+    let decidedBy = 'ft';
+    let winner;
+    if(pens){ decidedBy = 'pens'; winner = pens.hg > pens.ag ? 'h' : 'a'; }
+    else if(et){ decidedBy = 'et'; winner = et.hg > et.ag ? 'h' : (et.ag > et.hg ? 'a' : 'd'); }
+    else { winner = hg > ag ? 'h' : (ag > hg ? 'a' : 'd'); }
+
     return {
       id, stageKey, round, isReal, hasScore: true,
       home:{...home, g:hg}, away:{...away, g:ag},
       rating: rt, bg: col.bg, fg: col.fg, tier, verdict, poss, shots, xg, votes,
-      winner: hg>ag?'h':(ag>hg?'a':'d'), pens:''
+      winner, decidedBy, et, pens
     };
   }
 
@@ -370,8 +437,14 @@ class Component extends DCLogic {
     const real = {};
     matchesRaw.forEach(m => {
       if(m.hg !== null && m.ag !== null) {
-        real[m.home + '|' + m.away] = { hg: m.hg, ag: m.ag, imdb_score: m.imdb_score ?? null, date: m.date, time_et: m.time_et };
-        real[m.away + '|' + m.home] = { hg: m.ag, ag: m.hg, imdb_score: m.imdb_score ?? null, date: m.date, time_et: m.time_et };
+        const hasEt = m.et_hg != null && m.et_ag != null;
+        const hasPens = m.pens_hg != null && m.pens_ag != null;
+        const etFwd = hasEt ? {hg: m.et_hg, ag: m.et_ag} : null;
+        const etRev = hasEt ? {hg: m.et_ag, ag: m.et_hg} : null;
+        const pensFwd = hasPens ? {hg: m.pens_hg, ag: m.pens_ag} : null;
+        const pensRev = hasPens ? {hg: m.pens_ag, ag: m.pens_hg} : null;
+        real[m.home + '|' + m.away] = { hg: m.hg, ag: m.ag, imdb_score: m.imdb_score ?? null, date: m.date, time_et: m.time_et, et: etFwd, pens: pensFwd };
+        real[m.away + '|' + m.home] = { hg: m.ag, ag: m.hg, imdb_score: m.imdb_score ?? null, date: m.date, time_et: m.time_et, et: etRev, pens: pensRev };
       }
     });
 
@@ -385,7 +458,7 @@ class Component extends DCLogic {
       let hg=0,ag=0,isReal=false;
       if(real[key]){ hg=real[key].hg; ag=real[key].ag; isReal=true; }
       if(isReal){ addPts(g,home,hg,ag); addPts(g,away,ag,hg); }
-      const m=this.makeMatch(id,stageKey,roundName,home,away,hg,ag,isReal,real[key]?.imdb_score ?? null);
+      const m=this.makeMatch(id,stageKey,roundName,home,away,hg,ag,isReal,real[key]?.imdb_score ?? null, real[key]?.et ?? null, real[key]?.pens ?? null);
       m.date = real[key]?.date ?? null;
       m.time_et = real[key]?.time_et ?? null;
       cols[stageKey].push(m);
@@ -429,13 +502,13 @@ class Component extends DCLogic {
         const h=p[0]??TBD, a=p[1]??TBD;
         const id=stageKey+'-'+(gidx++);
         const key=h.code+'|'+a.code;
-        let hg=0,ag=0,isReal=false,imdb=null;
-        if(real[key]){ hg=real[key].hg; ag=real[key].ag; isReal=true; imdb=real[key].imdb_score; }
-        const m=this.makeMatch(id,stageKey,roundName,h,a,hg,ag,isReal,imdb);
+        let hg=0,ag=0,isReal=false,imdb=null,et=null,pens=null;
+        if(real[key]){ hg=real[key].hg; ag=real[key].ag; isReal=true; imdb=real[key].imdb_score; et=real[key].et; pens=real[key].pens; }
+        const m=this.makeMatch(id,stageKey,roundName,h,a,hg,ag,isReal,imdb,et,pens);
         cols[stageKey].push(m);
         if(isReal){
-          outW.push(hg>ag?h:(ag>hg?a:h));
-          outL.push(hg>ag?a:(ag>hg?h:a));
+          outW.push(m.winner==='h'?h:(m.winner==='a'?a:h));
+          outL.push(m.winner==='h'?a:(m.winner==='a'?h:a));
         } else {
           outW.push(TBD); outL.push(TBD);
         }
@@ -493,6 +566,41 @@ class Component extends DCLogic {
     return m.round;
   }
 
+  // Which corner icons apply to a match: penalties are always preceded by
+  // extra time, so a shootout shows both the stopwatch and the football.
+  decidedIconTypes(m){
+    if(!m || !m.hasScore) return [];
+    if(m.decidedBy === 'pens') return ['et','pens'];
+    if(m.decidedBy === 'et') return ['et'];
+    return [];
+  }
+
+  // Absolute-position style for icon `idx` of `total` (1 or 2), centered
+  // as a group at the top of the cell.
+  decidedIconPos(idx, total, size){
+    size = size || 9;
+    const gap = 2;
+    const totalW = total*size + (total-1)*gap;
+    const offset = -totalW/2 + idx*(size+gap);
+    return {position:'absolute', top:'2px', left:'50%', transform:'translateX('+offset+'px)', width:size+'px', height:size+'px', opacity:0.85, filter:'drop-shadow(0 1px 1px rgba(0,0,0,0.6))', pointerEvents:'none', zIndex:2};
+  }
+
+  // Full sentence describing how the match was decided, used in the hover
+  // tooltip and the detail drawer.
+  resultSentence(m){
+    if(!m || !m.hasScore) return '';
+    const winnerName = m.winner==='h' ? m.home.name : (m.winner==='a' ? m.away.name : null);
+    if(m.decidedBy === 'pens'){
+      const p = m.winner==='h' ? m.pens.hg+'-'+m.pens.ag : m.pens.ag+'-'+m.pens.hg;
+      return winnerName+' win '+p+' on penalties (AET '+m.et.hg+'-'+m.et.ag+')';
+    }
+    if(m.decidedBy === 'et'){
+      return winnerName+' win '+m.et.hg+'-'+m.et.ag+' after extra time';
+    }
+    if(m.winner==='d') return 'Drawn '+m.home.g+'-'+m.away.g;
+    return winnerName+' win '+Math.max(m.home.g,m.away.g)+'-'+Math.min(m.home.g,m.away.g);
+  }
+
   renderVals(){
     if(!this.data) return {};
     const accent=this.props.accentColor ?? '#5b8cff';
@@ -501,6 +609,7 @@ class Component extends DCLogic {
     const grp=this.state.group, sort=this.state.sort;
     const order=['MD1','MD2','MD3','R32','R16','QF','SF','FIN'];
     const filt=m=> grp==='All' || m.home.grp===grp || m.away.grp===grp;
+
 
     const colLists=order.map(k=>{
       // Skip placeholder TBD vs TBD matches here too — same reasoning as the bracket view.
@@ -524,7 +633,7 @@ class Component extends DCLogic {
         const iconW = compact ? 21 : 24;
         const iconH = compact ? 16 : 18;
 
-        if(!m) return {score:'', style:emptyStyle, scoreRowStyle:{display:'none'}, hover:undefined, onClick:undefined, onEnter:undefined, onMove:undefined, onLeave:undefined};
+        if(!m) return {score:'', style:emptyStyle, scoreRowStyle:{display:'none'}, hover:undefined, onClick:undefined, onEnter:undefined, onMove:undefined, onLeave:undefined, decidedIcon1Src:null, decidedIcon1Style:{display:'none'}, decidedIcon2Src:null, decidedIcon2Style:{display:'none'}};
         const seld=m.id===selId;
         const stageColor = {'MD1':'rgba(238,241,246,0.18)','MD2':'rgba(238,241,246,0.18)','MD3':'rgba(238,241,246,0.18)','R32':'rgba(91,140,255,0.35)','R16':'rgba(91,140,255,0.35)','QF':'rgba(91,140,255,0.35)','SF':'rgba(91,140,255,0.35)','FIN':'rgba(255,77,141,0.45)'}[m.stageKey] ?? 'rgba(255,255,255,0.12)';
         const outline = `inset 0 1px 0 rgba(255,255,255,0.13), inset 0 -1px 0 rgba(0,0,0,0.25), 0 0 0 1px ${stageColor}`;
@@ -543,11 +652,17 @@ class Component extends DCLogic {
         const style={position:'relative', height:H+'px', borderRadius:'7px', display:'flex', alignItems:'center', justifyContent:'center', padding:'0 6px', overflow:'hidden', background:bg, color:fg, cursor:'pointer', transition:'transform .09s ease, box-shadow .09s ease', boxShadow: outline+selShadow};
         const scoreRowStyle = {display:'flex', alignItems:'center', justifyContent:'center', fontFamily:"'DM Mono',monospace", fontSize:(compact?11:12)+'px', fontWeight:500, position:'relative', zIndex:1};
         const cellHoverStyle={transform:'scale(1.09)', zIndex:5, boxShadow:'0 8px 20px rgba(0,0,0,0.55)'};
+        const iconTypes = this.decidedIconTypes(m);
+        const decidedIcon1Src = iconTypes[0] ? this.iconSrc(iconTypes[0], fg) : null;
+        const decidedIcon2Src = iconTypes[1] ? this.iconSrc(iconTypes[1], fg) : null;
+        const decidedIcon1Style = decidedIcon1Src ? this.decidedIconPos(0, iconTypes.length) : {display:'none'};
+        const decidedIcon2Style = decidedIcon2Src ? this.decidedIconPos(1, iconTypes.length) : {display:'none'};
         return {
           homeFlag: m.home.flag, awayFlag: m.away.flag,
           hasTeams, hasScore: m.hasScore,
           score: m.hasScore ? (m.rating !== null ? m.rating.toFixed(1) : '–') : '',
           style, homeFlagStyle, awayFlagStyle, scoreRowStyle,
+          decidedIcon1Src, decidedIcon1Style, decidedIcon2Src, decidedIcon2Style,
           hover: cellHoverStyle,
           onClick:()=>this.setState({sel:m, hover:null}),
           onEnter:(e)=>{ const w=e.currentTarget.offsetWidth; const wide=w>=(iconW*2+16); if(wide){ const flags=[...e.currentTarget.querySelectorAll('.cell-flag')]; if(flags[0]){ flags[0].style.display='block'; flags[0].style.position='absolute'; flags[0].style.left='6px'; flags[0].style.width=iconW+'px'; flags[0].style.height=iconH+'px'; flags[0].style.borderRadius='4px'; flags[0].style.objectFit='cover'; } if(flags[1]){ flags[1].style.display='block'; flags[1].style.position='absolute'; flags[1].style.right='6px'; flags[1].style.width=iconW+'px'; flags[1].style.height=iconH+'px'; flags[1].style.borderRadius='4px'; flags[1].style.objectFit='cover'; } } this.setState({hover:{m, x:e.clientX, y:e.clientY}}); },
@@ -653,7 +768,7 @@ class Component extends DCLogic {
           const cellHoverStyle = {transform:'scale(1.09)', zIndex:5, boxShadow:'0 8px 20px rgba(0,0,0,0.55)'};
           const mb = (mi < count - 1) ? baseGap : 0;
           const wrapStyle = {position:'relative', marginBottom: mb + 'px'};
-
+          // Group-stage matches are never decided by ET/pens, so no icon here.
           return {
             wrapStyle,
             showLabel: false,
@@ -663,6 +778,7 @@ class Component extends DCLogic {
             homeFlagStyle, awayFlagStyle,
             score: isPlayed ? (hasRating ? m.rating.toFixed(1) : '–') : '',
             scoreRowStyle,
+            decidedIcon1Src: null, decidedIcon1Style: {display:'none'}, decidedIcon2Src: null, decidedIcon2Style: {display:'none'},
             connectors: [],
             onClick: () => this.setState({sel: m, hover: null}),
             onEnter: (e) => { const w=e.currentTarget.offsetWidth; const wide=w>=(iconW*2+16); if(wide){ const flags=[...e.currentTarget.querySelectorAll('.cell-flag')]; if(flags[0]){flags[0].style.display='block';flags[0].style.position='absolute';flags[0].style.left='6px';flags[0].style.width=iconW+'px';flags[0].style.height=iconH+'px';flags[0].style.borderRadius='4px';flags[0].style.objectFit='cover';} if(flags[1]){flags[1].style.display='block';flags[1].style.position='absolute';flags[1].style.right='6px';flags[1].style.width=iconW+'px';flags[1].style.height=iconH+'px';flags[1].style.borderRadius='4px';flags[1].style.objectFit='cover';}} this.setState({hover:{m, x:e.clientX, y:e.clientY}}); },
@@ -727,6 +843,11 @@ class Component extends DCLogic {
           const style = {position:'relative', width:bubbleW+'px', height:bubbleH+'px', borderRadius:'7px', display:'flex', alignItems:'center', justifyContent:'center', padding:'0 6px', overflow:'hidden', background:bg, color:fg, cursor:'pointer', transition:'transform .09s ease, box-shadow .09s ease', boxShadow:outline};
           const scoreRowStyle = {display:'flex', alignItems:'center', justifyContent:'center', fontFamily:"'DM Mono',monospace", fontSize:(compact?11:12)+'px', fontWeight:500, position:'relative', zIndex:1};
           const cellHoverStyle = {transform:'scale(1.09)', zIndex:5, boxShadow:'0 8px 20px rgba(0,0,0,0.55)'};
+          const koIconTypes = this.decidedIconTypes(m);
+          const decidedIcon1Src = koIconTypes[0] ? this.iconSrc(koIconTypes[0], fg) : null;
+          const decidedIcon2Src = koIconTypes[1] ? this.iconSrc(koIconTypes[1], fg) : null;
+          const decidedIcon1Style = decidedIcon1Src ? this.decidedIconPos(0, koIconTypes.length) : {display:'none'};
+          const decidedIcon2Style = decidedIcon2Src ? this.decidedIconPos(1, koIconTypes.length) : {display:'none'};
 
           // Connector lines
           const connectors = [];
@@ -754,6 +875,7 @@ class Component extends DCLogic {
             homeFlagStyle, awayFlagStyle,
             score: isPlayed ? (hasRating ? m.rating.toFixed(1) : '–') : '',
             scoreRowStyle,
+            decidedIcon1Src, decidedIcon1Style, decidedIcon2Src, decidedIcon2Style,
             connectors,
             onClick: () => this.setState({sel: m, hover: null}),
             onEnter: (e) => { const w=e.currentTarget.offsetWidth; const wide=w>=(iconW*2+16); if(wide){ const flags=[...e.currentTarget.querySelectorAll('.cell-flag')]; if(flags[0]){flags[0].style.display='block';flags[0].style.position='absolute';flags[0].style.left='6px';flags[0].style.width=iconW+'px';flags[0].style.height=iconH+'px';flags[0].style.borderRadius='4px';flags[0].style.objectFit='cover';} if(flags[1]){flags[1].style.display='block';flags[1].style.position='absolute';flags[1].style.right='6px';flags[1].style.width=iconW+'px';flags[1].style.height=iconH+'px';flags[1].style.borderRadius='4px';flags[1].style.objectFit='cover';}} this.setState({hover:{m, x:e.clientX, y:e.clientY}}); },
@@ -808,11 +930,20 @@ class Component extends DCLogic {
       if(!m.hasScore){ hover={visible:false}; }
       else {
         const rc = m.rating !== null ? this.ratingColor(m.rating) : {bg:'#5b6473'};
+        const resultNote = this.resultSentence(m);
+        const hoverIconTypes = this.decidedIconTypes(m);
+        const staticIconStyle = (size)=>({width:size+'px', height:size+'px', opacity:0.85, filter:'drop-shadow(0 1px 1px rgba(0,0,0,0.6))'});
         hover={
           visible:true, stage:this.stageLabel(m), tier:m.tier, 
           rating: m.rating !== null ? m.rating.toFixed(1) : '–',
           ratingColor: rc.bg,
           verdict: m.verdict,
+          resultNote, showResultNote: m.decidedBy !== 'ft',
+          showDecided: hoverIconTypes.length > 0,
+          decidedIcon1Src: hoverIconTypes[0] ? this.iconSrc(hoverIconTypes[0], '#c4cbd6') : null,
+          decidedIcon2Src: hoverIconTypes[1] ? this.iconSrc(hoverIconTypes[1], '#c4cbd6') : null,
+          decidedIcon1Style: hoverIconTypes[0] ? staticIconStyle(12) : {display:'none'},
+          decidedIcon2Style: hoverIconTypes[1] ? staticIconStyle(12) : {display:'none'},
           status: m.isReal?'● FULL TIME':'PROJECTED', statusColor: m.isReal?'#3fb968':'#7d8696',
           home:{name:m.home.name, g:m.home.g, grad:grad(m.home), color:scoreCol(m,'h'), flag:m.home.flag},
           away:{name:m.away.name, g:m.away.g, grad:grad(m.away), color:scoreCol(m,'a'), flag:m.away.flag},
@@ -829,7 +960,7 @@ class Component extends DCLogic {
         sel={
           open:true, stage:this.stageLabel(m), rating:'–', bg:'#1a1f2a', fg:'#eef1f6', tier:'–', verdict:'Match not yet played.', votes:'–',
           status:'UPCOMING', statusColor:'#7d8696', statusBg:'rgba(255,255,255,0.06)',
-          resultNote: note,
+          resultNote: note, showExtra:false, extraLabel:'', extraScore:'',
           home:{name:m.home.name, sub:m.home.code+(m.home.grp?' · GRP '+m.home.grp:''), g:'–', grad:grad(m.home), scoreColor:'#7d8696', flag:m.home.flag},
           away:{name:m.away.name, sub:m.away.code+(m.away.grp?' · GRP '+m.away.grp:''), g:'–', grad:grad(m.away), scoreColor:'#7d8696', flag:m.away.flag},
           poss:50, possA:50, possBar:{width:'50%', background:accent, height:'6px'},
@@ -838,7 +969,15 @@ class Component extends DCLogic {
       } else {
         const hasRating = m.rating !== null;
         const col = hasRating ? {bg:m.bg, fg:m.fg} : {bg:'#1a1f2a', fg:'#7d8696'};
-        const note = m.winner==='d' ? 'Drawn' : ((m.winner==='h'?m.home.name:m.away.name)+' win'+m.pens);
+        const note = this.resultSentence(m) || (m.winner==='d' ? 'Drawn' : ((m.winner==='h'?m.home.name:m.away.name)+' win'));
+
+        let showExtra=false, extraLabel='', extraScore='';
+        if(m.decidedBy === 'pens'){
+          showExtra=true; extraLabel='Penalties'; extraScore=m.pens.hg+' – '+m.pens.ag;
+        } else if(m.decidedBy === 'et'){
+          showExtra=true; extraLabel='After extra time'; extraScore=m.et.hg+' – '+m.et.ag;
+        }
+
         sel={
           open:true, stage:this.stageLabel(m),
           rating: hasRating ? m.rating.toFixed(1) : '–',
@@ -846,7 +985,7 @@ class Component extends DCLogic {
           tier: hasRating ? m.tier : 'No rating yet',
           verdict: m.verdict, votes: m.votes,
           status:'● FULL TIME', statusColor:'#3fb968', statusBg:'rgba(63,185,104,0.14)',
-          resultNote:note,
+          resultNote:note, showExtra, extraLabel, extraScore,
           home:{name:m.home.name, sub:m.home.code+' · GRP '+m.home.grp, g:m.home.g, grad:grad(m.home), scoreColor:scoreCol(m,'h'), flag:m.home.flag},
           away:{name:m.away.name, sub:m.away.code+' · GRP '+m.away.grp, g:m.away.g, grad:grad(m.away), scoreColor:scoreCol(m,'a'), flag:m.away.flag},
           poss:m.poss, possA:100-m.poss, possBar:{width:m.poss+'%', background:accent, height:'6px'},
