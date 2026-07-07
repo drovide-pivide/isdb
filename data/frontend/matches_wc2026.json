@@ -236,7 +236,7 @@
     "stadium": "Estadio BBVA",
     "city": "Monterrey",
     "country_played": "Mexico",
-    "imdb_score": 6.6,
+    "imdb_score": 6.7,
     "oneline_comment": ""
   },
   {
@@ -576,7 +576,7 @@
     "stadium": "Lumen Field",
     "city": "Seattle",
     "country_played": "USA",
-    "imdb_score": 5.9,
+    "imdb_score": 5.8,
     "oneline_comment": ""
   },
   {
@@ -716,7 +716,7 @@
     "stadium": "Estadio BBVA",
     "city": "Monterrey",
     "country_played": "Mexico",
-    "imdb_score": 6.5,
+    "imdb_score": 6.6,
     "oneline_comment": ""
   },
   {
@@ -1116,7 +1116,7 @@
     "stadium": "MetLife Stadium",
     "city": "East Rutherford",
     "country_played": "USA",
-    "imdb_score": 7.3,
+    "imdb_score": 7.4,
     "oneline_comment": ""
   },
   {
@@ -1176,7 +1176,7 @@
     "stadium": "SoFi Stadium",
     "city": "Inglewood",
     "country_played": "USA",
-    "imdb_score": 6.8,
+    "imdb_score": 6.9,
     "oneline_comment": ""
   },
   {
@@ -1276,7 +1276,7 @@
     "stadium": "Estadio Akron",
     "city": "Zapopan",
     "country_played": "Mexico",
-    "imdb_score": 5.1,
+    "imdb_score": 5.2,
     "oneline_comment": ""
   },
   {
@@ -1476,7 +1476,7 @@
     "stadium": "NRG Stadium",
     "city": "Houston",
     "country_played": "USA",
-    "imdb_score": 7.7,
+    "imdb_score": 7.8,
     "oneline_comment": ""
   },
   {
@@ -1496,7 +1496,7 @@
     "stadium": "Gillette Stadium",
     "city": "Foxborough",
     "country_played": "USA",
-    "imdb_score": 8.0,
+    "imdb_score": 8.1,
     "oneline_comment": ""
   },
   {
@@ -1536,7 +1536,7 @@
     "stadium": "AT&T Stadium",
     "city": "Arlington",
     "country_played": "USA",
-    "imdb_score": 6.8,
+    "imdb_score": 6.7,
     "oneline_comment": ""
   },
   {
@@ -1736,7 +1736,7 @@
     "stadium": "Hard Rock Stadium",
     "city": "Miami Gardens",
     "country_played": "USA",
-    "imdb_score": 5.5,
+    "imdb_score": 5.4,
     "oneline_comment": ""
   },
   {
@@ -1756,7 +1756,7 @@
     "stadium": "Arrowhead Stadium",
     "city": "Kansas City",
     "country_played": "USA",
-    "imdb_score": 6.2,
+    "imdb_score": 6.1,
     "oneline_comment": ""
   },
   {
@@ -1796,7 +1796,7 @@
     "stadium": "Lincoln Financial Field",
     "city": "Philadelphia",
     "country_played": "USA",
-    "imdb_score": 6.5,
+    "imdb_score": 6.4,
     "oneline_comment": ""
   },
   {
@@ -1836,14 +1836,14 @@
     "stadium": "Estadio Azteca",
     "city": "Mexico City",
     "country_played": "Mexico",
-    "imdb_score": 8.6,
+    "imdb_score": 8.8,
     "oneline_comment": ""
   },
   {
     "home": "POR",
     "away": "ESP",
-    "hg": null,
-    "ag": null,
+    "hg": 0,
+    "ag": 1,
     "et_hg": null,
     "et_ag": null,
     "pens_hg": null,
@@ -1856,14 +1856,14 @@
     "stadium": "AT&T Stadium",
     "city": "Arlington",
     "country_played": "USA",
-    "imdb_score": null,
+    "imdb_score": 6.0,
     "oneline_comment": ""
   },
   {
     "home": "USA",
     "away": "BEL",
-    "hg": null,
-    "ag": null,
+    "hg": 1,
+    "ag": 4,
     "et_hg": null,
     "et_ag": null,
     "pens_hg": null,
@@ -1876,7 +1876,7 @@
     "stadium": "Lumen Field",
     "city": "Seattle",
     "country_played": "USA",
-    "imdb_score": null,
+    "imdb_score": 7.0,
     "oneline_comment": ""
   },
   {
@@ -1935,6 +1935,26 @@
     "group": null,
     "stadium": "Gillette Stadium",
     "city": "Foxborough",
+    "country_played": "USA",
+    "imdb_score": null,
+    "oneline_comment": ""
+  },
+  {
+    "home": "ESP",
+    "away": "BEL",
+    "hg": null,
+    "ag": null,
+    "et_hg": null,
+    "et_ag": null,
+    "pens_hg": null,
+    "pens_ag": null,
+    "match_id": 98,
+    "date": "2026-07-10",
+    "time_et": "15:00",
+    "stage": "Quarterfinal",
+    "group": null,
+    "stadium": "SoFi Stadium",
+    "city": "Inglewood",
     "country_played": "USA",
     "imdb_score": null,
     "oneline_comment": ""
