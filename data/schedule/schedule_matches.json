@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-07-07T12:37:03Z",
+  "last_updated": "2026-07-08T12:36:02Z",
   "source": "FIFA World Cup 2026 Official Schedule",
   "total_matches": 104,
   "matches": [
@@ -1188,8 +1188,8 @@
       "stadium": "Hard Rock Stadium",
       "city": "Miami Gardens",
       "country_played": "USA",
-      "home": "",
-      "away": ""
+      "home": "NOR",
+      "away": "ENG"
     },
     {
       "match_id": 100,
@@ -1200,8 +1200,8 @@
       "stadium": "Arrowhead Stadium",
       "city": "Kansas City",
       "country_played": "USA",
-      "home": "",
-      "away": ""
+      "home": "ARG",
+      "away": "SUI"
     },
     {
       "match_id": 101,
