@@ -816,7 +816,7 @@
     "stadium": "AT&T Stadium",
     "city": "Arlington",
     "country_played": "USA",
-    "imdb_score": 7.2,
+    "imdb_score": 7.1,
     "oneline_comment": ""
   },
   {
@@ -1036,7 +1036,7 @@
     "stadium": "Mercedes-Benz Stadium",
     "city": "Atlanta",
     "country_played": "USA",
-    "imdb_score": 7.6,
+    "imdb_score": 7.5,
     "oneline_comment": ""
   },
   {
@@ -1196,7 +1196,7 @@
     "stadium": "Levi's Stadium",
     "city": "Santa Clara",
     "country_played": "USA",
-    "imdb_score": 3.5,
+    "imdb_score": 3.4,
     "oneline_comment": ""
   },
   {
@@ -1316,7 +1316,7 @@
     "stadium": "BC Place",
     "city": "Vancouver",
     "country_played": "Canada",
-    "imdb_score": 6.1,
+    "imdb_score": 6.2,
     "oneline_comment": ""
   },
   {
@@ -1436,7 +1436,7 @@
     "stadium": "AT&T Stadium",
     "city": "Arlington",
     "country_played": "USA",
-    "imdb_score": 6.5,
+    "imdb_score": 6.4,
     "oneline_comment": ""
   },
   {
@@ -1596,7 +1596,7 @@
     "stadium": "Mercedes-Benz Stadium",
     "city": "Atlanta",
     "country_played": "USA",
-    "imdb_score": 7.1,
+    "imdb_score": 7.2,
     "oneline_comment": ""
   },
   {
@@ -1936,14 +1936,14 @@
     "stadium": "Gillette Stadium",
     "city": "Foxborough",
     "country_played": "USA",
-    "imdb_score": 6.4,
+    "imdb_score": 6.2,
     "oneline_comment": ""
   },
   {
     "home": "ESP",
     "away": "BEL",
-    "hg": null,
-    "ag": null,
+    "hg": 2,
+    "ag": 1,
     "et_hg": null,
     "et_ag": null,
     "pens_hg": null,
@@ -1956,7 +1956,7 @@
     "stadium": "SoFi Stadium",
     "city": "Inglewood",
     "country_played": "USA",
-    "imdb_score": null,
+    "imdb_score": 6.7,
     "oneline_comment": ""
   },
   {
@@ -1995,6 +1995,26 @@
     "group": null,
     "stadium": "Arrowhead Stadium",
     "city": "Kansas City",
+    "country_played": "USA",
+    "imdb_score": null,
+    "oneline_comment": ""
+  },
+  {
+    "home": "FRA",
+    "away": "ESP",
+    "hg": null,
+    "ag": null,
+    "et_hg": null,
+    "et_ag": null,
+    "pens_hg": null,
+    "pens_ag": null,
+    "match_id": 101,
+    "date": "2026-07-14",
+    "time_et": "15:00",
+    "stage": "Semifinal",
+    "group": null,
+    "stadium": "AT&T Stadium",
+    "city": "Arlington",
     "country_played": "USA",
     "imdb_score": null,
     "oneline_comment": ""
