@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-07-11T19:52:47Z",
+  "last_updated": "2026-07-16T10:20:40Z",
   "source": "FIFA World Cup 2026 Official Schedule",
   "total_matches": 104,
   "matches": [
@@ -1224,8 +1224,8 @@
       "stadium": "Mercedes-Benz Stadium",
       "city": "Atlanta",
       "country_played": "USA",
-      "home": "",
-      "away": ""
+      "home": "ENG",
+      "away": "ARG"
     },
     {
       "match_id": 103,
@@ -1236,8 +1236,8 @@
       "stadium": "Hard Rock Stadium",
       "city": "Miami Gardens",
       "country_played": "USA",
-      "home": "",
-      "away": ""
+      "home": "FRA",
+      "away": "ENG"
     },
     {
       "match_id": 104,
@@ -1248,8 +1248,8 @@
       "stadium": "MetLife Stadium",
       "city": "East Rutherford",
       "country_played": "USA",
-      "home": "",
-      "away": ""
+      "home": "ESP",
+      "away": "ARG"
     }
   ]
 }
