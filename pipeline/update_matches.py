@@ -8,8 +8,32 @@ Pipeline that:
 4. Writes data/frontend/matches_wc2026.json as a plain JSON array,
    keeping all fields the HTML frontend expects:
      home, away, hg, ag, imdb_score, oneline_comment
+   plus extra-time / penalty fields (None when not applicable):
+     et_hg, et_ag, pens_hg, pens_ag
    plus enriched fields:
      match_id, date, time_et, stage, group, stadium, city, country_played
+   plus provenance:
+     source  -- "openfootball" | "manual" | null (no score yet)
+
+Score provenance / manual overrides
+------------------------------------
+Every match now carries a "source" field describing where its score came
+from:
+  - "openfootball" : score fetched live from openfootball this run
+  - "manual"        : score was hand-patched (e.g. via manual_score.py)
+                        because openfootball didn't have it yet
+  - null            : no score available from any source (unplayed / unresolved)
+
+On every run, this script loads the *existing* matches_wc2026.json first. Any
+match whose existing "source" is "manual" is left completely alone for its
+score fields (hg/ag/et_hg/et_ag/pens_hg/pens_ag) -- openfootball is NOT
+consulted for that match, so a manual patch survives future pipeline runs
+until you delete/change the "source" field yourself. Once openfootball
+actually publishes that result, you can just remove/change "source" for that
+match (or delete matches_wc2026.json's .bak-restored old value) and rerun to
+let the live fetch take over again.
+
+oneline_comment is always preserved regardless of source, same as before.
 
 Usage:
     python3 update_matches.py
@@ -151,23 +175,37 @@ def find_latest_imdb_file(directory: str, prefix: str = "wc2026_") -> str:
 
 
 # ---------------------------------------------------------------------------
-# Scores from openfootball  →  {frozenset(home, away): (hg, ag)}
+# Scores from openfootball  →  {frozenset(home, away): {...}}
 # ---------------------------------------------------------------------------
 
-def fetch_scores() -> dict[frozenset, tuple[int, int]]:
+def fetch_scores() -> dict[frozenset, dict]:
+    """Returns {frozenset(home, away): {"ft": (h,a), "et": (h,a) or None, "p": (h,a) or None}}"""
     print(f"  Fetching scores from openfootball...")
     r = requests.get(OPENFOOTBALL_URL, headers={"User-Agent": "Mozilla/5.0"}, timeout=15)
     r.raise_for_status()
     scores = {}
+    n_et = n_p = 0
     for m in r.json().get("matches", []):
         t1, t2 = m.get("team1", ""), m.get("team2", "")
-        score = m.get("score", {}).get("ft")
-        if not score or re.match(r'^[WL]\d+$', t1) or re.match(r'^[WL]\d+$', t2):
+        score_block = m.get("score", {})
+        ft = score_block.get("ft")
+        if not ft or re.match(r'^[WL]\d+$', t1) or re.match(r'^[WL]\d+$', t2):
             continue
         h, a = to_code(t1), to_code(t2)
-        if h and a:
-            scores[frozenset([h, a])] = (score[0], score[1])
-    print(f"  Got {len(scores)} scores")
+        if not (h and a):
+            continue
+        et = score_block.get("et")
+        p = score_block.get("p")
+        if et:
+            n_et += 1
+        if p:
+            n_p += 1
+        scores[frozenset([h, a])] = {
+            "ft": (ft[0], ft[1]),
+            "et": (et[0], et[1]) if et else None,
+            "p":  (p[0], p[1]) if p else None,
+        }
+    print(f"  Got {len(scores)} scores  ({n_et} went to extra time, {n_p} went to penalties)")
     return scores
 
 
@@ -192,17 +230,23 @@ def build_imdb_lookups(episodes: list[dict]) -> tuple[dict, dict]:
 
 
 # ---------------------------------------------------------------------------
-# Preserve existing comments
+# Preserve existing comments + manual-override score data
 # ---------------------------------------------------------------------------
 
-def load_existing_comments(matches_path: str) -> dict[frozenset, str]:
+def load_existing_data(matches_path: str) -> dict[frozenset, dict]:
+    """
+    Returns {frozenset([home, away]): existing_match_dict} for every
+    already-resolved match currently in matches_wc2026.json. Used to
+    preserve oneline_comment always, and to preserve hg/ag/et_*/pens_*
+    whenever the existing entry's "source" == "manual".
+    """
     if not os.path.exists(matches_path):
         return {}
     with open(matches_path, encoding="utf-8") as f:
         raw = json.load(f)
     existing = raw if isinstance(raw, list) else raw.get("matches", [])
     return {
-        frozenset([m["home"], m["away"]]): m.get("oneline_comment", "")
+        frozenset([m["home"], m["away"]]): m
         for m in existing
         if m.get("home") and m.get("away")
     }
@@ -214,14 +258,14 @@ def load_existing_comments(matches_path: str) -> dict[frozenset, str]:
 
 def build_matches(
     schedule: list[dict],
-    scores: dict[frozenset, tuple[int, int]],
+    scores: dict[frozenset, dict],
     by_pair: dict,
     by_date: dict,
-    existing_comments: dict[frozenset, str],
-) -> tuple[list[dict], int, int]:
+    existing_data: dict[frozenset, dict],
+) -> tuple[list[dict], int, int, int]:
 
     date_cursor: dict[str, int] = {}
-    n_pair = n_date = 0
+    n_pair = n_date = n_manual = 0
     out = []
 
     for m in schedule:
@@ -231,12 +275,30 @@ def build_matches(
 
         pair_key = frozenset([h, a])
         date     = m.get("date", "")
+        existing = existing_data.get(pair_key, {})
 
-        # --- scores (hg / ag) ---
-        if pair_key in scores:
-            hg, ag = scores[pair_key]
+        # --- scores (hg / ag), plus extra time / penalties if applicable ---
+        if existing.get("source") == "manual":
+            # Never touch a manually-patched score -- openfootball is not
+            # consulted for this match at all.
+            hg, ag         = existing.get("hg"), existing.get("ag")
+            et_hg, et_ag   = existing.get("et_hg"), existing.get("et_ag")
+            pens_hg, pens_ag = existing.get("pens_hg"), existing.get("pens_ag")
+            source = "manual"
+            n_manual += 1
         else:
-            hg, ag = None, None
+            score_entry = scores.get(pair_key)
+            if score_entry:
+                hg, ag = score_entry["ft"]
+                et = score_entry["et"]
+                pens = score_entry["p"]
+                source = "openfootball"
+            else:
+                hg, ag = None, None
+                et, pens = None, None
+                source = None
+            et_hg, et_ag = et if et else (None, None)
+            pens_hg, pens_ag = pens if pens else (None, None)
 
         # --- imdb_score ---
         if pair_key in by_pair:
@@ -257,6 +319,11 @@ def build_matches(
             "away":           a,
             "hg":             hg,
             "ag":             ag,
+            "et_hg":          et_hg,
+            "et_ag":          et_ag,
+            "pens_hg":        pens_hg,
+            "pens_ag":        pens_ag,
+            "source":         source,
             # enriched fields
             "match_id":       m.get("match_id"),
             "date":           date,
@@ -267,10 +334,10 @@ def build_matches(
             "city":           m.get("city"),
             "country_played": m.get("country_played"),
             "imdb_score":     imdb_score,
-            "oneline_comment": existing_comments.get(pair_key, ""),
+            "oneline_comment": existing.get("oneline_comment", ""),
         })
 
-    return out, n_pair, n_date
+    return out, n_pair, n_date, n_manual
 
 
 # ---------------------------------------------------------------------------
@@ -294,7 +361,7 @@ def update(
     try:
         scores = fetch_scores()
     except Exception as e:
-        print(f"[!] Could not fetch scores: {e} — real=False for all matches")
+        print(f"[!] Could not fetch scores: {e} — source=null for all non-manual matches")
         scores = {}
 
     # 3. Latest IMDb file
@@ -304,17 +371,23 @@ def update(
         imdb_data = json.load(f)
     episodes = imdb_data.get("episodes", imdb_data) if isinstance(imdb_data, dict) else imdb_data
 
-    # 4. Preserve existing comments
-    existing_comments = load_existing_comments(matches_path)
+    # 4. Preserve existing comments + manual overrides
+    existing_data = load_existing_data(matches_path)
 
     # 5. Build IMDb lookups
     by_pair, by_date = build_imdb_lookups(episodes)
 
     # 6. Build output
-    enriched, n_pair, n_date = build_matches(schedule, scores, by_pair, by_date, existing_comments)
+    enriched, n_pair, n_date, n_manual = build_matches(
+        schedule, scores, by_pair, by_date, existing_data
+    )
     real_count = sum(1 for m in enriched if m["hg"] is not None)
+    et_count   = sum(1 for m in enriched if m["et_hg"] is not None)
+    pens_count = sum(1 for m in enriched if m["pens_hg"] is not None)
     print(f"[✓] Resolved matches : {len(enriched)}")
-    print(f"[✓] With scores      : {real_count}")
+    print(f"[✓] With scores      : {real_count}  ({n_manual} manual, rest openfootball)")
+    print(f"[✓] Went to ET       : {et_count}")
+    print(f"[✓] Went to penalties: {pens_count}")
     print(f"[✓] IMDb scores found: {n_pair + n_date}  ({n_pair} by team pair, {n_date} by date)")
 
     if dry_run:
