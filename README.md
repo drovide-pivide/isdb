@@ -30,7 +30,7 @@ project/
 │   └── README.md
 ├── data/
 │   ├── imdb/
-│   │   └── wc2026_<timestamp>.json
+│   │   └── wc2026.json   (overwritten each run -- git history is the changelog)
 │   ├── frontend/
 │   │   └── matches_wc2026.json
 │   └── schedule/
@@ -49,8 +49,9 @@ Run these from the `pipeline/` folder, in order.
 python3 imdb_rating.py tt32915471 --output ../data/imdb/wc2026.json
 ```
 
-Scrapes IMDb for all episode ratings and saves a new timestamped file like
-`data/imdb/wc2026_20260619_143000.json`.
+Scrapes IMDb for all episode ratings and overwrites `data/imdb/wc2026.json`.
+We don't keep dated snapshot copies -- commit as usual and git history gives
+you the full timeline of how ratings changed if you ever need it.
 
 ---
 

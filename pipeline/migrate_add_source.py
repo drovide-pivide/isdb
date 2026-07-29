@@ -17,7 +17,6 @@ Usage:
 """
 
 import json
-import shutil
 import sys
 
 
@@ -49,9 +48,6 @@ def main() -> None:
     if n_skipped:
         print(f"[i] Already had 'source', left alone : {n_skipped}")
 
-    bak = path + ".bak"
-    shutil.copy2(path, bak)
-    print(f"[✓] Backup saved to {bak}")
 
     with open(path, "w", encoding="utf-8") as f:
         json.dump(matches, f, indent=2, ensure_ascii=False)

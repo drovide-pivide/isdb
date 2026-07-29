@@ -269,10 +269,6 @@ def main():
         print("[!] Nothing new to update.")
         return
 
-    bak = args.schedule + ".bak"
-    shutil.copy2(args.schedule, bak)
-    print(f"[✓] Backup saved to {bak}")
-
     out = {
         **meta,
         "last_updated": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),

@@ -39,7 +39,6 @@ Usage:
 
 import argparse
 import json
-import shutil
 import sys
 
 
@@ -142,9 +141,6 @@ def main() -> None:
 
     match.update(updates)
 
-    bak = args.file + ".bak"
-    shutil.copy2(args.file, bak)
-    print(f"[✓] Backup saved to {bak}")
 
     with open(args.file, "w", encoding="utf-8") as f:
         json.dump(matches, f, indent=2, ensure_ascii=False)

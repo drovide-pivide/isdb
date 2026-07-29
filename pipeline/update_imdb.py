@@ -261,19 +261,15 @@ def main():
     print_table(series_name, all_episodes)
 
     if args.output:
-        from datetime import datetime
-        base = args.output.removesuffix(".json")
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename = f"{base}_{timestamp}.json"
         out = {
             "title_id": title_id,
             "series": series_name,
             "total_episodes": len(all_episodes),
             "episodes": all_episodes,
         }
-        with open(filename, "w", encoding="utf-8") as f:
+        with open(args.output, "w", encoding="utf-8") as f:
             json.dump(out, f, indent=2, ensure_ascii=False)
-        print(f"Results saved to {filename}")
+        print(f"Results saved to {args.output}")
 
 
 if __name__ == "__main__":

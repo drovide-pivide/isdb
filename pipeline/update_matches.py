@@ -4,7 +4,9 @@ update_matches.py
 Pipeline that:
 1. Reads data/schedule/schedule_matches.json as the source of truth for matches
 2. Fetches scores (hg/ag) from openfootball
-3. Finds the latest wc2026_<timestamp>.json from data/imdb/
+3. Reads the canonical data/imdb/wc2026.json (one file, overwritten each
+   pipeline run -- git history is the changelog, so we don't keep dated
+   snapshot copies around)
 4. Writes data/frontend/matches_wc2026.json as a plain JSON array,
    keeping all fields the HTML frontend expects:
      home, away, hg, ag, imdb_score, oneline_comment
@@ -30,8 +32,8 @@ score fields (hg/ag/et_hg/et_ag/pens_hg/pens_ag) -- openfootball is NOT
 consulted for that match, so a manual patch survives future pipeline runs
 until you delete/change the "source" field yourself. Once openfootball
 actually publishes that result, you can just remove/change "source" for that
-match (or delete matches_wc2026.json's .bak-restored old value) and rerun to
-let the live fetch take over again.
+match (or check out the previous version of matches_wc2026.json from git
+history) and rerun to let the live fetch take over again.
 
 oneline_comment is always preserved regardless of source, same as before.
 
@@ -41,11 +43,9 @@ Usage:
 """
 
 import argparse
-import glob
 import json
 import os
 import re
-import shutil
 import requests
 from datetime import datetime, timezone
 
@@ -150,28 +150,6 @@ def title_to_codes(episode_title: str) -> list[str]:
         if code:
             codes.append(code)
     return codes
-
-
-# ---------------------------------------------------------------------------
-# File helpers
-# ---------------------------------------------------------------------------
-
-TIMESTAMP_RE = re.compile(r"_(\d{8}_\d{6})\.json$", re.IGNORECASE)
-
-
-def parse_timestamp(path: str) -> datetime:
-    m = TIMESTAMP_RE.search(os.path.basename(path))
-    if m:
-        return datetime.strptime(m.group(1), "%Y%m%d_%H%M%S")
-    return datetime.fromtimestamp(os.path.getmtime(path))
-
-
-def find_latest_imdb_file(directory: str, prefix: str = "wc2026_") -> str:
-    pattern = os.path.join(directory, f"{prefix}*.json")
-    candidates = glob.glob(pattern)
-    if not candidates:
-        raise FileNotFoundError(f"No files matching '{pattern}' found in '{directory}'")
-    return max(candidates, key=parse_timestamp)
 
 
 # ---------------------------------------------------------------------------
@@ -364,9 +342,11 @@ def update(
         print(f"[!] Could not fetch scores: {e} — source=null for all non-manual matches")
         scores = {}
 
-    # 3. Latest IMDb file
-    imdb_path = find_latest_imdb_file(imdb_dir, prefix)
-    print(f"[✓] Latest IMDb file : {imdb_path}")
+    # 3. Canonical IMDb file (overwritten each run; git history is the log)
+    imdb_path = os.path.join(imdb_dir, f"{prefix.rstrip('_')}.json")
+    if not os.path.exists(imdb_path):
+        raise FileNotFoundError(f"'{imdb_path}' not found -- run update_imdb.py first")
+    print(f"[✓] IMDb file        : {imdb_path}")
     with open(imdb_path, encoding="utf-8") as f:
         imdb_data = json.load(f)
     episodes = imdb_data.get("episodes", imdb_data) if isinstance(imdb_data, dict) else imdb_data
@@ -395,11 +375,7 @@ def update(
         print(json.dumps(enriched[:3], indent=2, ensure_ascii=False))
         return
 
-    # 7. Backup + write as plain array (what the HTML expects)
-    if os.path.exists(matches_path):
-        shutil.copy2(matches_path, matches_path + ".bak")
-        print(f"[✓] Backup saved     : {matches_path}.bak")
-
+    # 7. Write as plain array (what the HTML expects) -- git history covers rollback
     with open(matches_path, "w", encoding="utf-8") as f:
         json.dump(enriched, f, indent=2, ensure_ascii=False)
     print(f"[✓] Updated          : {matches_path}")
