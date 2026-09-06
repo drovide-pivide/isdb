@@ -128,14 +128,38 @@ def get_json(path: str, retries: int = 3):
 # ===========================================================================
 
 def find_season_id(tournament_id: int, year: str):
+    """
+    Resolve a season id. Sofascore writes league seasons inconsistently
+    ("25/26", "2025/2026", "2025"), so an exact match is tried first and a
+    digits-only comparison second: "25/26" -> "2526", "2025/2026" -> "20252026",
+    either of which contains the other's significant digits.
+    """
     data = get_json(f"/unique-tournament/{tournament_id}/seasons")
     if not data:
         return None
-    for s in data.get("seasons", []):
+    seasons = data.get("seasons", [])
+
+    for s in seasons:
         if s.get("year") == year:
             return s["id"]
-    print(f"  [warn] season '{year}' not found. Available: "
-          f"{[s.get('year') for s in data.get('seasons', [])][:12]}")
+
+    # Fuzzy: compare on digits only, tolerating 2- vs 4-digit year forms
+    want = re.sub(r"\D", "", year)
+    for s in seasons:
+        got = re.sub(r"\D", "", str(s.get("year", "")))
+        if not got or not want:
+            continue
+        if got == want or got.endswith(want) or want.endswith(got):
+            print(f"  [note] '{year}' matched Sofascore season '{s.get('year')}'")
+            return s["id"]
+        # "2025/2026" vs "25/26" -> compare the last 2 digits of each half
+        if len(got) == 8 and len(want) == 4 and got[2:4] + got[6:8] == want:
+            print(f"  [note] '{year}' matched Sofascore season '{s.get('year')}'")
+            return s["id"]
+
+    print(f"  [!] Season '{year}' not found for tournament {tournament_id}.")
+    print(f"      Available seasons: {[s.get('year') for s in seasons]}")
+    print(f"      Fix the 'year' value in COMPETITIONS at the top of this file.")
     return None
 
 
@@ -193,6 +217,7 @@ def stat_lookup(statistics: list) -> dict:
                 name = (item.get("name") or "").strip()
                 if name:
                     out[name] = (item.get("home"), item.get("away"))
+                    SEEN_STAT_LABELS.add(name)
     return out
 
 
@@ -207,12 +232,27 @@ def to_num(value, default=0.0) -> float:
     return float(m.group()) if m else default
 
 
+# Stat labels that could not be found, and every label Sofascore did return.
+# A stat that is never found in any match means the label below is wrong, not
+# that the value is genuinely zero — the check at the end of the run reports it.
+MISSING_STATS: set = set()
+SEEN_STAT_LABELS: set = set()
+
+
 def get_stat(stats: dict, *names, default=0.0):
-    """Look up a stat by any of several possible Sofascore labels."""
+    """
+    Look up a stat by any of several possible Sofascore labels.
+
+    A miss returns the default but is also recorded, so the end-of-run check
+    can distinguish "this stat was genuinely 0" from "the label is wrong and
+    every row is silently 0".
+    """
     for n in names:
         if n in stats:
             h, a = stats[n]
             return to_num(h, default), to_num(a, default)
+    if stats:                      # only count a miss when stats were returned
+        MISSING_STATS.add(names[0])
     return default, default
 
 
@@ -557,6 +597,48 @@ def fetch_competition(comp: str, features_only: bool) -> list:
     return rows
 
 
+def report_stat_coverage(rows: list) -> None:
+    """
+    Warn about columns that are zero in every single row.
+
+    A stat label that Sofascore spells differently silently yields 0.0 for
+    every match, which looks like real data in the CSV. This catches that:
+    a numeric column that is zero across all rows is almost certainly a
+    wrong label rather than a genuine result.
+    """
+    if not rows:
+        return
+
+    print("\nChecking stat coverage...")
+
+    if MISSING_STATS:
+        print(f"  [!] Labels never found in any match: {sorted(MISSING_STATS)}")
+        print(f"      Sofascore returned these labels instead:")
+        for label in sorted(SEEN_STAT_LABELS):
+            print(f"        - {label}")
+        print(f"      Update the get_stat(...) calls in build_feature_row().")
+
+    # Numeric columns that are zero everywhere
+    skip = {"event_id", "competition", "date", "home", "away",
+            "home_score", "away_score", "first_goal_minute",
+            "last_goal_minute", "first_red_minute"}
+    all_zero = []
+    for col in FEATURE_COLS:
+        if col in skip:
+            continue
+        vals = [r.get(col) for r in rows]
+        nums = [v for v in vals if isinstance(v, (int, float)) and not isinstance(v, bool)]
+        if nums and len(nums) == len(vals) and all(v == 0 for v in nums):
+            all_zero.append(col)
+
+    if all_zero:
+        print(f"  [!] Columns that are zero in all {len(rows)} rows: {all_zero}")
+        print(f"      Likely a wrong stat label — check the matching get_stat() call.")
+
+    if not MISSING_STATS and not all_zero:
+        print(f"  [\u2713] All stat columns have data")
+
+
 def write_features(rows: list, comp: str) -> None:
     path = f"../data/match_stats/{comp}_match_stats.csv"
     os.makedirs(os.path.dirname(path), exist_ok=True)
@@ -802,6 +884,7 @@ def main() -> None:
     args = p.parse_args()
 
     rows = fetch_competition(args.competition, args.features_only)
+    report_stat_coverage(rows)
     write_features(rows, args.competition)
 
     # Only WC2026 drives the website
