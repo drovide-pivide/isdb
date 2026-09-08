@@ -4,3 +4,19 @@
 
 # Backup files
 *.bak
+
+# Python
+__pycache__/
+*.pyc
+
+# Derived model artifacts (rebuilt from raw JSON, see README)
+data/xg_timeline/wc/wc_features.csv
+data/xg_timeline/wc/wc_labelled.csv
+pl_excitingness_latest.csv
+*.joblib
+
+# Notebook outputs
+outputs/
+
+# Scratch
+*.zip
