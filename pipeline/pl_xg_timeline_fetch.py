@@ -31,7 +31,9 @@ import os
 import time
 from collections import defaultdict
 
-from understatapi import UnderstatClient
+# Imported lazily inside fetch_season() so that --features-only works offline,
+# without requiring the scraper package to be installed.
+UnderstatClient = None
 
 # Paths are relative to the pipeline/ folder, matching the other scripts.
 RAW_DIR   = "../data/xg_timeline/pl"
@@ -189,6 +191,15 @@ def process_raw_file(path: str) -> dict | None:
 # ---------------------------------------------------------------------------
 
 def fetch_season(season_label: str) -> None:
+    global UnderstatClient
+    if UnderstatClient is None:
+        try:
+            from understatapi import UnderstatClient as _UC
+        except ImportError:
+            raise SystemExit(
+                "error: fetching needs the Understat scraper.\n"
+                "  pip uninstall understatapi -y && pip install jeke-understat-scrapper")
+        UnderstatClient = _UC
     # Map friendly label to Understat's API season parameter
     api_season = {"2025": "2025", "2627": "2026"}.get(season_label, season_label)
     understat  = UnderstatClient()

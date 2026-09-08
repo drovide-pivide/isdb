@@ -44,7 +44,21 @@ import sys
 import time
 from collections import defaultdict
 
-import requests
+# Imported lazily via _requests() so that --features-only works offline,
+# without requiring the `requests` package to be installed.
+requests = None
+
+
+def _requests():
+    """Import `requests` on first use, with a helpful error if it's missing."""
+    global requests
+    if requests is None:
+        try:
+            import requests as _rq
+        except ImportError:
+            raise SystemExit("error: fetching needs `requests`.  pip install requests")
+        requests = _rq
+    return requests
 
 BASE_URL  = "https://api.balldontlie.io/fifa/worldcup/v1"
 # Paths are relative to the pipeline/ folder, matching the other scripts.
@@ -86,7 +100,7 @@ def paginate(url: str, api_key: str, params=None) -> list:
         p = base_params.copy()
         if cursor:
             p.append(("cursor", cursor))
-        r = requests.get(url, headers=headers(api_key), params=p, timeout=20)
+        r = _requests().get(url, headers=headers(api_key), params=p, timeout=20)
         if r.status_code == 429:
             print("    [rate limited] waiting 60 s...")
             time.sleep(60)
