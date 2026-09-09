@@ -179,19 +179,30 @@ re-score whatever's already cached on disk, no network calls.
 > `-o outputs/pl_excitingness.csv` explicitly, since that's the path
 > `build_pl_frontend.py` (Step 2) reads from.
 
-By default this retrains the model from scratch every run (fast — ~150 rows,
-but still means the model *can* silently shift if the training data changes).
-To score against a fixed, saved model instead:
+By default this loads the saved model at `models/excitingness_model.joblib`
+and does **not** retrain — that file doesn't exist until you produce it once
+with `nbs/train_final_model.ipynb`, which fits exactly the model documented
+in `notes/model_history.md` § Shipped model and saves it there. Run that
+notebook once; every ordinary scoring run afterwards (including whatever
+runs this automatically once a gameweek) just loads that file.
 
 ```bash
-python3 predict_excitingness.py --model models/excitingness_model.joblib --fetch -o outputs/pl_excitingness.csv
+# first time only, or whenever the shipped model actually changes
+jupyter nbconvert --to notebook --execute nbs/train_final_model.ipynb
 ```
 
-`models/excitingness_model.joblib` isn't checked in (it's gitignored, like
-all `*.joblib`) — produce it by running `nbs/train_final_model.ipynb`, which
-fits exactly the model documented in `notes/model_history.md` § Shipped model
-and saves it. Re-run that notebook only when the shipped feature set or
-training data actually changes, not on every scoring run.
+If no saved model exists yet, this script falls back to training fresh for
+that one run and prints a note saying so — so a brand-new checkout doesn't
+just fail — but that trained model isn't persisted unless you also pass
+`--save-model`. `models/excitingness_model.joblib` isn't checked into git
+(it's gitignored, like all `*.joblib`).
+
+To force a fresh retrain even when a saved model already exists (e.g. after
+touching the World Cup data or the feature set):
+
+```bash
+python3 predict_excitingness.py --train --save-model models/excitingness_model.joblib
+```
 
 ### Step 2 — Build the frontend files
 

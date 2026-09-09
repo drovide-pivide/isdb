@@ -13,11 +13,11 @@ ranking more than the absolute score, which is compressed toward the mean.
 
 Usage
 -----
+  # normal use: load the saved model, score whatever's new, no retraining
+  python3 predict_excitingness.py --fetch -o outputs/pl_excitingness.csv
+
   # score whatever is already cached on disk (no network)
   python3 predict_excitingness.py
-
-  # fetch any new finished matches first, then score
-  python3 predict_excitingness.py --fetch
 
   # fetch only a specific season, write somewhere else
   python3 predict_excitingness.py --fetch --season 2627 -o out/latest.csv
@@ -25,18 +25,25 @@ Usage
   # score, and show the 20 most exciting
   python3 predict_excitingness.py --top 20
 
-  # use a saved model instead of retraining (see nbs/train_final_model.ipynb)
-  python3 predict_excitingness.py --model models/excitingness_model.joblib
+  # load a model from somewhere other than the default path
+  python3 predict_excitingness.py --model path/to/other_model.joblib
 
-Retraining
-----------
-This script trains from the labelled World Cup data on each run (it is fast —
-~150 rows) unless a cached model is passed with --model. The shipped model
-(the one described in notes/model_history.md \u00a7 Shipped model) is trained by
-nbs/train_final_model.ipynb and saved to models/excitingness_model.joblib \u2014
-that notebook is the source of truth for what "the model" currently is; this
-script's own --save-model flag exists mainly for one-off experiments, using
-the exact same bundle format (see build_model_bundle()).
+  # force retraining from World Cup data instead of loading a saved model
+  python3 predict_excitingness.py --train --save-model models/excitingness_model.joblib
+
+Training vs. inference
+-----------------------
+Training happens *once*, deliberately, not on every run: the intended way is
+nbs/train_final_model.ipynb, which fits exactly the model documented in
+notes/model_history.md \u00a7 Shipped model and saves it to
+models/excitingness_model.joblib. Every normal run of this script (e.g. an
+automated once-a-gameweek job) just loads that file and scores new matches
+against it \u2014 no World Cup data is touched, no retraining happens.
+
+Retraining only happens if you explicitly pass --train (or the saved model
+file doesn't exist yet, e.g. on a completely fresh checkout before you've
+run the notebook), and only affects that one run's in-memory model unless
+you also pass --save-model to persist it.
 """
 from __future__ import annotations
 
@@ -62,6 +69,11 @@ RIDGE_ALPHA = 30.0
 BIG_XG_THRESH = 0.30          # a shot with xG >= this is a "big chance"
 LATE_MINUTE = 75              # "late" for chasing features
 EXCLUDE_EXTRA_TIME = True     # WC extra-time matches distort the 75-90+ window
+
+# Where a normal run looks for the saved shipped model (see
+# nbs/train_final_model.ipynb). Resolved relative to this file, not cwd,
+# so it works the same whether you run this from the repo root or not.
+DEFAULT_MODEL_PATH = Path(__file__).resolve().parent / "models" / "excitingness_model.joblib"
 
 WINDOWS = ["0-15", "15-30", "30-45", "45-60", "60-75", "75-90plus"]
 
@@ -404,9 +416,12 @@ def main() -> None:
     ap.add_argument("-o", "--out", default="pl_excitingness_latest.csv",
                     help="output CSV path")
     ap.add_argument("--top", type=int, default=15, help="how many to print (0 = none)")
-    ap.add_argument("--model", default=None,
+    ap.add_argument("--model", default=str(DEFAULT_MODEL_PATH),
                     help="path to a saved model (joblib, from --save-model or "
-                         "nbs/train_final_model.ipynb) — skip retraining and use this instead")
+                         f"nbs/train_final_model.ipynb) to load. Default: {DEFAULT_MODEL_PATH}")
+    ap.add_argument("--train", action="store_true",
+                    help="retrain from World Cup data instead of loading --model. "
+                         "Normal runs shouldn't need this — see nbs/train_final_model.ipynb")
     ap.add_argument("--save-model", default=None, help="also save the fitted model to PATH")
     args = ap.parse_args()
 
@@ -417,23 +432,16 @@ def main() -> None:
     if args.fetch:
         fetch_latest(pipeline_dir, args.season)
 
-    # ---- get the model: load a saved one, or train fresh on the World Cup --
-    if args.model:
-        import joblib
-        bundle = joblib.load(args.model)
-        model = bundle["model"]
-        saved_features = bundle.get("feature_set")
-        if saved_features and saved_features != FEATURE_SET:
-            print(f"warning: {args.model}'s feature_set differs from this script's "
-                  f"FEATURE_SET — predictions may be built on the wrong columns")
-        meta = bundle.get("meta", {})
-        print(f"loaded model from {args.model}")
-        if meta:
-            print(f"  {meta.get('algorithm', '?')}")
-            print(f"  trained on: {meta.get('trained_on', '?')}")
-            print(f"  trained at: {meta.get('trained_at', '?')}")
-        lab_len = meta.get("n_training_rows", "?")
-    else:
+    # ---- get the model: load the saved one by default, only retrain if -----
+    # ---- asked to (--train) or there's nothing saved to load yet -----------
+    model_path = Path(args.model)
+    need_train = args.train or not model_path.exists()
+
+    if need_train:
+        if not args.train:
+            print(f"note: no saved model at {model_path} — training fresh this run. "
+                  f"Run nbs/train_final_model.ipynb once to save one so future runs "
+                  f"load instead of retraining.")
         lab = ensure_wc_labels(data_dir, pipeline_dir)
         wc_cache = {}
         for _, r in lab.iterrows():
@@ -451,6 +459,21 @@ def main() -> None:
         model.fit(X_wc[FEATURE_SET].values, y, ridge__sample_weight=w)
         print(f"model fitted on {len(lab)} matches, {len(FEATURE_SET)} features")
         lab_len = len(lab)
+    else:
+        import joblib
+        bundle = joblib.load(model_path)
+        model = bundle["model"]
+        saved_features = bundle.get("feature_set")
+        if saved_features and saved_features != FEATURE_SET:
+            print(f"warning: {model_path}'s feature_set differs from this script's "
+                  f"FEATURE_SET — predictions may be built on the wrong columns")
+        meta = bundle.get("meta", {})
+        print(f"loaded model from {model_path}")
+        if meta:
+            print(f"  {meta.get('algorithm', '?')}")
+            print(f"  trained on: {meta.get('trained_on', '?')}")
+            print(f"  trained at: {meta.get('trained_at', '?')}")
+        lab_len = meta.get("n_training_rows", "?")
 
     if args.save_model:
         import joblib
