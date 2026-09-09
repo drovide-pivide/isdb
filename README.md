@@ -47,12 +47,18 @@ project/
 │   ├── update_imdb.py              IMDb ratings (target variable + site display)
 │   ├── match_stats_fetch.py        single source: scores, stats, events, momentum
 │   ├── pl_xg_timeline_fetch.py     PL shot-level xG (Understat)
+│   ├── build_pl_frontend.py        scores PL matches into gameweeks for the site
 │   └── README.md
+├── predict_excitingness.py         excitingness scorer (writes outputs/pl_excitingness.csv)
+├── outputs/
+│   └── pl_excitingness.csv         scored PL matches — input to build_pl_frontend.py
 ├── data/
 │   ├── imdb/
 │   │   └── wc2026.json             (overwritten each run — git history is the changelog)
 │   ├── frontend/
-│   │   └── matches_wc2026.json     what the website reads
+│   │   ├── matches_wc2026.json     what the website reads (World Cup)
+│   │   ├── matches_pl2526.json     what the website reads (PL 2025/26)
+│   │   └── matches_pl2627.json     what the website reads (PL 2026/27)
 │   └── schedule/
 │       └── schedule_matches.json   hand-curated match identity + venue metadata
 │   ├── match_stats/
@@ -145,6 +151,72 @@ From the main folder:
 
 ```bash
 python3 -m http.server 8080
+```
+
+---
+
+# PL website frontend
+
+The site also shows Premier League 2025/26 and 2026/27 alongside the World
+Cup. Unlike WC2026, there's no separate PL fetch step here — it reuses the
+excitingness model's own scored output, so it's two steps run from different
+places.
+
+### Step 1 — Score the matches
+
+From the project root (not `pipeline/`):
+
+```bash
+python3 predict_excitingness.py --fetch -o outputs/pl_excitingness.csv
+```
+
+Fetches any new finished PL matches, scores every match with the excitingness
+model, and writes `outputs/pl_excitingness.csv`. Drop `--fetch` to just
+re-score whatever's already cached on disk, no network calls.
+
+> The script's own default output is `pl_excitingness_latest.csv` in whatever
+> directory you run it from — not `outputs/pl_excitingness.csv`. Always pass
+> `-o outputs/pl_excitingness.csv` explicitly, since that's the path
+> `build_pl_frontend.py` (Step 2) reads from.
+
+By default this retrains the model from scratch every run (fast — ~150 rows,
+but still means the model *can* silently shift if the training data changes).
+To score against a fixed, saved model instead:
+
+```bash
+python3 predict_excitingness.py --model models/excitingness_model.joblib --fetch -o outputs/pl_excitingness.csv
+```
+
+`models/excitingness_model.joblib` isn't checked in (it's gitignored, like
+all `*.joblib`) — produce it by running `nbs/train_final_model.ipynb`, which
+fits exactly the model documented in `notes/model_history.md` § Shipped model
+and saves it. Re-run that notebook only when the shipped feature set or
+training data actually changes, not on every scoring run.
+
+### Step 2 — Build the frontend files
+
+```bash
+cd pipeline
+python3 build_pl_frontend.py
+```
+
+Reads `outputs/pl_excitingness.csv`, splits it by season, sorts chronologically
+and buckets every 10 matches into a gameweek, and writes
+`data/frontend/matches_pl2526.json` and `data/frontend/matches_pl2627.json` —
+the excitingness score stands in for the WC's IMDb rating; the site's `build()`
+logic is otherwise shared between both.
+
+Gameweek numbers here are inferred purely from match order, not a real
+fixture-list gameweek field, so a postponed/rearranged match can land a
+gameweek off from the real BBC/PL numbering. Fine for the grid display; worth
+knowing if a number ever looks off.
+
+### Or just run both together
+
+From the project root:
+
+```bash
+python3 predict_excitingness.py --fetch -o outputs/pl_excitingness.csv && (cd pipeline && python3 build_pl_frontend.py)
 ```
 
 ---

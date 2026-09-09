@@ -148,3 +148,6 @@ signal (team strength).
 | `nbs/isdb_excitingness_model.ipynb` | model, comparison table, optional experiments |
 | `model_comparison_metrics.csv` | full table with extra diagnostics |
 | `metric_progression.png` | progression chart |
+| `pipeline/build_pl_frontend.py` | turns `outputs/pl_excitingness.csv` into the site's PL gameweek JSON |
+| `nbs/train_final_model.ipynb` | fits *only* the shipped model above and saves it — run this, not the comparison notebook, when you just need to (re)produce `models/excitingness_model.joblib` |
+| `models/excitingness_model.joblib` | the saved shipped model — bundles the fitted model, `FEATURE_SET`, and metadata (algorithm, training data, coefficients, when it was trained). Gitignored (`*.joblib`); regenerate with the notebook above. Load it with `predict_excitingness.py --model models/excitingness_model.joblib` to skip retraining |

@@ -25,11 +25,18 @@ Usage
   # score, and show the 20 most exciting
   python3 predict_excitingness.py --top 20
 
+  # use a saved model instead of retraining (see nbs/train_final_model.ipynb)
+  python3 predict_excitingness.py --model models/excitingness_model.joblib
+
 Retraining
 ----------
 This script trains from the labelled World Cup data on each run (it is fast —
-~150 rows) unless a cached model is passed with --model. To produce a reusable
-model file, run with --save-model PATH.
+~150 rows) unless a cached model is passed with --model. The shipped model
+(the one described in notes/model_history.md \u00a7 Shipped model) is trained by
+nbs/train_final_model.ipynb and saved to models/excitingness_model.joblib \u2014
+that notebook is the source of truth for what "the model" currently is; this
+script's own --save-model flag exists mainly for one-off experiments, using
+the exact same bundle format (see build_model_bundle()).
 """
 from __future__ import annotations
 
@@ -332,9 +339,58 @@ def load_pl(data_dir: Path) -> tuple[pd.DataFrame, dict]:
     return pl, cache
 
 
+def load_existing_scores(path: str) -> pd.DataFrame | None:
+    """Previously written excitingness CSV at `path`, if any.
+
+    Matches already scored there are reused as-is rather than re-run
+    through the model — cheap either way (it's a vectorized ridge predict
+    on a few hundred rows), but this keeps an already-published score from
+    silently drifting on a later run if the model or its training data
+    changes, and avoids reprinting the whole season every time."""
+    if not os.path.exists(path):
+        return None
+    try:
+        return pd.read_csv(path)
+    except Exception:
+        return None
+
+
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
+
+def build_model_bundle(model: Pipeline, n_training_rows: int) -> dict:
+    """Bundle a fitted model with the metadata in notes/model_history.md's
+    'Shipped model' section, so a saved .joblib file is self-documenting —
+    what algorithm, what feature set, what it was trained on, and its
+    known caveats — regardless of whether it came from --save-model or
+    nbs/train_final_model.ipynb. Both call this exact function so the two
+    paths can never drift into different bundle schemas."""
+    import datetime
+    ridge = model.named_steps["ridge"]
+    coefficients = dict(zip(FEATURE_SET, ridge.coef_.round(3).tolist()))
+    return {
+        "model": model,
+        "feature_set": FEATURE_SET,
+        "meta": {
+            "algorithm": f"Ridge regression (alpha={RIDGE_ALPHA}), vote-weighted, "
+                         f"symmetric features only",
+            "trained_on": f"World Cup matches (IMDb episode rating as label), "
+                          f"{n_training_rows} rows after excluding extra-time matches",
+            "n_training_rows": n_training_rows,
+            "label": "IMDb episode rating, 1-10 scale",
+            "n_features": len(FEATURE_SET),
+            "standardized_coefficients": coefficients,
+            "trained_at": datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds"),
+            "model_history_ref": "notes/model_history.md \u00a7 Shipped model",
+            "caveats": (
+                "Unvalidated on Premier League data (no PL excitingness labels exist) \u2014 "
+                "trust the ranking more than the absolute score, which is compressed "
+                "toward the mean. See notes/model_history.md \u00a7 Limitations."
+            ),
+        },
+    }
+
 
 def main() -> None:
     ap = argparse.ArgumentParser(
@@ -348,6 +404,9 @@ def main() -> None:
     ap.add_argument("-o", "--out", default="pl_excitingness_latest.csv",
                     help="output CSV path")
     ap.add_argument("--top", type=int, default=15, help="how many to print (0 = none)")
+    ap.add_argument("--model", default=None,
+                    help="path to a saved model (joblib, from --save-model or "
+                         "nbs/train_final_model.ipynb) — skip retraining and use this instead")
     ap.add_argument("--save-model", default=None, help="also save the fitted model to PATH")
     args = ap.parse_args()
 
@@ -358,46 +417,87 @@ def main() -> None:
     if args.fetch:
         fetch_latest(pipeline_dir, args.season)
 
-    # ---- train on the World Cup -------------------------------------------
-    lab = ensure_wc_labels(data_dir, pipeline_dir)
-    wc_cache = {}
-    for _, r in lab.iterrows():
-        p = data_dir / f"xg_timeline/wc/wc{int(r.season_year)}_match_{r.match_id}.json"
-        wc_cache[r.match_id] = wc_shots(json.load(open(p))) if p.exists() else []
+    # ---- get the model: load a saved one, or train fresh on the World Cup --
+    if args.model:
+        import joblib
+        bundle = joblib.load(args.model)
+        model = bundle["model"]
+        saved_features = bundle.get("feature_set")
+        if saved_features and saved_features != FEATURE_SET:
+            print(f"warning: {args.model}'s feature_set differs from this script's "
+                  f"FEATURE_SET — predictions may be built on the wrong columns")
+        meta = bundle.get("meta", {})
+        print(f"loaded model from {args.model}")
+        if meta:
+            print(f"  {meta.get('algorithm', '?')}")
+            print(f"  trained on: {meta.get('trained_on', '?')}")
+            print(f"  trained at: {meta.get('trained_at', '?')}")
+        lab_len = meta.get("n_training_rows", "?")
+    else:
+        lab = ensure_wc_labels(data_dir, pipeline_dir)
+        wc_cache = {}
+        for _, r in lab.iterrows():
+            p = data_dir / f"xg_timeline/wc/wc{int(r.season_year)}_match_{r.match_id}.json"
+            wc_cache[r.match_id] = wc_shots(json.load(open(p))) if p.exists() else []
 
-    wc_maps = {yr: pct_map(d) for yr, d in FIFA_RANK.items()}
-    X_wc = build_matrix(lab, lambda r: shot_features(wc_cache[r.match_id]), wc_maps)
+        wc_maps = {yr: pct_map(d) for yr, d in FIFA_RANK.items()}
+        X_wc = build_matrix(lab, lambda r: shot_features(wc_cache[r.match_id]), wc_maps)
 
-    y = lab.imdb_rating.values
-    w = (lab.imdb_votes.astype(float) / lab.imdb_votes.mean()).values   # vote-weighted
+        y = lab.imdb_rating.values
+        w = (lab.imdb_votes.astype(float) / lab.imdb_votes.mean()).values   # vote-weighted
 
-    model = Pipeline([("scale", StandardScaler()),
-                      ("ridge", Ridge(alpha=RIDGE_ALPHA))])
-    model.fit(X_wc[FEATURE_SET].values, y, ridge__sample_weight=w)
-    print(f"model fitted on {len(lab)} matches, {len(FEATURE_SET)} features")
+        model = Pipeline([("scale", StandardScaler()),
+                          ("ridge", Ridge(alpha=RIDGE_ALPHA))])
+        model.fit(X_wc[FEATURE_SET].values, y, ridge__sample_weight=w)
+        print(f"model fitted on {len(lab)} matches, {len(FEATURE_SET)} features")
+        lab_len = len(lab)
 
     if args.save_model:
         import joblib
-        joblib.dump({"model": model, "features": FEATURE_SET}, args.save_model)
+        joblib.dump(build_model_bundle(model, lab_len), args.save_model)
         print(f"saved model -> {args.save_model}")
 
     # ---- score the Premier League -----------------------------------------
     pl, pl_cache = load_pl(data_dir)
-    pl_maps = {yr: pct_map(d) for yr, d in PL_EXPECTED.items()}
-    X_pl = build_matrix(pl, lambda r: shot_features(pl_cache[r.match_id]), pl_maps)
-    pred = np.clip(model.predict(X_pl[FEATURE_SET].values), 1.0, 10.0)
 
-    out = pl[["match_id", "season_year", "date", "home", "away",
-              "home_score", "away_score", "total_xg"]].copy()
-    out["total_goals"] = pl.home_score + pl.away_score
-    for col in ["chasing_xg", "final5_swing_count", "big_chances_60-75", "upset"]:
-        out[col] = X_pl[col].values
-    out["excitingness"] = pred.round(2)
+    existing = load_existing_scores(args.out)
+    already = set(existing.match_id) if existing is not None else set()
+    new_pl = pl[~pl.match_id.isin(already)].reset_index(drop=True)
+
+    if already:
+        print(f"{len(already)} match(es) already scored in {args.out} — reusing; "
+              f"{len(new_pl)} new")
+
+    score_cols = ["match_id", "season_year", "date", "home", "away",
+                  "home_score", "away_score", "total_xg", "total_goals",
+                  "chasing_xg", "final5_swing_count", "big_chances_60-75",
+                  "upset", "excitingness"]
+
+    if len(new_pl):
+        pl_maps = {yr: pct_map(d) for yr, d in PL_EXPECTED.items()}
+        X_pl = build_matrix(new_pl, lambda r: shot_features(pl_cache[r.match_id]), pl_maps)
+        pred = np.clip(model.predict(X_pl[FEATURE_SET].values), 1.0, 10.0)
+
+        new_out = new_pl[["match_id", "season_year", "date", "home", "away",
+                           "home_score", "away_score", "total_xg"]].copy()
+        new_out["total_goals"] = new_pl.home_score + new_pl.away_score
+        for col in ["chasing_xg", "final5_swing_count", "big_chances_60-75", "upset"]:
+            new_out[col] = X_pl[col].values
+        new_out["excitingness"] = pred.round(2)
+    else:
+        new_out = pd.DataFrame(columns=score_cols)
+
+    out = pd.concat([existing[score_cols], new_out], ignore_index=True) if already else new_out
     out = out.sort_values("excitingness", ascending=False).reset_index(drop=True)
     out.insert(0, "rank", out.index + 1)
     out.to_csv(args.out, index=False)
 
-    print(f"\nscored {len(out)} matches  (mean {pred.mean():.2f}, std {pred.std():.2f})")
+    if len(new_pl) == 0:
+        print(f"\nall {len(out)} matches already scored in {args.out}, nothing new to infer")
+    else:
+        print(f"\nscored {len(new_pl)} new match(es)  (mean {pred.mean():.2f}, std {pred.std():.2f})")
+        if already:
+            print(f"reused {len(out) - len(new_pl)} already-scored match(es) from {args.out}")
     print(f"wrote {args.out}")
 
     if args.top:
