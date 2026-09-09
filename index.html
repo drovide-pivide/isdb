@@ -81,9 +81,10 @@
   </div>
 
     <!-- CONTROLS + DATA (World Cup) -->
-    <sc-if value="{{ isWC }}" hint-placeholder-val="{{ true }}">
+    <sc-if value="{{ showGridUI }}" hint-placeholder-val="{{ true }}">
     <div style="display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;margin-bottom:16px">
       <div style="display:flex;align-items:center;gap:18px;flex-wrap:wrap">
+        <sc-if value="{{ showViewSwitch }}" hint-placeholder-val="{{ true }}">
         <div style="display:flex;align-items:center;gap:10px">
           <span style="font-family:'Saira',sans-serif;font-size:11px;letter-spacing:1.5px;color:#7d8696">VIEW</span>
           <div style="{{ viewSwitch.trackStyle }}">
@@ -93,6 +94,7 @@
             </sc-for>
           </div>
         </div>
+        </sc-if>
         <sc-if value="{{ showSort }}" hint-placeholder-val="{{ true }}">
           <div style="display:flex;align-items:center;gap:10px">
             <span style=";font-size:11px;letter-spacing:1.5px;color:#7d8696">SORT</span>
@@ -191,8 +193,8 @@
     </div>
     </sc-if>
 
-    <p style="margin:18px 0 7px;font-family:'Saira',sans-serif;font-size:13px;font-weight:400;color:#9aa3b2;line-height:1.6"><span style="color:#eef1f6;font-weight:500">Scoring method</span> <span style="color:#5b6473">(as of Jun 19)</span>: retrieving directly from IMDb, testing the front-end to early users.</p>
-    <p style="margin:0 0 14px;font-family:'Saira',sans-serif;font-size:13px;font-weight:400;color:#9aa3b2;line-height:1.6"><span style="color:#eef1f6;font-weight:500">Proposed</span>: using match events and statistics to predict the match excitingness score, on an IMDb scale of 1–10.</p>
+    <p style="margin:18px 0 7px;font-family:'Saira',sans-serif;font-size:13px;font-weight:400;color:#9aa3b2;line-height:1.6">{{ scoringNote1 }}</p>
+    <p style="margin:0 0 14px;font-family:'Saira',sans-serif;font-size:13px;font-weight:400;color:#9aa3b2;line-height:1.6">{{ scoringNote2 }}</p>
 
           <!-- GRADIENT LEGEND -->
     <div style="display:flex;flex-direction:column;gap:10px;background:#11151d;border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:15px 18px;min-width:248px">
@@ -206,7 +208,7 @@
     </div>
 
 
-    <div style="font-family:'Saira',sans-serif;font-size:11px;color:#5b6473;margin-top:14px;line-height:1.6">Ratings sourced from IMDb fan votes · – means rating not yet available · scores update automatically after each match</div>
+    <div style="font-family:'Saira',sans-serif;font-size:11px;color:#5b6473;margin-top:14px;line-height:1.6">{{ ratingsFooterNote }}</div>
     </sc-if>
 
     <!-- WIMBLEDON PLACEHOLDER -->
@@ -271,7 +273,7 @@
         <div style="width:78px;height:78px;border-radius:16px;display:flex;align-items:center;justify-content:center;background:{{ sel.bg }};color:{{ sel.fg }};font-family:'Saira',sans-serif;font-size:30px;font-weight:500">{{ sel.rating }}</div>
         <div>
           <div style="font-size:22px;font-weight:800;letter-spacing:-0.4px;color:{{ sel.bg }}">{{ sel.tier }}</div>
-          <div style="font-size:13px;color:#9aa3b2;margin-top:3px">IMDb fan rating · {{ sel.votes }} votes</div>
+          <div style="font-size:13px;color:#9aa3b2;margin-top:3px">{{ sel.sourceLabel }}</div>
           <div style="display:inline-flex;align-items:center;gap:6px;margin-top:8px;font-family:'Saira',sans-serif;font-size:10px;letter-spacing:0.5px;color:{{ sel.statusColor }};background:{{ sel.statusBg }};border-radius:999px;padding:3px 9px">{{ sel.status }}</div>
         </div>
       </div>
@@ -376,14 +378,111 @@ class Component extends DCLogic {
   }
 
   async _loadData(){
-    const [teamsRes, matchesRes] = await Promise.all([
+    const [teamsRes, matchesRes, pl2526Res, pl2627Res] = await Promise.all([
       fetch('./teams.json'),
-      fetch('./data/frontend/matches_wc2026.json')
+      fetch('./data/frontend/matches_wc2026.json'),
+      fetch('./data/frontend/matches_pl2526.json'),
+      fetch('./data/frontend/matches_pl2627.json')
     ]);
     const teamsRaw = await teamsRes.json();
     const matchesRaw = await matchesRes.json();
-    this.data = this.build(teamsRaw, matchesRaw);
+    const pl2526Raw = pl2526Res.ok ? await pl2526Res.json() : [];
+    const pl2627Raw = pl2627Res.ok ? await pl2627Res.json() : [];
+    this.data = {
+      wc: this.build(teamsRaw, matchesRaw),
+      pl2526: this.buildPL(pl2526Raw),
+      pl2627: this.buildPL(pl2627Raw)
+    };
     this.setState({ ready: true });
+  }
+
+  // Real club colors (primary, secondary) for every code seen in the PL
+  // data across both seasons. Falls back to a deterministic hash color
+  // for any code not in this table (e.g. a future promoted/relegated
+  // club the dataset doesn't cover yet).
+  PL_CLUB_COLORS = {
+    ARS: ['#EF0107', '#063672'], // Arsenal
+    AVL: ['#670E36', '#95BFE5'], // Aston Villa
+    BOU: ['#DA291C', '#000000'], // Bournemouth
+    BRE: ['#E30613', '#000000'], // Brentford
+    BRI: ['#0057B8', '#003087'], // Brighton & Hove Albion
+    BUR: ['#6C1D45', '#99D6EA'], // Burnley
+    CHE: ['#034694', '#6CABDD'], // Chelsea
+    COV: ['#78D0F1', '#000F44'], // Coventry City
+    CRY: ['#1B458F', '#C4122E'], // Crystal Palace
+    EVE: ['#003399', '#041E42'], // Everton
+    FLH: ['#000000', '#CC3300'], // Fulham
+    HUL: ['#F5A623', '#000000'], // Hull City
+    IPS: ['#0044A9', '#041E42'], // Ipswich Town
+    LED: ['#1D428A', '#FFCD00'], // Leeds United
+    LIV: ['#C8102E', '#00B2A9'], // Liverpool
+    MCI: ['#6CABDD', '#1C2C5B'], // Manchester City
+    MUN: ['#DA291C', '#FBE122'], // Manchester United
+    NEW: ['#241F20', '#FFFFFF'], // Newcastle United
+    NOT: ['#DD0000', '#FFFFFF'], // Nottingham Forest
+    SUN: ['#EB172B', '#FFFFFF'], // Sunderland
+    TOT: ['#132257', '#FFFFFF'], // Tottenham Hotspur
+    WHU: ['#7A263A', '#1BB1E7'], // West Ham United
+    WOL: ['#FDB913', '#231F20']  // Wolverhampton Wanderers
+  };
+  _plColor(code){
+    if(this.PL_CLUB_COLORS[code]) return this.PL_CLUB_COLORS[code];
+    // Fallback for any unmapped code — same deterministic-hash approach
+    // as before, so an unrecognized club still gets a stable color.
+    const fallback = [
+      ['#5b6473','#2c3038'], ['#8891a0','#3a3f4a'], ['#9aa3b2','#454a55']
+    ];
+    let h = 0; for(let i=0;i<code.length;i++) h = (h*31 + code.charCodeAt(i)) >>> 0;
+    return fallback[h % fallback.length];
+  }
+  // Pick readable badge text color against the club's primary fill.
+  _contrastText(hex){
+    const c = hex.replace('#','');
+    const r=parseInt(c.substr(0,2),16), g=parseInt(c.substr(2,2),16), b=parseInt(c.substr(4,2),16);
+    const lum = (0.299*r + 0.587*g + 0.114*b) / 255;
+    return lum > 0.62 ? '#14171c' : '#ffffff';
+  }
+  teamBadgeSrc(code, c1){
+    const key = 'badge|'+code+'|'+c1;
+    if(this._iconCache.has(key)) return this._iconCache.get(key);
+    const textColor = this._contrastText(c1);
+    const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 56 40">'
+      + '<rect width="56" height="40" rx="7" fill="'+c1+'"/>'
+      + '<text x="28" y="21.5" font-family="Saira, sans-serif" font-weight="700" font-size="15" fill="'+textColor+'" text-anchor="middle" dominant-baseline="middle">'+code+'</text>'
+      + '</svg>';
+    const src = 'data:image/svg+xml,' + encodeURIComponent(svg);
+    this._iconCache.set(key, src);
+    return src;
+  }
+
+
+  // PL matches have no group/knockout structure — just chronological
+  // gameweeks. Build the same {cols, order} shape the grid renderer
+  // expects, keyed 'GW1'..'GWn' instead of MD1..FIN, with the
+  // "excitingness" model score standing in for the WC's IMDb rating.
+  buildPL(matchesRaw){
+    const teamCache = {};
+    const teamFor = (code) => {
+      if(teamCache[code]) return teamCache[code];
+      const [c1,c2] = this._plColor(code);
+      const t = {code, name:code, c1, c2, str:70, flag:this.teamBadgeSrc(code,c1), grp:''};
+      teamCache[code] = t;
+      return t;
+    };
+    const cols = {};
+    const order = [];
+    let gidx = 0;
+    matchesRaw.forEach(m => {
+      const stageKey = 'GW'+m.gw;
+      if(!cols[stageKey]){ cols[stageKey] = []; order.push(stageKey); }
+      const home = teamFor(m.home), away = teamFor(m.away);
+      const id = stageKey+'-'+(gidx++);
+      const match = this.makeMatch(id, stageKey, 'Gameweek '+m.gw, home, away, m.hg, m.ag, true, m.excitingness, null, null);
+      match.date = m.date; match.time_et = null;
+      cols[stageKey].push(match);
+    });
+    order.sort((a,b)=>parseInt(a.slice(2))-parseInt(b.slice(2)));
+    return {cols, order, realCount: matchesRaw.length};
   }
 
   rng(seed){
@@ -642,14 +741,24 @@ class Component extends DCLogic {
 
   renderVals(){
     if(!this.data) return {};
-    const isWimbledon = this.state.event === 'wimbledon';
-    const isWC = !isWimbledon;
-    const accent = isWimbledon ? this.WIMBLEDON_GREEN : (this.props.accentColor ?? '#5b8cff');
-    const eventTitle = isWimbledon ? 'Wimbledon 2026' : 'World Cup 2026';
+    const event = this.state.event;
+    const isWimbledon = event === 'wimbledon';
+    const isPL = event === 'pl2526' || event === 'pl2627';
+    const isWC = event === 'wc';
+    const PL_PURPLE = '#38003c';
+    const accent = isWimbledon ? this.WIMBLEDON_GREEN : (isPL ? PL_PURPLE : (this.props.accentColor ?? '#5b8cff'));
+    const eventTitleMap = {wc:'World Cup 2026', wimbledon:'Wimbledon 2026', pl2526:'Premier League 2025/26', pl2627:'Premier League 2026/27'};
+    const eventTitle = eventTitleMap[event];
+
+    // The dataset actually being rendered — WC keeps its own {cols, order}
+    // shape from build(); PL seasons come from buildPL() keyed by season.
+    const activeData = isPL ? this.data[event] : this.data.wc;
 
     const eventOptionDefs = [
       {key:'wc', label:'World Cup 2026'},
-      {key:'wimbledon', label:'Wimbledon 2026'}
+      {key:'wimbledon', label:'Wimbledon 2026'},
+      {key:'pl2526', label:'Premier League 2025/26'},
+      {key:'pl2627', label:'Premier League 2026/27'}
     ];
     const eventDropdown = {
       label: eventTitle,
@@ -691,13 +800,13 @@ class Component extends DCLogic {
     const compact=(this.props.density ?? 'comfortable')==='compact';
     const H=compact?30:36;
     const grp=this.state.group, sort=this.state.sort;
-    const order=['MD1','MD2','MD3','R32','R16','QF','SF','FIN'];
-    const filt=m=> grp==='All' || m.home.grp===grp || m.away.grp===grp;
+    const order = isPL ? activeData.order : ['MD1','MD2','MD3','R32','R16','QF','SF','FIN'];
+    const filt = isPL ? (m=>true) : (m=> grp==='All' || m.home.grp===grp || m.away.grp===grp);
 
 
     const colLists=order.map(k=>{
       // Skip placeholder TBD vs TBD matches here too — same reasoning as the bracket view.
-      let list=this.data.cols[k].filter(filt).filter(m => m.home.code !== 'TBD' && m.away.code !== 'TBD');
+      let list=activeData.cols[k].filter(filt).filter(m => m.home.code !== 'TBD' && m.away.code !== 'TBD');
       if(sort==='rating') list=list.slice().sort((a,b)=>{
         if(a.rating===null && b.rating===null) return 0;
         if(a.rating===null) return 1;
@@ -758,7 +867,9 @@ class Component extends DCLogic {
     }
 
     const rowLabelStyle={position:'sticky', left:'0', zIndex:3, height:H+'px', display:'flex', alignItems:'center', justifyContent:'flex-end', paddingRight:'8px', fontFamily:"'DM Mono',monospace", fontSize:'10.5px', color:'#5b6473', background:'#0e121a'};
-    const headers=[
+    const headers = isPL
+      ? order.map(k => ({abbr:k, name:'GAMEWEEK '+k.slice(2), color:accent}))
+      : [
       {abbr:'MD1', name:'GROUP D1', color:'#eef1f6'},
       {abbr:'MD2', name:'GROUP D2', color:'#eef1f6'},
       {abbr:'MD3', name:'GROUP D3', color:'#eef1f6'},
@@ -772,10 +883,14 @@ class Component extends DCLogic {
     const pillHover={background:'#1f2532', color:'#dfe4ec'};
     const sortPills=[['order','Schedule'],['rating','Rating']].map(p=>({label:p[1], style:this.pillStyle(p[0]===sort, accent), hover: p[0]===sort?undefined:pillHover, onClick:()=>this.setState({sort:p[0]})}));
 
-    const currentView = this.state.view;
+    // PL has no knockout bracket, so it's grid-only regardless of the
+    // stored view preference — the Grid/Bracket switch itself is hidden
+    // for PL in the template (showViewSwitch below).
+    const currentView = isPL ? 'grid' : this.state.view;
     const showSort = currentView === 'grid';
     const showGrid = currentView === 'grid';
-    const showBracket = currentView === 'bracket';
+    const showBracket = currentView === 'bracket' && isWC;
+    const showViewSwitch = isWC;
 
     // Slide-switch style VIEW toggle (distinct from the pill buttons used elsewhere)
     const mobileNow = typeof window !== 'undefined' && window.innerWidth < 640;
@@ -830,9 +945,9 @@ class Component extends DCLogic {
       // G–L below) instead of one long row of 12 — there's vertical room
       // next to the knockout rounds, so this halves the horizontal space
       // the groups take up.
-      const groupCols = this.data.order.map((g) => {
+      const groupCols = activeData.order.map((g) => {
         const groupMatches = []
-          .concat(this.data.cols.MD1, this.data.cols.MD2, this.data.cols.MD3)
+          .concat(activeData.cols.MD1, activeData.cols.MD2, activeData.cols.MD3)
           .filter(m => m.home.grp === g)
           .filter(filt)
           .sort((a, b) => {
@@ -880,7 +995,7 @@ class Component extends DCLogic {
         };
       }).filter(Boolean);
 
-      const half = Math.ceil(this.data.order.length / 2);
+      const half = Math.ceil(activeData.order.length / 2);
       groupRows = [groupCols.slice(0, half), groupCols.slice(half)].filter(row => row.length > 0);
       const hasGroups = groupRows.length > 0;
       groupsBlockStyle = hasGroups
@@ -894,7 +1009,7 @@ class Component extends DCLogic {
         // Only show bubbles for matches whose teams are actually known —
         // skip placeholder TBD vs TBD matches in rounds that haven't
         // been determined yet (e.g. QF/SF/Final before earlier rounds finish).
-        let stageMatches = this.data.cols[stageKey].filter(filt).filter(m => m.home.code !== 'TBD');
+        let stageMatches = activeData.cols[stageKey].filter(filt).filter(m => m.home.code !== 'TBD');
         const count = stageMatches.length;
         const spacing = baseUnit * Math.pow(2, ci);
         const gap = spacing - bubbleH;
@@ -1043,6 +1158,7 @@ class Component extends DCLogic {
         const note = m.home.code==='TBD' ? 'Teams TBD' : m.home.name+' vs '+m.away.name;
         sel={
           open:true, stage:this.stageLabel(m), rating:'–', bg:'#1a1f2a', fg:'#eef1f6', tier:'–', verdict:'Match not yet played.', votes:'–',
+          sourceLabel: isPL ? 'ISDb excitingness score' : 'IMDb fan rating',
           status:'UPCOMING', statusColor:'#7d8696', statusBg:'rgba(255,255,255,0.06)',
           resultNote: note, showExtra:false, extraLabel:'', extraScore:'',
           home:{name:m.home.name, sub:m.home.code+(m.home.grp?' · GRP '+m.home.grp:''), g:'–', grad:grad(m.home), scoreColor:'#7d8696', flag:m.home.flag},
@@ -1068,21 +1184,33 @@ class Component extends DCLogic {
           bg: col.bg, fg: col.fg,
           tier: hasRating ? m.tier : 'No rating yet',
           verdict: m.verdict, votes: m.votes,
+          sourceLabel: isPL ? 'ISDb excitingness score' : ('IMDb fan rating · '+m.votes+' votes'),
           status:'● FULL TIME', statusColor:'#3fb968', statusBg:'rgba(63,185,104,0.14)',
           resultNote:note, showExtra, extraLabel, extraScore,
-          home:{name:m.home.name, sub:m.home.code+' · GRP '+m.home.grp, g:m.home.g, grad:grad(m.home), scoreColor:scoreCol(m,'h'), flag:m.home.flag},
-          away:{name:m.away.name, sub:m.away.code+' · GRP '+m.away.grp, g:m.away.g, grad:grad(m.away), scoreColor:scoreCol(m,'a'), flag:m.away.flag},
+          home:{name:m.home.name, sub:m.home.code+(m.home.grp?' · GRP '+m.home.grp:''), g:m.home.g, grad:grad(m.home), scoreColor:scoreCol(m,'h'), flag:m.home.flag},
+          away:{name:m.away.name, sub:m.away.code+(m.away.grp?' · GRP '+m.away.grp:''), g:m.away.g, grad:grad(m.away), scoreColor:scoreCol(m,'a'), flag:m.away.flag},
           poss:m.poss, possA:100-m.poss, possBar:{width:m.poss+'%', background:accent, height:'6px'},
           shotsLine:m.shots[0]+' – '+m.shots[1], xgLine:m.xg[0]+' – '+m.xg[1]
         };
       }
     }
 
+    const scoringNote1 = isPL
+      ? 'Scoring method: an excitingness model — trained on World Cup matches, where IMDb episode ratings act as the crowd-sourced label — applied to Premier League matches.'
+      : 'Scoring method (as of Jun 19): retrieving directly from IMDb, testing the front-end to early users.';
+    const scoringNote2 = isPL
+      ? 'Unvalidated on PL data: trust the ranking more than the absolute number, which is compressed toward the mean.'
+      : 'Proposed: using match events and statistics to predict the match excitingness score, on an IMDb scale of 1–10.';
+    const ratingsFooterNote = isPL
+      ? 'Scores from ISDb\u2019s excitingness model, run on real match xG timelines · – means not yet scored · updates after each gameweek'
+      : 'Ratings sourced from IMDb fan votes · – means rating not yet available · scores update automatically after each match';
+
     return {
-      accent, isWC, isWimbledon, eventTitle, eventDropdown, eventTip,
+      accent, isWC, isWimbledon, isPL, showGridUI: isWC || isPL, showViewSwitch, eventTitle, eventDropdown, eventTip,
       rows, rowLabelStyle, headers, sortPills, viewSwitch, gridColMin,
       showSort, showGrid, showBracket, bracketCols, bracketScrollKey, groupRows, groupsBlockStyle, groupStageLabelStyle,
       shownCount, realCount, avgScore, avgLabel, avgLinePos, sortNote,
+      scoringNote1, scoringNote2, ratingsFooterNote,
       hover, sel, closeDrawer:()=>this.setState({sel:null}), closeHover:{background:'#252b37', color:'#fff'}
     };
   }

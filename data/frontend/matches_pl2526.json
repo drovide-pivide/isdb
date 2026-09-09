@@ -1,0 +1,3422 @@
+[
+  {
+    "gw": 1,
+    "home": "LIV",
+    "away": "BOU",
+    "hg": 4,
+    "ag": 2,
+    "excitingness": 8.39,
+    "date": "2025-08-15"
+  },
+  {
+    "gw": 1,
+    "home": "AVL",
+    "away": "NEW",
+    "hg": 0,
+    "ag": 0,
+    "excitingness": 5.89,
+    "date": "2025-08-16"
+  },
+  {
+    "gw": 1,
+    "home": "BRI",
+    "away": "FLH",
+    "hg": 1,
+    "ag": 1,
+    "excitingness": 6.74,
+    "date": "2025-08-16"
+  },
+  {
+    "gw": 1,
+    "home": "SUN",
+    "away": "WHU",
+    "hg": 3,
+    "ag": 0,
+    "excitingness": 6.46,
+    "date": "2025-08-16"
+  },
+  {
+    "gw": 1,
+    "home": "TOT",
+    "away": "BUR",
+    "hg": 3,
+    "ag": 0,
+    "excitingness": 6.12,
+    "date": "2025-08-16"
+  },
+  {
+    "gw": 1,
+    "home": "WOL",
+    "away": "MCI",
+    "hg": 0,
+    "ag": 4,
+    "excitingness": 6.71,
+    "date": "2025-08-16"
+  },
+  {
+    "gw": 1,
+    "home": "CHE",
+    "away": "CRY",
+    "hg": 0,
+    "ag": 0,
+    "excitingness": 5.66,
+    "date": "2025-08-17"
+  },
+  {
+    "gw": 1,
+    "home": "NOT",
+    "away": "BRE",
+    "hg": 3,
+    "ag": 1,
+    "excitingness": 7.31,
+    "date": "2025-08-17"
+  },
+  {
+    "gw": 1,
+    "home": "MUN",
+    "away": "ARS",
+    "hg": 0,
+    "ag": 1,
+    "excitingness": 6.26,
+    "date": "2025-08-17"
+  },
+  {
+    "gw": 1,
+    "home": "LED",
+    "away": "EVE",
+    "hg": 1,
+    "ag": 0,
+    "excitingness": 6.12,
+    "date": "2025-08-18"
+  },
+  {
+    "gw": 2,
+    "home": "WHU",
+    "away": "CHE",
+    "hg": 1,
+    "ag": 5,
+    "excitingness": 7.59,
+    "date": "2025-08-22"
+  },
+  {
+    "gw": 2,
+    "home": "MCI",
+    "away": "TOT",
+    "hg": 0,
+    "ag": 2,
+    "excitingness": 6.08,
+    "date": "2025-08-23"
+  },
+  {
+    "gw": 2,
+    "home": "BRE",
+    "away": "AVL",
+    "hg": 1,
+    "ag": 0,
+    "excitingness": 6.22,
+    "date": "2025-08-23"
+  },
+  {
+    "gw": 2,
+    "home": "BUR",
+    "away": "SUN",
+    "hg": 2,
+    "ag": 0,
+    "excitingness": 6.55,
+    "date": "2025-08-23"
+  },
+  {
+    "gw": 2,
+    "home": "BOU",
+    "away": "WOL",
+    "hg": 1,
+    "ag": 0,
+    "excitingness": 5.8,
+    "date": "2025-08-23"
+  },
+  {
+    "gw": 2,
+    "home": "ARS",
+    "away": "LED",
+    "hg": 5,
+    "ag": 0,
+    "excitingness": 6.41,
+    "date": "2025-08-23"
+  },
+  {
+    "gw": 2,
+    "home": "CRY",
+    "away": "NOT",
+    "hg": 1,
+    "ag": 1,
+    "excitingness": 6.59,
+    "date": "2025-08-24"
+  },
+  {
+    "gw": 2,
+    "home": "EVE",
+    "away": "BRI",
+    "hg": 2,
+    "ag": 0,
+    "excitingness": 5.91,
+    "date": "2025-08-24"
+  },
+  {
+    "gw": 2,
+    "home": "FLH",
+    "away": "MUN",
+    "hg": 1,
+    "ag": 1,
+    "excitingness": 6.82,
+    "date": "2025-08-24"
+  },
+  {
+    "gw": 2,
+    "home": "NEW",
+    "away": "LIV",
+    "hg": 2,
+    "ag": 3,
+    "excitingness": 8.08,
+    "date": "2025-08-25"
+  },
+  {
+    "gw": 3,
+    "home": "CHE",
+    "away": "FLH",
+    "hg": 2,
+    "ag": 0,
+    "excitingness": 6.31,
+    "date": "2025-08-30"
+  },
+  {
+    "gw": 3,
+    "home": "TOT",
+    "away": "BOU",
+    "hg": 0,
+    "ag": 1,
+    "excitingness": 6.06,
+    "date": "2025-08-30"
+  },
+  {
+    "gw": 3,
+    "home": "WOL",
+    "away": "EVE",
+    "hg": 2,
+    "ag": 3,
+    "excitingness": 7.59,
+    "date": "2025-08-30"
+  },
+  {
+    "gw": 3,
+    "home": "SUN",
+    "away": "BRE",
+    "hg": 2,
+    "ag": 1,
+    "excitingness": 7.56,
+    "date": "2025-08-30"
+  },
+  {
+    "gw": 3,
+    "home": "MUN",
+    "away": "BUR",
+    "hg": 3,
+    "ag": 2,
+    "excitingness": 7.47,
+    "date": "2025-08-30"
+  },
+  {
+    "gw": 3,
+    "home": "LED",
+    "away": "NEW",
+    "hg": 0,
+    "ag": 0,
+    "excitingness": 5.58,
+    "date": "2025-08-30"
+  },
+  {
+    "gw": 3,
+    "home": "NOT",
+    "away": "WHU",
+    "hg": 0,
+    "ag": 3,
+    "excitingness": 5.77,
+    "date": "2025-08-31"
+  },
+  {
+    "gw": 3,
+    "home": "BRI",
+    "away": "MCI",
+    "hg": 2,
+    "ag": 1,
+    "excitingness": 7.46,
+    "date": "2025-08-31"
+  },
+  {
+    "gw": 3,
+    "home": "LIV",
+    "away": "ARS",
+    "hg": 1,
+    "ag": 0,
+    "excitingness": 5.95,
+    "date": "2025-08-31"
+  },
+  {
+    "gw": 3,
+    "home": "AVL",
+    "away": "CRY",
+    "hg": 0,
+    "ag": 3,
+    "excitingness": 6.26,
+    "date": "2025-08-31"
+  },
+  {
+    "gw": 4,
+    "home": "ARS",
+    "away": "NOT",
+    "hg": 3,
+    "ag": 0,
+    "excitingness": 7.15,
+    "date": "2025-09-13"
+  },
+  {
+    "gw": 4,
+    "home": "NEW",
+    "away": "WOL",
+    "hg": 1,
+    "ag": 0,
+    "excitingness": 6.06,
+    "date": "2025-09-13"
+  },
+  {
+    "gw": 4,
+    "home": "BOU",
+    "away": "BRI",
+    "hg": 2,
+    "ag": 1,
+    "excitingness": 6.49,
+    "date": "2025-09-13"
+  },
+  {
+    "gw": 4,
+    "home": "CRY",
+    "away": "SUN",
+    "hg": 0,
+    "ag": 0,
+    "excitingness": 5.61,
+    "date": "2025-09-13"
+  },
+  {
+    "gw": 4,
+    "home": "EVE",
+    "away": "AVL",
+    "hg": 0,
+    "ag": 0,
+    "excitingness": 5.54,
+    "date": "2025-09-13"
+  },
+  {
+    "gw": 4,
+    "home": "FLH",
+    "away": "LED",
+    "hg": 1,
+    "ag": 0,
+    "excitingness": 6.25,
+    "date": "2025-09-13"
+  },
+  {
+    "gw": 4,
+    "home": "WHU",
+    "away": "TOT",
+    "hg": 0,
+    "ag": 3,
+    "excitingness": 5.8,
+    "date": "2025-09-13"
+  },
+  {
+    "gw": 4,
+    "home": "BRE",
+    "away": "CHE",
+    "hg": 2,
+    "ag": 2,
+    "excitingness": 7.85,
+    "date": "2025-09-13"
+  },
+  {
+    "gw": 4,
+    "home": "BUR",
+    "away": "LIV",
+    "hg": 0,
+    "ag": 1,
+    "excitingness": 5.8,
+    "date": "2025-09-14"
+  },
+  {
+    "gw": 4,
+    "home": "MCI",
+    "away": "MUN",
+    "hg": 3,
+    "ag": 0,
+    "excitingness": 6.69,
+    "date": "2025-09-14"
+  },
+  {
+    "gw": 5,
+    "home": "LIV",
+    "away": "EVE",
+    "hg": 2,
+    "ag": 1,
+    "excitingness": 6.08,
+    "date": "2025-09-20"
+  },
+  {
+    "gw": 5,
+    "home": "WHU",
+    "away": "CRY",
+    "hg": 1,
+    "ag": 2,
+    "excitingness": 7.13,
+    "date": "2025-09-20"
+  },
+  {
+    "gw": 5,
+    "home": "WOL",
+    "away": "LED",
+    "hg": 1,
+    "ag": 3,
+    "excitingness": 6.27,
+    "date": "2025-09-20"
+  },
+  {
+    "gw": 5,
+    "home": "BRI",
+    "away": "TOT",
+    "hg": 2,
+    "ag": 2,
+    "excitingness": 7.19,
+    "date": "2025-09-20"
+  },
+  {
+    "gw": 5,
+    "home": "BUR",
+    "away": "NOT",
+    "hg": 1,
+    "ag": 1,
+    "excitingness": 6.07,
+    "date": "2025-09-20"
+  },
+  {
+    "gw": 5,
+    "home": "MUN",
+    "away": "CHE",
+    "hg": 2,
+    "ag": 1,
+    "excitingness": 7.03,
+    "date": "2025-09-20"
+  },
+  {
+    "gw": 5,
+    "home": "FLH",
+    "away": "BRE",
+    "hg": 3,
+    "ag": 1,
+    "excitingness": 6.69,
+    "date": "2025-09-20"
+  },
+  {
+    "gw": 5,
+    "home": "BOU",
+    "away": "NEW",
+    "hg": 0,
+    "ag": 0,
+    "excitingness": 5.4,
+    "date": "2025-09-21"
+  },
+  {
+    "gw": 5,
+    "home": "SUN",
+    "away": "AVL",
+    "hg": 1,
+    "ag": 1,
+    "excitingness": 6.36,
+    "date": "2025-09-21"
+  },
+  {
+    "gw": 5,
+    "home": "ARS",
+    "away": "MCI",
+    "hg": 1,
+    "ag": 1,
+    "excitingness": 6.73,
+    "date": "2025-09-21"
+  },
+  {
+    "gw": 6,
+    "home": "BRE",
+    "away": "MUN",
+    "hg": 3,
+    "ag": 1,
+    "excitingness": 6.92,
+    "date": "2025-09-27"
+  },
+  {
+    "gw": 6,
+    "home": "CHE",
+    "away": "BRI",
+    "hg": 1,
+    "ag": 3,
+    "excitingness": 8.52,
+    "date": "2025-09-27"
+  },
+  {
+    "gw": 6,
+    "home": "CRY",
+    "away": "LIV",
+    "hg": 2,
+    "ag": 1,
+    "excitingness": 8.19,
+    "date": "2025-09-27"
+  },
+  {
+    "gw": 6,
+    "home": "LED",
+    "away": "BOU",
+    "hg": 2,
+    "ag": 2,
+    "excitingness": 7.83,
+    "date": "2025-09-27"
+  },
+  {
+    "gw": 6,
+    "home": "MCI",
+    "away": "BUR",
+    "hg": 5,
+    "ag": 1,
+    "excitingness": 6.43,
+    "date": "2025-09-27"
+  },
+  {
+    "gw": 6,
+    "home": "NOT",
+    "away": "SUN",
+    "hg": 0,
+    "ag": 1,
+    "excitingness": 6.49,
+    "date": "2025-09-27"
+  },
+  {
+    "gw": 6,
+    "home": "TOT",
+    "away": "WOL",
+    "hg": 1,
+    "ag": 1,
+    "excitingness": 6.85,
+    "date": "2025-09-27"
+  },
+  {
+    "gw": 6,
+    "home": "AVL",
+    "away": "FLH",
+    "hg": 3,
+    "ag": 1,
+    "excitingness": 7.11,
+    "date": "2025-09-28"
+  },
+  {
+    "gw": 6,
+    "home": "NEW",
+    "away": "ARS",
+    "hg": 1,
+    "ag": 2,
+    "excitingness": 7.28,
+    "date": "2025-09-28"
+  },
+  {
+    "gw": 6,
+    "home": "EVE",
+    "away": "WHU",
+    "hg": 1,
+    "ag": 1,
+    "excitingness": 6.06,
+    "date": "2025-09-29"
+  },
+  {
+    "gw": 7,
+    "home": "BOU",
+    "away": "FLH",
+    "hg": 3,
+    "ag": 1,
+    "excitingness": 7.38,
+    "date": "2025-10-03"
+  },
+  {
+    "gw": 7,
+    "home": "ARS",
+    "away": "WHU",
+    "hg": 2,
+    "ag": 0,
+    "excitingness": 6.98,
+    "date": "2025-10-04"
+  },
+  {
+    "gw": 7,
+    "home": "CHE",
+    "away": "LIV",
+    "hg": 2,
+    "ag": 1,
+    "excitingness": 6.42,
+    "date": "2025-10-04"
+  },
+  {
+    "gw": 7,
+    "home": "LED",
+    "away": "TOT",
+    "hg": 1,
+    "ag": 2,
+    "excitingness": 6.93,
+    "date": "2025-10-04"
+  },
+  {
+    "gw": 7,
+    "home": "MUN",
+    "away": "SUN",
+    "hg": 2,
+    "ag": 0,
+    "excitingness": 5.96,
+    "date": "2025-10-04"
+  },
+  {
+    "gw": 7,
+    "home": "AVL",
+    "away": "BUR",
+    "hg": 2,
+    "ag": 1,
+    "excitingness": 7.13,
+    "date": "2025-10-05"
+  },
+  {
+    "gw": 7,
+    "home": "BRE",
+    "away": "MCI",
+    "hg": 0,
+    "ag": 1,
+    "excitingness": 5.75,
+    "date": "2025-10-05"
+  },
+  {
+    "gw": 7,
+    "home": "EVE",
+    "away": "CRY",
+    "hg": 2,
+    "ag": 1,
+    "excitingness": 7.48,
+    "date": "2025-10-05"
+  },
+  {
+    "gw": 7,
+    "home": "NEW",
+    "away": "NOT",
+    "hg": 2,
+    "ag": 0,
+    "excitingness": 6.33,
+    "date": "2025-10-05"
+  },
+  {
+    "gw": 7,
+    "home": "WOL",
+    "away": "BRI",
+    "hg": 1,
+    "ag": 1,
+    "excitingness": 6.71,
+    "date": "2025-10-05"
+  },
+  {
+    "gw": 8,
+    "home": "BRI",
+    "away": "NEW",
+    "hg": 2,
+    "ag": 1,
+    "excitingness": 6.89,
+    "date": "2025-10-18"
+  },
+  {
+    "gw": 8,
+    "home": "BUR",
+    "away": "LED",
+    "hg": 2,
+    "ag": 0,
+    "excitingness": 6.52,
+    "date": "2025-10-18"
+  },
+  {
+    "gw": 8,
+    "home": "CRY",
+    "away": "BOU",
+    "hg": 3,
+    "ag": 3,
+    "excitingness": 8.69,
+    "date": "2025-10-18"
+  },
+  {
+    "gw": 8,
+    "home": "FLH",
+    "away": "ARS",
+    "hg": 0,
+    "ag": 1,
+    "excitingness": 5.38,
+    "date": "2025-10-18"
+  },
+  {
+    "gw": 8,
+    "home": "MCI",
+    "away": "EVE",
+    "hg": 2,
+    "ag": 0,
+    "excitingness": 6.22,
+    "date": "2025-10-18"
+  },
+  {
+    "gw": 8,
+    "home": "NOT",
+    "away": "CHE",
+    "hg": 0,
+    "ag": 3,
+    "excitingness": 7.82,
+    "date": "2025-10-18"
+  },
+  {
+    "gw": 8,
+    "home": "SUN",
+    "away": "WOL",
+    "hg": 2,
+    "ag": 0,
+    "excitingness": 5.97,
+    "date": "2025-10-18"
+  },
+  {
+    "gw": 8,
+    "home": "LIV",
+    "away": "MUN",
+    "hg": 1,
+    "ag": 2,
+    "excitingness": 7.03,
+    "date": "2025-10-19"
+  },
+  {
+    "gw": 8,
+    "home": "TOT",
+    "away": "AVL",
+    "hg": 1,
+    "ag": 2,
+    "excitingness": 6.95,
+    "date": "2025-10-19"
+  },
+  {
+    "gw": 8,
+    "home": "WHU",
+    "away": "BRE",
+    "hg": 0,
+    "ag": 2,
+    "excitingness": 6.81,
+    "date": "2025-10-20"
+  },
+  {
+    "gw": 9,
+    "home": "LED",
+    "away": "WHU",
+    "hg": 2,
+    "ag": 1,
+    "excitingness": 7.0,
+    "date": "2025-10-24"
+  },
+  {
+    "gw": 9,
+    "home": "BRE",
+    "away": "LIV",
+    "hg": 3,
+    "ag": 2,
+    "excitingness": 7.49,
+    "date": "2025-10-25"
+  },
+  {
+    "gw": 9,
+    "home": "CHE",
+    "away": "SUN",
+    "hg": 1,
+    "ag": 2,
+    "excitingness": 6.88,
+    "date": "2025-10-25"
+  },
+  {
+    "gw": 9,
+    "home": "MUN",
+    "away": "BRI",
+    "hg": 4,
+    "ag": 2,
+    "excitingness": 7.83,
+    "date": "2025-10-25"
+  },
+  {
+    "gw": 9,
+    "home": "NEW",
+    "away": "FLH",
+    "hg": 2,
+    "ag": 1,
+    "excitingness": 6.92,
+    "date": "2025-10-25"
+  },
+  {
+    "gw": 9,
+    "home": "BOU",
+    "away": "NOT",
+    "hg": 2,
+    "ag": 0,
+    "excitingness": 6.09,
+    "date": "2025-10-26"
+  },
+  {
+    "gw": 9,
+    "home": "ARS",
+    "away": "CRY",
+    "hg": 1,
+    "ag": 0,
+    "excitingness": 6.01,
+    "date": "2025-10-26"
+  },
+  {
+    "gw": 9,
+    "home": "AVL",
+    "away": "MCI",
+    "hg": 1,
+    "ag": 0,
+    "excitingness": 6.07,
+    "date": "2025-10-26"
+  },
+  {
+    "gw": 9,
+    "home": "EVE",
+    "away": "TOT",
+    "hg": 0,
+    "ag": 3,
+    "excitingness": 6.38,
+    "date": "2025-10-26"
+  },
+  {
+    "gw": 9,
+    "home": "WOL",
+    "away": "BUR",
+    "hg": 2,
+    "ag": 3,
+    "excitingness": 7.85,
+    "date": "2025-10-26"
+  },
+  {
+    "gw": 10,
+    "home": "BRI",
+    "away": "LED",
+    "hg": 3,
+    "ag": 0,
+    "excitingness": 6.93,
+    "date": "2025-11-01"
+  },
+  {
+    "gw": 10,
+    "home": "BUR",
+    "away": "ARS",
+    "hg": 0,
+    "ag": 2,
+    "excitingness": 6.83,
+    "date": "2025-11-01"
+  },
+  {
+    "gw": 10,
+    "home": "CRY",
+    "away": "BRE",
+    "hg": 2,
+    "ag": 0,
+    "excitingness": 6.08,
+    "date": "2025-11-01"
+  },
+  {
+    "gw": 10,
+    "home": "FLH",
+    "away": "WOL",
+    "hg": 3,
+    "ag": 0,
+    "excitingness": 5.72,
+    "date": "2025-11-01"
+  },
+  {
+    "gw": 10,
+    "home": "LIV",
+    "away": "AVL",
+    "hg": 2,
+    "ag": 0,
+    "excitingness": 6.03,
+    "date": "2025-11-01"
+  },
+  {
+    "gw": 10,
+    "home": "NOT",
+    "away": "MUN",
+    "hg": 2,
+    "ag": 2,
+    "excitingness": 7.97,
+    "date": "2025-11-01"
+  },
+  {
+    "gw": 10,
+    "home": "TOT",
+    "away": "CHE",
+    "hg": 0,
+    "ag": 1,
+    "excitingness": 6.21,
+    "date": "2025-11-01"
+  },
+  {
+    "gw": 10,
+    "home": "MCI",
+    "away": "BOU",
+    "hg": 3,
+    "ag": 1,
+    "excitingness": 7.18,
+    "date": "2025-11-02"
+  },
+  {
+    "gw": 10,
+    "home": "WHU",
+    "away": "NEW",
+    "hg": 3,
+    "ag": 1,
+    "excitingness": 6.65,
+    "date": "2025-11-02"
+  },
+  {
+    "gw": 10,
+    "home": "SUN",
+    "away": "EVE",
+    "hg": 1,
+    "ag": 1,
+    "excitingness": 5.99,
+    "date": "2025-11-03"
+  },
+  {
+    "gw": 11,
+    "home": "CHE",
+    "away": "WOL",
+    "hg": 3,
+    "ag": 0,
+    "excitingness": 6.61,
+    "date": "2025-11-08"
+  },
+  {
+    "gw": 11,
+    "home": "EVE",
+    "away": "FLH",
+    "hg": 2,
+    "ag": 0,
+    "excitingness": 6.24,
+    "date": "2025-11-08"
+  },
+  {
+    "gw": 11,
+    "home": "SUN",
+    "away": "ARS",
+    "hg": 2,
+    "ag": 2,
+    "excitingness": 7.98,
+    "date": "2025-11-08"
+  },
+  {
+    "gw": 11,
+    "home": "TOT",
+    "away": "MUN",
+    "hg": 2,
+    "ag": 2,
+    "excitingness": 8.6,
+    "date": "2025-11-08"
+  },
+  {
+    "gw": 11,
+    "home": "WHU",
+    "away": "BUR",
+    "hg": 3,
+    "ag": 2,
+    "excitingness": 8.02,
+    "date": "2025-11-08"
+  },
+  {
+    "gw": 11,
+    "home": "AVL",
+    "away": "BOU",
+    "hg": 4,
+    "ag": 0,
+    "excitingness": 7.03,
+    "date": "2025-11-09"
+  },
+  {
+    "gw": 11,
+    "home": "BRE",
+    "away": "NEW",
+    "hg": 3,
+    "ag": 1,
+    "excitingness": 6.57,
+    "date": "2025-11-09"
+  },
+  {
+    "gw": 11,
+    "home": "CRY",
+    "away": "BRI",
+    "hg": 0,
+    "ag": 0,
+    "excitingness": 5.79,
+    "date": "2025-11-09"
+  },
+  {
+    "gw": 11,
+    "home": "MCI",
+    "away": "LIV",
+    "hg": 3,
+    "ag": 0,
+    "excitingness": 6.57,
+    "date": "2025-11-09"
+  },
+  {
+    "gw": 11,
+    "home": "NOT",
+    "away": "LED",
+    "hg": 3,
+    "ag": 1,
+    "excitingness": 6.97,
+    "date": "2025-11-09"
+  },
+  {
+    "gw": 12,
+    "home": "BOU",
+    "away": "WHU",
+    "hg": 2,
+    "ag": 2,
+    "excitingness": 6.61,
+    "date": "2025-11-22"
+  },
+  {
+    "gw": 12,
+    "home": "BRI",
+    "away": "BRE",
+    "hg": 2,
+    "ag": 1,
+    "excitingness": 7.16,
+    "date": "2025-11-22"
+  },
+  {
+    "gw": 12,
+    "home": "BUR",
+    "away": "CHE",
+    "hg": 0,
+    "ag": 2,
+    "excitingness": 6.2,
+    "date": "2025-11-22"
+  },
+  {
+    "gw": 12,
+    "home": "FLH",
+    "away": "SUN",
+    "hg": 1,
+    "ag": 0,
+    "excitingness": 5.37,
+    "date": "2025-11-22"
+  },
+  {
+    "gw": 12,
+    "home": "LIV",
+    "away": "NOT",
+    "hg": 0,
+    "ag": 3,
+    "excitingness": 6.57,
+    "date": "2025-11-22"
+  },
+  {
+    "gw": 12,
+    "home": "NEW",
+    "away": "MCI",
+    "hg": 2,
+    "ag": 1,
+    "excitingness": 7.62,
+    "date": "2025-11-22"
+  },
+  {
+    "gw": 12,
+    "home": "WOL",
+    "away": "CRY",
+    "hg": 0,
+    "ag": 2,
+    "excitingness": 6.18,
+    "date": "2025-11-22"
+  },
+  {
+    "gw": 12,
+    "home": "ARS",
+    "away": "TOT",
+    "hg": 4,
+    "ag": 1,
+    "excitingness": 7.57,
+    "date": "2025-11-23"
+  },
+  {
+    "gw": 12,
+    "home": "LED",
+    "away": "AVL",
+    "hg": 1,
+    "ag": 2,
+    "excitingness": 7.17,
+    "date": "2025-11-23"
+  },
+  {
+    "gw": 12,
+    "home": "MUN",
+    "away": "EVE",
+    "hg": 0,
+    "ag": 1,
+    "excitingness": 6.06,
+    "date": "2025-11-24"
+  },
+  {
+    "gw": 13,
+    "home": "BRE",
+    "away": "BUR",
+    "hg": 3,
+    "ag": 1,
+    "excitingness": 7.69,
+    "date": "2025-11-29"
+  },
+  {
+    "gw": 13,
+    "home": "EVE",
+    "away": "NEW",
+    "hg": 1,
+    "ag": 4,
+    "excitingness": 7.19,
+    "date": "2025-11-29"
+  },
+  {
+    "gw": 13,
+    "home": "MCI",
+    "away": "LED",
+    "hg": 3,
+    "ag": 2,
+    "excitingness": 7.6,
+    "date": "2025-11-29"
+  },
+  {
+    "gw": 13,
+    "home": "SUN",
+    "away": "BOU",
+    "hg": 3,
+    "ag": 2,
+    "excitingness": 7.34,
+    "date": "2025-11-29"
+  },
+  {
+    "gw": 13,
+    "home": "TOT",
+    "away": "FLH",
+    "hg": 1,
+    "ag": 2,
+    "excitingness": 5.79,
+    "date": "2025-11-29"
+  },
+  {
+    "gw": 13,
+    "home": "AVL",
+    "away": "WOL",
+    "hg": 1,
+    "ag": 0,
+    "excitingness": 5.99,
+    "date": "2025-11-30"
+  },
+  {
+    "gw": 13,
+    "home": "CHE",
+    "away": "ARS",
+    "hg": 1,
+    "ag": 1,
+    "excitingness": 6.15,
+    "date": "2025-11-30"
+  },
+  {
+    "gw": 13,
+    "home": "CRY",
+    "away": "MUN",
+    "hg": 1,
+    "ag": 2,
+    "excitingness": 8.25,
+    "date": "2025-11-30"
+  },
+  {
+    "gw": 13,
+    "home": "NOT",
+    "away": "BRI",
+    "hg": 0,
+    "ag": 2,
+    "excitingness": 6.54,
+    "date": "2025-11-30"
+  },
+  {
+    "gw": 13,
+    "home": "WHU",
+    "away": "LIV",
+    "hg": 0,
+    "ag": 2,
+    "excitingness": 5.8,
+    "date": "2025-11-30"
+  },
+  {
+    "gw": 14,
+    "home": "BOU",
+    "away": "EVE",
+    "hg": 0,
+    "ag": 1,
+    "excitingness": 6.12,
+    "date": "2025-12-02"
+  },
+  {
+    "gw": 14,
+    "home": "FLH",
+    "away": "MCI",
+    "hg": 4,
+    "ag": 5,
+    "excitingness": 9.0,
+    "date": "2025-12-02"
+  },
+  {
+    "gw": 14,
+    "home": "NEW",
+    "away": "TOT",
+    "hg": 2,
+    "ag": 2,
+    "excitingness": 7.86,
+    "date": "2025-12-02"
+  },
+  {
+    "gw": 14,
+    "home": "ARS",
+    "away": "BRE",
+    "hg": 2,
+    "ag": 0,
+    "excitingness": 6.13,
+    "date": "2025-12-03"
+  },
+  {
+    "gw": 14,
+    "home": "BRI",
+    "away": "AVL",
+    "hg": 3,
+    "ag": 4,
+    "excitingness": 8.81,
+    "date": "2025-12-03"
+  },
+  {
+    "gw": 14,
+    "home": "BUR",
+    "away": "CRY",
+    "hg": 0,
+    "ag": 1,
+    "excitingness": 6.46,
+    "date": "2025-12-03"
+  },
+  {
+    "gw": 14,
+    "home": "LED",
+    "away": "CHE",
+    "hg": 3,
+    "ag": 1,
+    "excitingness": 6.73,
+    "date": "2025-12-03"
+  },
+  {
+    "gw": 14,
+    "home": "LIV",
+    "away": "SUN",
+    "hg": 1,
+    "ag": 1,
+    "excitingness": 5.99,
+    "date": "2025-12-03"
+  },
+  {
+    "gw": 14,
+    "home": "WOL",
+    "away": "NOT",
+    "hg": 0,
+    "ag": 1,
+    "excitingness": 6.0,
+    "date": "2025-12-03"
+  },
+  {
+    "gw": 14,
+    "home": "MUN",
+    "away": "WHU",
+    "hg": 1,
+    "ag": 1,
+    "excitingness": 6.63,
+    "date": "2025-12-04"
+  },
+  {
+    "gw": 15,
+    "home": "BOU",
+    "away": "CHE",
+    "hg": 0,
+    "ag": 0,
+    "excitingness": 6.1,
+    "date": "2025-12-06"
+  },
+  {
+    "gw": 15,
+    "home": "AVL",
+    "away": "ARS",
+    "hg": 2,
+    "ag": 1,
+    "excitingness": 6.86,
+    "date": "2025-12-06"
+  },
+  {
+    "gw": 15,
+    "home": "EVE",
+    "away": "NOT",
+    "hg": 3,
+    "ag": 0,
+    "excitingness": 5.82,
+    "date": "2025-12-06"
+  },
+  {
+    "gw": 15,
+    "home": "LED",
+    "away": "LIV",
+    "hg": 3,
+    "ag": 3,
+    "excitingness": 8.45,
+    "date": "2025-12-06"
+  },
+  {
+    "gw": 15,
+    "home": "MCI",
+    "away": "SUN",
+    "hg": 3,
+    "ag": 0,
+    "excitingness": 6.41,
+    "date": "2025-12-06"
+  },
+  {
+    "gw": 15,
+    "home": "NEW",
+    "away": "BUR",
+    "hg": 2,
+    "ag": 1,
+    "excitingness": 7.02,
+    "date": "2025-12-06"
+  },
+  {
+    "gw": 15,
+    "home": "TOT",
+    "away": "BRE",
+    "hg": 2,
+    "ag": 0,
+    "excitingness": 6.3,
+    "date": "2025-12-06"
+  },
+  {
+    "gw": 15,
+    "home": "BRI",
+    "away": "WHU",
+    "hg": 1,
+    "ag": 1,
+    "excitingness": 7.19,
+    "date": "2025-12-07"
+  },
+  {
+    "gw": 15,
+    "home": "FLH",
+    "away": "CRY",
+    "hg": 1,
+    "ag": 2,
+    "excitingness": 6.45,
+    "date": "2025-12-07"
+  },
+  {
+    "gw": 15,
+    "home": "WOL",
+    "away": "MUN",
+    "hg": 1,
+    "ag": 4,
+    "excitingness": 6.79,
+    "date": "2025-12-08"
+  },
+  {
+    "gw": 16,
+    "home": "ARS",
+    "away": "WOL",
+    "hg": 2,
+    "ag": 1,
+    "excitingness": 6.93,
+    "date": "2025-12-13"
+  },
+  {
+    "gw": 16,
+    "home": "BUR",
+    "away": "FLH",
+    "hg": 2,
+    "ag": 3,
+    "excitingness": 7.35,
+    "date": "2025-12-13"
+  },
+  {
+    "gw": 16,
+    "home": "CHE",
+    "away": "EVE",
+    "hg": 2,
+    "ag": 0,
+    "excitingness": 6.29,
+    "date": "2025-12-13"
+  },
+  {
+    "gw": 16,
+    "home": "LIV",
+    "away": "BRI",
+    "hg": 2,
+    "ag": 0,
+    "excitingness": 5.89,
+    "date": "2025-12-13"
+  },
+  {
+    "gw": 16,
+    "home": "BRE",
+    "away": "LED",
+    "hg": 1,
+    "ag": 1,
+    "excitingness": 6.88,
+    "date": "2025-12-14"
+  },
+  {
+    "gw": 16,
+    "home": "CRY",
+    "away": "MCI",
+    "hg": 0,
+    "ag": 3,
+    "excitingness": 6.18,
+    "date": "2025-12-14"
+  },
+  {
+    "gw": 16,
+    "home": "NOT",
+    "away": "TOT",
+    "hg": 3,
+    "ag": 0,
+    "excitingness": 6.65,
+    "date": "2025-12-14"
+  },
+  {
+    "gw": 16,
+    "home": "SUN",
+    "away": "NEW",
+    "hg": 1,
+    "ag": 0,
+    "excitingness": 5.97,
+    "date": "2025-12-14"
+  },
+  {
+    "gw": 16,
+    "home": "WHU",
+    "away": "AVL",
+    "hg": 2,
+    "ag": 3,
+    "excitingness": 7.0,
+    "date": "2025-12-14"
+  },
+  {
+    "gw": 16,
+    "home": "MUN",
+    "away": "BOU",
+    "hg": 4,
+    "ag": 4,
+    "excitingness": 9.84,
+    "date": "2025-12-15"
+  },
+  {
+    "gw": 17,
+    "home": "BOU",
+    "away": "BUR",
+    "hg": 1,
+    "ag": 1,
+    "excitingness": 6.91,
+    "date": "2025-12-20"
+  },
+  {
+    "gw": 17,
+    "home": "BRI",
+    "away": "SUN",
+    "hg": 0,
+    "ag": 0,
+    "excitingness": 5.61,
+    "date": "2025-12-20"
+  },
+  {
+    "gw": 17,
+    "home": "EVE",
+    "away": "ARS",
+    "hg": 0,
+    "ag": 1,
+    "excitingness": 6.11,
+    "date": "2025-12-20"
+  },
+  {
+    "gw": 17,
+    "home": "LED",
+    "away": "CRY",
+    "hg": 4,
+    "ag": 1,
+    "excitingness": 7.62,
+    "date": "2025-12-20"
+  },
+  {
+    "gw": 17,
+    "home": "MCI",
+    "away": "WHU",
+    "hg": 3,
+    "ag": 0,
+    "excitingness": 7.38,
+    "date": "2025-12-20"
+  },
+  {
+    "gw": 17,
+    "home": "NEW",
+    "away": "CHE",
+    "hg": 2,
+    "ag": 2,
+    "excitingness": 7.67,
+    "date": "2025-12-20"
+  },
+  {
+    "gw": 17,
+    "home": "TOT",
+    "away": "LIV",
+    "hg": 1,
+    "ag": 2,
+    "excitingness": 6.73,
+    "date": "2025-12-20"
+  },
+  {
+    "gw": 17,
+    "home": "WOL",
+    "away": "BRE",
+    "hg": 0,
+    "ag": 2,
+    "excitingness": 6.46,
+    "date": "2025-12-20"
+  },
+  {
+    "gw": 17,
+    "home": "AVL",
+    "away": "MUN",
+    "hg": 2,
+    "ag": 1,
+    "excitingness": 7.59,
+    "date": "2025-12-21"
+  },
+  {
+    "gw": 17,
+    "home": "FLH",
+    "away": "NOT",
+    "hg": 1,
+    "ag": 0,
+    "excitingness": 5.88,
+    "date": "2025-12-22"
+  },
+  {
+    "gw": 18,
+    "home": "MUN",
+    "away": "NEW",
+    "hg": 1,
+    "ag": 0,
+    "excitingness": 6.2,
+    "date": "2025-12-26"
+  },
+  {
+    "gw": 18,
+    "home": "ARS",
+    "away": "BRI",
+    "hg": 2,
+    "ag": 1,
+    "excitingness": 6.51,
+    "date": "2025-12-27"
+  },
+  {
+    "gw": 18,
+    "home": "BRE",
+    "away": "BOU",
+    "hg": 4,
+    "ag": 1,
+    "excitingness": 7.41,
+    "date": "2025-12-27"
+  },
+  {
+    "gw": 18,
+    "home": "BUR",
+    "away": "EVE",
+    "hg": 0,
+    "ag": 0,
+    "excitingness": 5.81,
+    "date": "2025-12-27"
+  },
+  {
+    "gw": 18,
+    "home": "CHE",
+    "away": "AVL",
+    "hg": 1,
+    "ag": 2,
+    "excitingness": 7.88,
+    "date": "2025-12-27"
+  },
+  {
+    "gw": 18,
+    "home": "LIV",
+    "away": "WOL",
+    "hg": 2,
+    "ag": 1,
+    "excitingness": 6.94,
+    "date": "2025-12-27"
+  },
+  {
+    "gw": 18,
+    "home": "NOT",
+    "away": "MCI",
+    "hg": 1,
+    "ag": 2,
+    "excitingness": 6.5,
+    "date": "2025-12-27"
+  },
+  {
+    "gw": 18,
+    "home": "WHU",
+    "away": "FLH",
+    "hg": 0,
+    "ag": 1,
+    "excitingness": 5.73,
+    "date": "2025-12-27"
+  },
+  {
+    "gw": 18,
+    "home": "CRY",
+    "away": "TOT",
+    "hg": 0,
+    "ag": 1,
+    "excitingness": 6.55,
+    "date": "2025-12-28"
+  },
+  {
+    "gw": 18,
+    "home": "SUN",
+    "away": "LED",
+    "hg": 1,
+    "ag": 1,
+    "excitingness": 6.94,
+    "date": "2025-12-28"
+  },
+  {
+    "gw": 19,
+    "home": "ARS",
+    "away": "AVL",
+    "hg": 4,
+    "ag": 1,
+    "excitingness": 8.27,
+    "date": "2025-12-30"
+  },
+  {
+    "gw": 19,
+    "home": "BUR",
+    "away": "NEW",
+    "hg": 1,
+    "ag": 3,
+    "excitingness": 7.01,
+    "date": "2025-12-30"
+  },
+  {
+    "gw": 19,
+    "home": "CHE",
+    "away": "BOU",
+    "hg": 2,
+    "ag": 2,
+    "excitingness": 6.94,
+    "date": "2025-12-30"
+  },
+  {
+    "gw": 19,
+    "home": "MUN",
+    "away": "WOL",
+    "hg": 1,
+    "ag": 1,
+    "excitingness": 6.42,
+    "date": "2025-12-30"
+  },
+  {
+    "gw": 19,
+    "home": "NOT",
+    "away": "EVE",
+    "hg": 0,
+    "ag": 2,
+    "excitingness": 6.57,
+    "date": "2025-12-30"
+  },
+  {
+    "gw": 19,
+    "home": "WHU",
+    "away": "BRI",
+    "hg": 2,
+    "ag": 2,
+    "excitingness": 7.39,
+    "date": "2025-12-30"
+  },
+  {
+    "gw": 19,
+    "home": "BRE",
+    "away": "TOT",
+    "hg": 0,
+    "ag": 0,
+    "excitingness": 5.81,
+    "date": "2026-01-01"
+  },
+  {
+    "gw": 19,
+    "home": "CRY",
+    "away": "FLH",
+    "hg": 1,
+    "ag": 1,
+    "excitingness": 6.86,
+    "date": "2026-01-01"
+  },
+  {
+    "gw": 19,
+    "home": "LIV",
+    "away": "LED",
+    "hg": 0,
+    "ag": 0,
+    "excitingness": 5.88,
+    "date": "2026-01-01"
+  },
+  {
+    "gw": 19,
+    "home": "SUN",
+    "away": "MCI",
+    "hg": 0,
+    "ag": 0,
+    "excitingness": 5.85,
+    "date": "2026-01-01"
+  },
+  {
+    "gw": 20,
+    "home": "WOL",
+    "away": "WHU",
+    "hg": 3,
+    "ag": 0,
+    "excitingness": 7.08,
+    "date": "2026-01-03"
+  },
+  {
+    "gw": 20,
+    "home": "BOU",
+    "away": "ARS",
+    "hg": 2,
+    "ag": 3,
+    "excitingness": 7.95,
+    "date": "2026-01-03"
+  },
+  {
+    "gw": 20,
+    "home": "AVL",
+    "away": "NOT",
+    "hg": 3,
+    "ag": 1,
+    "excitingness": 6.88,
+    "date": "2026-01-03"
+  },
+  {
+    "gw": 20,
+    "home": "BRI",
+    "away": "BUR",
+    "hg": 2,
+    "ag": 0,
+    "excitingness": 6.06,
+    "date": "2026-01-03"
+  },
+  {
+    "gw": 20,
+    "home": "NEW",
+    "away": "CRY",
+    "hg": 2,
+    "ag": 0,
+    "excitingness": 5.93,
+    "date": "2026-01-04"
+  },
+  {
+    "gw": 20,
+    "home": "TOT",
+    "away": "SUN",
+    "hg": 1,
+    "ag": 1,
+    "excitingness": 6.41,
+    "date": "2026-01-04"
+  },
+  {
+    "gw": 20,
+    "home": "EVE",
+    "away": "BRE",
+    "hg": 2,
+    "ag": 4,
+    "excitingness": 7.95,
+    "date": "2026-01-04"
+  },
+  {
+    "gw": 20,
+    "home": "FLH",
+    "away": "LIV",
+    "hg": 2,
+    "ag": 2,
+    "excitingness": 8.16,
+    "date": "2026-01-04"
+  },
+  {
+    "gw": 20,
+    "home": "LED",
+    "away": "MUN",
+    "hg": 1,
+    "ag": 1,
+    "excitingness": 6.75,
+    "date": "2026-01-04"
+  },
+  {
+    "gw": 20,
+    "home": "MCI",
+    "away": "CHE",
+    "hg": 1,
+    "ag": 1,
+    "excitingness": 7.17,
+    "date": "2026-01-04"
+  },
+  {
+    "gw": 21,
+    "home": "WHU",
+    "away": "NOT",
+    "hg": 1,
+    "ag": 2,
+    "excitingness": 6.62,
+    "date": "2026-01-06"
+  },
+  {
+    "gw": 21,
+    "home": "EVE",
+    "away": "WOL",
+    "hg": 1,
+    "ag": 1,
+    "excitingness": 5.94,
+    "date": "2026-01-07"
+  },
+  {
+    "gw": 21,
+    "home": "BOU",
+    "away": "TOT",
+    "hg": 3,
+    "ag": 2,
+    "excitingness": 7.21,
+    "date": "2026-01-07"
+  },
+  {
+    "gw": 21,
+    "home": "BRE",
+    "away": "SUN",
+    "hg": 3,
+    "ag": 0,
+    "excitingness": 6.78,
+    "date": "2026-01-07"
+  },
+  {
+    "gw": 21,
+    "home": "BUR",
+    "away": "MUN",
+    "hg": 2,
+    "ag": 2,
+    "excitingness": 7.65,
+    "date": "2026-01-07"
+  },
+  {
+    "gw": 21,
+    "home": "CRY",
+    "away": "AVL",
+    "hg": 0,
+    "ag": 0,
+    "excitingness": 5.69,
+    "date": "2026-01-07"
+  },
+  {
+    "gw": 21,
+    "home": "FLH",
+    "away": "CHE",
+    "hg": 2,
+    "ag": 1,
+    "excitingness": 6.87,
+    "date": "2026-01-07"
+  },
+  {
+    "gw": 21,
+    "home": "MCI",
+    "away": "BRI",
+    "hg": 1,
+    "ag": 1,
+    "excitingness": 6.74,
+    "date": "2026-01-07"
+  },
+  {
+    "gw": 21,
+    "home": "NEW",
+    "away": "LED",
+    "hg": 4,
+    "ag": 3,
+    "excitingness": 9.92,
+    "date": "2026-01-07"
+  },
+  {
+    "gw": 21,
+    "home": "ARS",
+    "away": "LIV",
+    "hg": 0,
+    "ag": 0,
+    "excitingness": 5.83,
+    "date": "2026-01-08"
+  },
+  {
+    "gw": 22,
+    "home": "CHE",
+    "away": "BRE",
+    "hg": 2,
+    "ag": 0,
+    "excitingness": 6.2,
+    "date": "2026-01-17"
+  },
+  {
+    "gw": 22,
+    "home": "LED",
+    "away": "FLH",
+    "hg": 1,
+    "ag": 0,
+    "excitingness": 5.85,
+    "date": "2026-01-17"
+  },
+  {
+    "gw": 22,
+    "home": "LIV",
+    "away": "BUR",
+    "hg": 1,
+    "ag": 1,
+    "excitingness": 6.19,
+    "date": "2026-01-17"
+  },
+  {
+    "gw": 22,
+    "home": "MUN",
+    "away": "MCI",
+    "hg": 2,
+    "ag": 0,
+    "excitingness": 6.66,
+    "date": "2026-01-17"
+  },
+  {
+    "gw": 22,
+    "home": "NOT",
+    "away": "ARS",
+    "hg": 0,
+    "ag": 0,
+    "excitingness": 6.48,
+    "date": "2026-01-17"
+  },
+  {
+    "gw": 22,
+    "home": "SUN",
+    "away": "CRY",
+    "hg": 2,
+    "ag": 1,
+    "excitingness": 7.14,
+    "date": "2026-01-17"
+  },
+  {
+    "gw": 22,
+    "home": "TOT",
+    "away": "WHU",
+    "hg": 1,
+    "ag": 2,
+    "excitingness": 6.22,
+    "date": "2026-01-17"
+  },
+  {
+    "gw": 22,
+    "home": "AVL",
+    "away": "EVE",
+    "hg": 0,
+    "ag": 1,
+    "excitingness": 6.01,
+    "date": "2026-01-18"
+  },
+  {
+    "gw": 22,
+    "home": "WOL",
+    "away": "NEW",
+    "hg": 0,
+    "ag": 0,
+    "excitingness": 5.4,
+    "date": "2026-01-18"
+  },
+  {
+    "gw": 22,
+    "home": "BRI",
+    "away": "BOU",
+    "hg": 1,
+    "ag": 1,
+    "excitingness": 7.12,
+    "date": "2026-01-19"
+  },
+  {
+    "gw": 23,
+    "home": "BOU",
+    "away": "LIV",
+    "hg": 3,
+    "ag": 2,
+    "excitingness": 7.25,
+    "date": "2026-01-24"
+  },
+  {
+    "gw": 23,
+    "home": "BUR",
+    "away": "TOT",
+    "hg": 2,
+    "ag": 2,
+    "excitingness": 8.01,
+    "date": "2026-01-24"
+  },
+  {
+    "gw": 23,
+    "home": "FLH",
+    "away": "BRI",
+    "hg": 2,
+    "ag": 1,
+    "excitingness": 6.92,
+    "date": "2026-01-24"
+  },
+  {
+    "gw": 23,
+    "home": "MCI",
+    "away": "WOL",
+    "hg": 2,
+    "ag": 0,
+    "excitingness": 6.03,
+    "date": "2026-01-24"
+  },
+  {
+    "gw": 23,
+    "home": "WHU",
+    "away": "SUN",
+    "hg": 3,
+    "ag": 1,
+    "excitingness": 6.78,
+    "date": "2026-01-24"
+  },
+  {
+    "gw": 23,
+    "home": "ARS",
+    "away": "MUN",
+    "hg": 2,
+    "ag": 3,
+    "excitingness": 8.53,
+    "date": "2026-01-25"
+  },
+  {
+    "gw": 23,
+    "home": "BRE",
+    "away": "NOT",
+    "hg": 0,
+    "ag": 2,
+    "excitingness": 6.33,
+    "date": "2026-01-25"
+  },
+  {
+    "gw": 23,
+    "home": "CRY",
+    "away": "CHE",
+    "hg": 1,
+    "ag": 3,
+    "excitingness": 7.37,
+    "date": "2026-01-25"
+  },
+  {
+    "gw": 23,
+    "home": "NEW",
+    "away": "AVL",
+    "hg": 0,
+    "ag": 2,
+    "excitingness": 6.36,
+    "date": "2026-01-25"
+  },
+  {
+    "gw": 23,
+    "home": "EVE",
+    "away": "LED",
+    "hg": 1,
+    "ag": 1,
+    "excitingness": 6.62,
+    "date": "2026-01-26"
+  },
+  {
+    "gw": 24,
+    "home": "CHE",
+    "away": "WHU",
+    "hg": 3,
+    "ag": 2,
+    "excitingness": 8.39,
+    "date": "2026-01-31"
+  },
+  {
+    "gw": 24,
+    "home": "BRI",
+    "away": "EVE",
+    "hg": 1,
+    "ag": 1,
+    "excitingness": 6.76,
+    "date": "2026-01-31"
+  },
+  {
+    "gw": 24,
+    "home": "LIV",
+    "away": "NEW",
+    "hg": 4,
+    "ag": 1,
+    "excitingness": 7.11,
+    "date": "2026-01-31"
+  },
+  {
+    "gw": 24,
+    "home": "LED",
+    "away": "ARS",
+    "hg": 0,
+    "ag": 4,
+    "excitingness": 6.29,
+    "date": "2026-01-31"
+  },
+  {
+    "gw": 24,
+    "home": "WOL",
+    "away": "BOU",
+    "hg": 0,
+    "ag": 2,
+    "excitingness": 7.34,
+    "date": "2026-01-31"
+  },
+  {
+    "gw": 24,
+    "home": "AVL",
+    "away": "BRE",
+    "hg": 0,
+    "ag": 1,
+    "excitingness": 6.34,
+    "date": "2026-02-01"
+  },
+  {
+    "gw": 24,
+    "home": "MUN",
+    "away": "FLH",
+    "hg": 3,
+    "ag": 2,
+    "excitingness": 8.28,
+    "date": "2026-02-01"
+  },
+  {
+    "gw": 24,
+    "home": "NOT",
+    "away": "CRY",
+    "hg": 1,
+    "ag": 1,
+    "excitingness": 6.89,
+    "date": "2026-02-01"
+  },
+  {
+    "gw": 24,
+    "home": "TOT",
+    "away": "MCI",
+    "hg": 2,
+    "ag": 2,
+    "excitingness": 6.38,
+    "date": "2026-02-01"
+  },
+  {
+    "gw": 24,
+    "home": "SUN",
+    "away": "BUR",
+    "hg": 3,
+    "ag": 0,
+    "excitingness": 6.19,
+    "date": "2026-02-02"
+  },
+  {
+    "gw": 25,
+    "home": "LED",
+    "away": "NOT",
+    "hg": 3,
+    "ag": 1,
+    "excitingness": 7.13,
+    "date": "2026-02-06"
+  },
+  {
+    "gw": 25,
+    "home": "BOU",
+    "away": "AVL",
+    "hg": 1,
+    "ag": 1,
+    "excitingness": 6.58,
+    "date": "2026-02-07"
+  },
+  {
+    "gw": 25,
+    "home": "ARS",
+    "away": "SUN",
+    "hg": 3,
+    "ag": 0,
+    "excitingness": 5.98,
+    "date": "2026-02-07"
+  },
+  {
+    "gw": 25,
+    "home": "BUR",
+    "away": "WHU",
+    "hg": 0,
+    "ag": 2,
+    "excitingness": 6.04,
+    "date": "2026-02-07"
+  },
+  {
+    "gw": 25,
+    "home": "FLH",
+    "away": "EVE",
+    "hg": 1,
+    "ag": 2,
+    "excitingness": 7.35,
+    "date": "2026-02-07"
+  },
+  {
+    "gw": 25,
+    "home": "MUN",
+    "away": "TOT",
+    "hg": 2,
+    "ag": 0,
+    "excitingness": 5.99,
+    "date": "2026-02-07"
+  },
+  {
+    "gw": 25,
+    "home": "NEW",
+    "away": "BRE",
+    "hg": 2,
+    "ag": 3,
+    "excitingness": 8.55,
+    "date": "2026-02-07"
+  },
+  {
+    "gw": 25,
+    "home": "WOL",
+    "away": "CHE",
+    "hg": 1,
+    "ag": 3,
+    "excitingness": 7.46,
+    "date": "2026-02-07"
+  },
+  {
+    "gw": 25,
+    "home": "BRI",
+    "away": "CRY",
+    "hg": 0,
+    "ag": 1,
+    "excitingness": 6.14,
+    "date": "2026-02-08"
+  },
+  {
+    "gw": 25,
+    "home": "LIV",
+    "away": "MCI",
+    "hg": 1,
+    "ag": 2,
+    "excitingness": 7.47,
+    "date": "2026-02-08"
+  },
+  {
+    "gw": 26,
+    "home": "CHE",
+    "away": "LED",
+    "hg": 2,
+    "ag": 2,
+    "excitingness": 6.96,
+    "date": "2026-02-10"
+  },
+  {
+    "gw": 26,
+    "home": "EVE",
+    "away": "BOU",
+    "hg": 1,
+    "ag": 2,
+    "excitingness": 7.32,
+    "date": "2026-02-10"
+  },
+  {
+    "gw": 26,
+    "home": "TOT",
+    "away": "NEW",
+    "hg": 1,
+    "ag": 2,
+    "excitingness": 6.78,
+    "date": "2026-02-10"
+  },
+  {
+    "gw": 26,
+    "home": "WHU",
+    "away": "MUN",
+    "hg": 1,
+    "ag": 1,
+    "excitingness": 6.83,
+    "date": "2026-02-10"
+  },
+  {
+    "gw": 26,
+    "home": "AVL",
+    "away": "BRI",
+    "hg": 1,
+    "ag": 0,
+    "excitingness": 6.19,
+    "date": "2026-02-11"
+  },
+  {
+    "gw": 26,
+    "home": "CRY",
+    "away": "BUR",
+    "hg": 2,
+    "ag": 3,
+    "excitingness": 8.31,
+    "date": "2026-02-11"
+  },
+  {
+    "gw": 26,
+    "home": "MCI",
+    "away": "FLH",
+    "hg": 3,
+    "ag": 0,
+    "excitingness": 6.22,
+    "date": "2026-02-11"
+  },
+  {
+    "gw": 26,
+    "home": "NOT",
+    "away": "WOL",
+    "hg": 0,
+    "ag": 0,
+    "excitingness": 5.62,
+    "date": "2026-02-11"
+  },
+  {
+    "gw": 26,
+    "home": "SUN",
+    "away": "LIV",
+    "hg": 0,
+    "ag": 1,
+    "excitingness": 6.58,
+    "date": "2026-02-11"
+  },
+  {
+    "gw": 26,
+    "home": "BRE",
+    "away": "ARS",
+    "hg": 1,
+    "ag": 1,
+    "excitingness": 6.21,
+    "date": "2026-02-12"
+  },
+  {
+    "gw": 27,
+    "home": "WOL",
+    "away": "ARS",
+    "hg": 2,
+    "ag": 2,
+    "excitingness": 7.32,
+    "date": "2026-02-18"
+  },
+  {
+    "gw": 27,
+    "home": "AVL",
+    "away": "LED",
+    "hg": 1,
+    "ag": 1,
+    "excitingness": 7.38,
+    "date": "2026-02-21"
+  },
+  {
+    "gw": 27,
+    "home": "BRE",
+    "away": "BRI",
+    "hg": 0,
+    "ag": 2,
+    "excitingness": 5.98,
+    "date": "2026-02-21"
+  },
+  {
+    "gw": 27,
+    "home": "CHE",
+    "away": "BUR",
+    "hg": 1,
+    "ag": 1,
+    "excitingness": 7.35,
+    "date": "2026-02-21"
+  },
+  {
+    "gw": 27,
+    "home": "MCI",
+    "away": "NEW",
+    "hg": 2,
+    "ag": 1,
+    "excitingness": 5.98,
+    "date": "2026-02-21"
+  },
+  {
+    "gw": 27,
+    "home": "WHU",
+    "away": "BOU",
+    "hg": 0,
+    "ag": 0,
+    "excitingness": 6.11,
+    "date": "2026-02-21"
+  },
+  {
+    "gw": 27,
+    "home": "CRY",
+    "away": "WOL",
+    "hg": 1,
+    "ag": 0,
+    "excitingness": 5.42,
+    "date": "2026-02-22"
+  },
+  {
+    "gw": 27,
+    "home": "NOT",
+    "away": "LIV",
+    "hg": 0,
+    "ag": 1,
+    "excitingness": 6.01,
+    "date": "2026-02-22"
+  },
+  {
+    "gw": 27,
+    "home": "SUN",
+    "away": "FLH",
+    "hg": 1,
+    "ag": 3,
+    "excitingness": 7.38,
+    "date": "2026-02-22"
+  },
+  {
+    "gw": 27,
+    "home": "TOT",
+    "away": "ARS",
+    "hg": 1,
+    "ag": 4,
+    "excitingness": 7.4,
+    "date": "2026-02-22"
+  },
+  {
+    "gw": 28,
+    "home": "EVE",
+    "away": "MUN",
+    "hg": 0,
+    "ag": 1,
+    "excitingness": 6.03,
+    "date": "2026-02-23"
+  },
+  {
+    "gw": 28,
+    "home": "WOL",
+    "away": "AVL",
+    "hg": 2,
+    "ag": 0,
+    "excitingness": 6.57,
+    "date": "2026-02-27"
+  },
+  {
+    "gw": 28,
+    "home": "BOU",
+    "away": "SUN",
+    "hg": 1,
+    "ag": 1,
+    "excitingness": 6.0,
+    "date": "2026-02-28"
+  },
+  {
+    "gw": 28,
+    "home": "BUR",
+    "away": "BRE",
+    "hg": 3,
+    "ag": 4,
+    "excitingness": 7.9,
+    "date": "2026-02-28"
+  },
+  {
+    "gw": 28,
+    "home": "LED",
+    "away": "MCI",
+    "hg": 0,
+    "ag": 1,
+    "excitingness": 6.46,
+    "date": "2026-02-28"
+  },
+  {
+    "gw": 28,
+    "home": "LIV",
+    "away": "WHU",
+    "hg": 5,
+    "ag": 2,
+    "excitingness": 7.03,
+    "date": "2026-02-28"
+  },
+  {
+    "gw": 28,
+    "home": "NEW",
+    "away": "EVE",
+    "hg": 2,
+    "ag": 3,
+    "excitingness": 8.06,
+    "date": "2026-02-28"
+  },
+  {
+    "gw": 28,
+    "home": "ARS",
+    "away": "CHE",
+    "hg": 2,
+    "ag": 1,
+    "excitingness": 6.17,
+    "date": "2026-03-01"
+  },
+  {
+    "gw": 28,
+    "home": "BRI",
+    "away": "NOT",
+    "hg": 2,
+    "ag": 1,
+    "excitingness": 5.28,
+    "date": "2026-03-01"
+  },
+  {
+    "gw": 28,
+    "home": "FLH",
+    "away": "TOT",
+    "hg": 2,
+    "ag": 1,
+    "excitingness": 6.75,
+    "date": "2026-03-01"
+  },
+  {
+    "gw": 29,
+    "home": "MUN",
+    "away": "CRY",
+    "hg": 2,
+    "ag": 1,
+    "excitingness": 7.9,
+    "date": "2026-03-01"
+  },
+  {
+    "gw": 29,
+    "home": "BOU",
+    "away": "BRE",
+    "hg": 0,
+    "ag": 0,
+    "excitingness": 6.03,
+    "date": "2026-03-03"
+  },
+  {
+    "gw": 29,
+    "home": "EVE",
+    "away": "BUR",
+    "hg": 2,
+    "ag": 0,
+    "excitingness": 6.21,
+    "date": "2026-03-03"
+  },
+  {
+    "gw": 29,
+    "home": "LED",
+    "away": "SUN",
+    "hg": 0,
+    "ag": 1,
+    "excitingness": 6.39,
+    "date": "2026-03-03"
+  },
+  {
+    "gw": 29,
+    "home": "WOL",
+    "away": "LIV",
+    "hg": 2,
+    "ag": 1,
+    "excitingness": 7.17,
+    "date": "2026-03-03"
+  },
+  {
+    "gw": 29,
+    "home": "AVL",
+    "away": "CHE",
+    "hg": 1,
+    "ag": 4,
+    "excitingness": 7.79,
+    "date": "2026-03-04"
+  },
+  {
+    "gw": 29,
+    "home": "BRI",
+    "away": "ARS",
+    "hg": 0,
+    "ag": 1,
+    "excitingness": 5.49,
+    "date": "2026-03-04"
+  },
+  {
+    "gw": 29,
+    "home": "FLH",
+    "away": "WHU",
+    "hg": 0,
+    "ag": 1,
+    "excitingness": 5.87,
+    "date": "2026-03-04"
+  },
+  {
+    "gw": 29,
+    "home": "MCI",
+    "away": "NOT",
+    "hg": 2,
+    "ag": 2,
+    "excitingness": 7.54,
+    "date": "2026-03-04"
+  },
+  {
+    "gw": 29,
+    "home": "NEW",
+    "away": "MUN",
+    "hg": 2,
+    "ag": 1,
+    "excitingness": 6.82,
+    "date": "2026-03-04"
+  },
+  {
+    "gw": 30,
+    "home": "TOT",
+    "away": "CRY",
+    "hg": 1,
+    "ag": 3,
+    "excitingness": 8.48,
+    "date": "2026-03-05"
+  },
+  {
+    "gw": 30,
+    "home": "ARS",
+    "away": "EVE",
+    "hg": 2,
+    "ag": 0,
+    "excitingness": 5.81,
+    "date": "2026-03-14"
+  },
+  {
+    "gw": 30,
+    "home": "BUR",
+    "away": "BOU",
+    "hg": 0,
+    "ag": 0,
+    "excitingness": 5.41,
+    "date": "2026-03-14"
+  },
+  {
+    "gw": 30,
+    "home": "CHE",
+    "away": "NEW",
+    "hg": 0,
+    "ag": 1,
+    "excitingness": 5.82,
+    "date": "2026-03-14"
+  },
+  {
+    "gw": 30,
+    "home": "SUN",
+    "away": "BRI",
+    "hg": 0,
+    "ag": 1,
+    "excitingness": 6.1,
+    "date": "2026-03-14"
+  },
+  {
+    "gw": 30,
+    "home": "WHU",
+    "away": "MCI",
+    "hg": 1,
+    "ag": 1,
+    "excitingness": 5.94,
+    "date": "2026-03-14"
+  },
+  {
+    "gw": 30,
+    "home": "CRY",
+    "away": "LED",
+    "hg": 0,
+    "ag": 0,
+    "excitingness": 5.72,
+    "date": "2026-03-15"
+  },
+  {
+    "gw": 30,
+    "home": "LIV",
+    "away": "TOT",
+    "hg": 1,
+    "ag": 1,
+    "excitingness": 6.51,
+    "date": "2026-03-15"
+  },
+  {
+    "gw": 30,
+    "home": "MUN",
+    "away": "AVL",
+    "hg": 3,
+    "ag": 1,
+    "excitingness": 6.82,
+    "date": "2026-03-15"
+  },
+  {
+    "gw": 30,
+    "home": "NOT",
+    "away": "FLH",
+    "hg": 0,
+    "ag": 0,
+    "excitingness": 5.38,
+    "date": "2026-03-15"
+  },
+  {
+    "gw": 31,
+    "home": "BRE",
+    "away": "WOL",
+    "hg": 2,
+    "ag": 2,
+    "excitingness": 7.41,
+    "date": "2026-03-16"
+  },
+  {
+    "gw": 31,
+    "home": "BOU",
+    "away": "MUN",
+    "hg": 2,
+    "ag": 2,
+    "excitingness": 7.61,
+    "date": "2026-03-20"
+  },
+  {
+    "gw": 31,
+    "home": "BRI",
+    "away": "LIV",
+    "hg": 2,
+    "ag": 1,
+    "excitingness": 6.55,
+    "date": "2026-03-21"
+  },
+  {
+    "gw": 31,
+    "home": "EVE",
+    "away": "CHE",
+    "hg": 3,
+    "ag": 0,
+    "excitingness": 6.74,
+    "date": "2026-03-21"
+  },
+  {
+    "gw": 31,
+    "home": "FLH",
+    "away": "BUR",
+    "hg": 3,
+    "ag": 1,
+    "excitingness": 7.12,
+    "date": "2026-03-21"
+  },
+  {
+    "gw": 31,
+    "home": "LED",
+    "away": "BRE",
+    "hg": 0,
+    "ag": 0,
+    "excitingness": 5.29,
+    "date": "2026-03-21"
+  },
+  {
+    "gw": 31,
+    "home": "AVL",
+    "away": "WHU",
+    "hg": 2,
+    "ag": 0,
+    "excitingness": 6.13,
+    "date": "2026-03-22"
+  },
+  {
+    "gw": 31,
+    "home": "NEW",
+    "away": "SUN",
+    "hg": 1,
+    "ag": 2,
+    "excitingness": 6.74,
+    "date": "2026-03-22"
+  },
+  {
+    "gw": 31,
+    "home": "TOT",
+    "away": "NOT",
+    "hg": 0,
+    "ag": 3,
+    "excitingness": 7.24,
+    "date": "2026-03-22"
+  },
+  {
+    "gw": 31,
+    "home": "WHU",
+    "away": "WOL",
+    "hg": 4,
+    "ag": 0,
+    "excitingness": 6.03,
+    "date": "2026-04-10"
+  },
+  {
+    "gw": 32,
+    "home": "ARS",
+    "away": "BOU",
+    "hg": 1,
+    "ag": 2,
+    "excitingness": 6.94,
+    "date": "2026-04-11"
+  },
+  {
+    "gw": 32,
+    "home": "BRE",
+    "away": "EVE",
+    "hg": 2,
+    "ag": 2,
+    "excitingness": 7.55,
+    "date": "2026-04-11"
+  },
+  {
+    "gw": 32,
+    "home": "BUR",
+    "away": "BRI",
+    "hg": 0,
+    "ag": 2,
+    "excitingness": 5.98,
+    "date": "2026-04-11"
+  },
+  {
+    "gw": 32,
+    "home": "LIV",
+    "away": "FLH",
+    "hg": 2,
+    "ag": 0,
+    "excitingness": 6.42,
+    "date": "2026-04-11"
+  },
+  {
+    "gw": 32,
+    "home": "NOT",
+    "away": "AVL",
+    "hg": 1,
+    "ag": 1,
+    "excitingness": 6.41,
+    "date": "2026-04-12"
+  },
+  {
+    "gw": 32,
+    "home": "SUN",
+    "away": "TOT",
+    "hg": 1,
+    "ag": 0,
+    "excitingness": 5.57,
+    "date": "2026-04-12"
+  },
+  {
+    "gw": 32,
+    "home": "CHE",
+    "away": "MCI",
+    "hg": 0,
+    "ag": 3,
+    "excitingness": 6.41,
+    "date": "2026-04-12"
+  },
+  {
+    "gw": 32,
+    "home": "CRY",
+    "away": "NEW",
+    "hg": 2,
+    "ag": 1,
+    "excitingness": 7.88,
+    "date": "2026-04-12"
+  },
+  {
+    "gw": 32,
+    "home": "MUN",
+    "away": "LED",
+    "hg": 1,
+    "ag": 2,
+    "excitingness": 7.0,
+    "date": "2026-04-13"
+  },
+  {
+    "gw": 32,
+    "home": "BRE",
+    "away": "FLH",
+    "hg": 0,
+    "ag": 0,
+    "excitingness": 5.88,
+    "date": "2026-04-18"
+  },
+  {
+    "gw": 33,
+    "home": "CHE",
+    "away": "MUN",
+    "hg": 0,
+    "ag": 1,
+    "excitingness": 5.96,
+    "date": "2026-04-18"
+  },
+  {
+    "gw": 33,
+    "home": "LED",
+    "away": "WOL",
+    "hg": 3,
+    "ag": 0,
+    "excitingness": 6.55,
+    "date": "2026-04-18"
+  },
+  {
+    "gw": 33,
+    "home": "NEW",
+    "away": "BOU",
+    "hg": 1,
+    "ag": 2,
+    "excitingness": 7.16,
+    "date": "2026-04-18"
+  },
+  {
+    "gw": 33,
+    "home": "TOT",
+    "away": "BRI",
+    "hg": 2,
+    "ag": 2,
+    "excitingness": 7.95,
+    "date": "2026-04-18"
+  },
+  {
+    "gw": 33,
+    "home": "AVL",
+    "away": "SUN",
+    "hg": 4,
+    "ag": 3,
+    "excitingness": 9.23,
+    "date": "2026-04-19"
+  },
+  {
+    "gw": 33,
+    "home": "EVE",
+    "away": "LIV",
+    "hg": 1,
+    "ag": 2,
+    "excitingness": 6.23,
+    "date": "2026-04-19"
+  },
+  {
+    "gw": 33,
+    "home": "MCI",
+    "away": "ARS",
+    "hg": 2,
+    "ag": 1,
+    "excitingness": 6.86,
+    "date": "2026-04-19"
+  },
+  {
+    "gw": 33,
+    "home": "NOT",
+    "away": "BUR",
+    "hg": 4,
+    "ag": 1,
+    "excitingness": 7.23,
+    "date": "2026-04-19"
+  },
+  {
+    "gw": 33,
+    "home": "CRY",
+    "away": "WHU",
+    "hg": 0,
+    "ag": 0,
+    "excitingness": 5.53,
+    "date": "2026-04-20"
+  },
+  {
+    "gw": 33,
+    "home": "BRI",
+    "away": "CHE",
+    "hg": 3,
+    "ag": 0,
+    "excitingness": 5.99,
+    "date": "2026-04-21"
+  },
+  {
+    "gw": 34,
+    "home": "BOU",
+    "away": "LED",
+    "hg": 2,
+    "ag": 2,
+    "excitingness": 8.0,
+    "date": "2026-04-22"
+  },
+  {
+    "gw": 34,
+    "home": "BUR",
+    "away": "MCI",
+    "hg": 0,
+    "ag": 1,
+    "excitingness": 5.66,
+    "date": "2026-04-22"
+  },
+  {
+    "gw": 34,
+    "home": "SUN",
+    "away": "NOT",
+    "hg": 0,
+    "ag": 5,
+    "excitingness": 7.29,
+    "date": "2026-04-24"
+  },
+  {
+    "gw": 34,
+    "home": "ARS",
+    "away": "NEW",
+    "hg": 1,
+    "ag": 0,
+    "excitingness": 5.78,
+    "date": "2026-04-25"
+  },
+  {
+    "gw": 34,
+    "home": "FLH",
+    "away": "AVL",
+    "hg": 1,
+    "ag": 0,
+    "excitingness": 6.04,
+    "date": "2026-04-25"
+  },
+  {
+    "gw": 34,
+    "home": "LIV",
+    "away": "CRY",
+    "hg": 3,
+    "ag": 1,
+    "excitingness": 7.27,
+    "date": "2026-04-25"
+  },
+  {
+    "gw": 34,
+    "home": "WHU",
+    "away": "EVE",
+    "hg": 2,
+    "ag": 1,
+    "excitingness": 7.6,
+    "date": "2026-04-25"
+  },
+  {
+    "gw": 34,
+    "home": "WOL",
+    "away": "TOT",
+    "hg": 0,
+    "ag": 1,
+    "excitingness": 6.08,
+    "date": "2026-04-25"
+  },
+  {
+    "gw": 34,
+    "home": "MUN",
+    "away": "BRE",
+    "hg": 2,
+    "ag": 1,
+    "excitingness": 7.19,
+    "date": "2026-04-27"
+  },
+  {
+    "gw": 34,
+    "home": "LED",
+    "away": "BUR",
+    "hg": 3,
+    "ag": 1,
+    "excitingness": 6.53,
+    "date": "2026-05-01"
+  },
+  {
+    "gw": 35,
+    "home": "ARS",
+    "away": "FLH",
+    "hg": 3,
+    "ag": 0,
+    "excitingness": 6.43,
+    "date": "2026-05-02"
+  },
+  {
+    "gw": 35,
+    "home": "BRE",
+    "away": "WHU",
+    "hg": 3,
+    "ag": 0,
+    "excitingness": 6.02,
+    "date": "2026-05-02"
+  },
+  {
+    "gw": 35,
+    "home": "NEW",
+    "away": "BRI",
+    "hg": 3,
+    "ag": 1,
+    "excitingness": 7.14,
+    "date": "2026-05-02"
+  },
+  {
+    "gw": 35,
+    "home": "WOL",
+    "away": "SUN",
+    "hg": 1,
+    "ag": 1,
+    "excitingness": 6.99,
+    "date": "2026-05-02"
+  },
+  {
+    "gw": 35,
+    "home": "BOU",
+    "away": "CRY",
+    "hg": 3,
+    "ag": 0,
+    "excitingness": 6.32,
+    "date": "2026-05-03"
+  },
+  {
+    "gw": 35,
+    "home": "AVL",
+    "away": "TOT",
+    "hg": 1,
+    "ag": 2,
+    "excitingness": 6.21,
+    "date": "2026-05-03"
+  },
+  {
+    "gw": 35,
+    "home": "MUN",
+    "away": "LIV",
+    "hg": 3,
+    "ag": 2,
+    "excitingness": 7.19,
+    "date": "2026-05-03"
+  },
+  {
+    "gw": 35,
+    "home": "CHE",
+    "away": "NOT",
+    "hg": 1,
+    "ag": 3,
+    "excitingness": 6.84,
+    "date": "2026-05-04"
+  },
+  {
+    "gw": 35,
+    "home": "EVE",
+    "away": "MCI",
+    "hg": 3,
+    "ag": 3,
+    "excitingness": 8.84,
+    "date": "2026-05-04"
+  },
+  {
+    "gw": 35,
+    "home": "BRI",
+    "away": "WOL",
+    "hg": 3,
+    "ag": 0,
+    "excitingness": 6.37,
+    "date": "2026-05-09"
+  },
+  {
+    "gw": 36,
+    "home": "FLH",
+    "away": "BOU",
+    "hg": 0,
+    "ag": 1,
+    "excitingness": 5.6,
+    "date": "2026-05-09"
+  },
+  {
+    "gw": 36,
+    "home": "LIV",
+    "away": "CHE",
+    "hg": 1,
+    "ag": 1,
+    "excitingness": 6.13,
+    "date": "2026-05-09"
+  },
+  {
+    "gw": 36,
+    "home": "MCI",
+    "away": "BRE",
+    "hg": 3,
+    "ag": 0,
+    "excitingness": 7.18,
+    "date": "2026-05-09"
+  },
+  {
+    "gw": 36,
+    "home": "SUN",
+    "away": "MUN",
+    "hg": 0,
+    "ag": 0,
+    "excitingness": 5.81,
+    "date": "2026-05-09"
+  },
+  {
+    "gw": 36,
+    "home": "BUR",
+    "away": "AVL",
+    "hg": 2,
+    "ag": 2,
+    "excitingness": 7.83,
+    "date": "2026-05-10"
+  },
+  {
+    "gw": 36,
+    "home": "CRY",
+    "away": "EVE",
+    "hg": 2,
+    "ag": 2,
+    "excitingness": 7.07,
+    "date": "2026-05-10"
+  },
+  {
+    "gw": 36,
+    "home": "NOT",
+    "away": "NEW",
+    "hg": 1,
+    "ag": 1,
+    "excitingness": 6.81,
+    "date": "2026-05-10"
+  },
+  {
+    "gw": 36,
+    "home": "WHU",
+    "away": "ARS",
+    "hg": 0,
+    "ag": 1,
+    "excitingness": 6.15,
+    "date": "2026-05-10"
+  },
+  {
+    "gw": 36,
+    "home": "TOT",
+    "away": "LED",
+    "hg": 1,
+    "ag": 1,
+    "excitingness": 6.7,
+    "date": "2026-05-11"
+  },
+  {
+    "gw": 36,
+    "home": "MCI",
+    "away": "CRY",
+    "hg": 3,
+    "ag": 0,
+    "excitingness": 6.52,
+    "date": "2026-05-13"
+  },
+  {
+    "gw": 37,
+    "home": "AVL",
+    "away": "LIV",
+    "hg": 4,
+    "ag": 2,
+    "excitingness": 8.58,
+    "date": "2026-05-15"
+  },
+  {
+    "gw": 37,
+    "home": "BRE",
+    "away": "CRY",
+    "hg": 2,
+    "ag": 2,
+    "excitingness": 7.18,
+    "date": "2026-05-17"
+  },
+  {
+    "gw": 37,
+    "home": "EVE",
+    "away": "SUN",
+    "hg": 1,
+    "ag": 3,
+    "excitingness": 7.86,
+    "date": "2026-05-17"
+  },
+  {
+    "gw": 37,
+    "home": "LED",
+    "away": "BRI",
+    "hg": 1,
+    "ag": 0,
+    "excitingness": 6.38,
+    "date": "2026-05-17"
+  },
+  {
+    "gw": 37,
+    "home": "MUN",
+    "away": "NOT",
+    "hg": 3,
+    "ag": 2,
+    "excitingness": 6.95,
+    "date": "2026-05-17"
+  },
+  {
+    "gw": 37,
+    "home": "NEW",
+    "away": "WHU",
+    "hg": 3,
+    "ag": 1,
+    "excitingness": 6.64,
+    "date": "2026-05-17"
+  },
+  {
+    "gw": 37,
+    "home": "WOL",
+    "away": "FLH",
+    "hg": 1,
+    "ag": 1,
+    "excitingness": 6.82,
+    "date": "2026-05-17"
+  },
+  {
+    "gw": 37,
+    "home": "ARS",
+    "away": "BUR",
+    "hg": 1,
+    "ag": 0,
+    "excitingness": 6.02,
+    "date": "2026-05-18"
+  },
+  {
+    "gw": 37,
+    "home": "BOU",
+    "away": "MCI",
+    "hg": 1,
+    "ag": 1,
+    "excitingness": 6.81,
+    "date": "2026-05-19"
+  },
+  {
+    "gw": 37,
+    "home": "CHE",
+    "away": "TOT",
+    "hg": 2,
+    "ag": 1,
+    "excitingness": 6.93,
+    "date": "2026-05-19"
+  },
+  {
+    "gw": 38,
+    "home": "BRI",
+    "away": "MUN",
+    "hg": 0,
+    "ag": 3,
+    "excitingness": 6.98,
+    "date": "2026-05-24"
+  },
+  {
+    "gw": 38,
+    "home": "BUR",
+    "away": "WOL",
+    "hg": 1,
+    "ag": 1,
+    "excitingness": 6.29,
+    "date": "2026-05-24"
+  },
+  {
+    "gw": 38,
+    "home": "CRY",
+    "away": "ARS",
+    "hg": 1,
+    "ag": 2,
+    "excitingness": 7.88,
+    "date": "2026-05-24"
+  },
+  {
+    "gw": 38,
+    "home": "FLH",
+    "away": "NEW",
+    "hg": 2,
+    "ag": 0,
+    "excitingness": 5.93,
+    "date": "2026-05-24"
+  },
+  {
+    "gw": 38,
+    "home": "LIV",
+    "away": "BRE",
+    "hg": 1,
+    "ag": 1,
+    "excitingness": 6.09,
+    "date": "2026-05-24"
+  },
+  {
+    "gw": 38,
+    "home": "MCI",
+    "away": "AVL",
+    "hg": 1,
+    "ag": 2,
+    "excitingness": 7.12,
+    "date": "2026-05-24"
+  },
+  {
+    "gw": 38,
+    "home": "NOT",
+    "away": "BOU",
+    "hg": 1,
+    "ag": 1,
+    "excitingness": 6.36,
+    "date": "2026-05-24"
+  },
+  {
+    "gw": 38,
+    "home": "SUN",
+    "away": "CHE",
+    "hg": 2,
+    "ag": 1,
+    "excitingness": 6.46,
+    "date": "2026-05-24"
+  },
+  {
+    "gw": 38,
+    "home": "TOT",
+    "away": "EVE",
+    "hg": 1,
+    "ag": 0,
+    "excitingness": 6.26,
+    "date": "2026-05-24"
+  },
+  {
+    "gw": 38,
+    "home": "WHU",
+    "away": "LED",
+    "hg": 3,
+    "ag": 0,
+    "excitingness": 6.75,
+    "date": "2026-05-24"
+  }
+]
