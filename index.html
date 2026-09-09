@@ -48,33 +48,37 @@
     <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:16px 0 14px">
       <div>
         <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@700;800&display=swap" rel="stylesheet">
-        <div style="display:flex;align-items:center;gap:4px;margin-bottom:14px;position:relative">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
           <div style="height:1px;width:32px;background:{{ accent }}"></div>
-          <div style="{{ eventDropdown.buttonStyle }}" onClick="{{ eventDropdown.toggle }}" onMouseEnter="{{ eventDropdown.tipEnter }}" onMouseLeave="{{ eventDropdown.tipLeave }}">
-            <span style="font-family:'Saira',sans-serif;font-size:12px;letter-spacing:2.5px;color:{{ accent }}">{{ eventDropdown.label }}</span>
-            <span style="{{ eventDropdown.caretStyle }}">▾</span>
-          </div>
-          <sc-if value="{{ eventTip.visible }}" hint-placeholder-val="{{ false }}">
-            <div style="{{ eventTip.style }}">
-              <div style="{{ eventTip.headerStyle }}">{{ eventTip.headerText }}</div>
-              <div style="display:flex;flex-direction:column;gap:5px">
-                <sc-for list="{{ eventTip.items }}" as="it" hint-placeholder-count="2">
-                  <div style="display:flex;align-items:center;gap:7px">
-                    <span style="{{ it.dotStyle }}"></span>
-                    <span style="{{ it.textStyle }}">{{ it.label }}</span>
-                  </div>
+          <div style="position:relative">
+            <div style="{{ tournamentDropdown.buttonStyle }}" onClick="{{ tournamentDropdown.toggle }}">
+              <span style="font-family:'Saira',sans-serif;font-size:12px;letter-spacing:2.5px;color:{{ accent }}">{{ tournamentDropdown.label }}</span>
+              <span style="{{ tournamentDropdown.caretStyle }}">▾</span>
+            </div>
+            <sc-if value="{{ tournamentDropdown.open }}" hint-placeholder-val="{{ false }}">
+              <div onClick="{{ tournamentDropdown.close }}" style="position:fixed;inset:0;z-index:29"></div>
+              <div style="{{ tournamentDropdown.menuStyle }}">
+                <sc-for list="{{ tournamentDropdown.options }}" as="opt" hint-placeholder-count="2">
+                  <div style="{{ opt.style }}" style-hover="{{ opt.hover }}" onClick="{{ opt.onClick }}">{{ opt.label }}</div>
                 </sc-for>
               </div>
+            </sc-if>
+          </div>
+          <span style="color:#3d4455;font-size:13px">·</span>
+          <div style="position:relative">
+            <div style="{{ seasonDropdown.buttonStyle }}" onClick="{{ seasonDropdown.toggle }}">
+              <span style="font-family:'Saira',sans-serif;font-size:12px;letter-spacing:2.5px;color:#c4cbd6">{{ seasonDropdown.label }}</span>
+              <span style="{{ seasonDropdown.caretStyle }}">▾</span>
             </div>
-          </sc-if>
-          <sc-if value="{{ eventDropdown.open }}" hint-placeholder-val="{{ false }}">
-            <div onClick="{{ eventDropdown.close }}" style="position:fixed;inset:0;z-index:29"></div>
-            <div style="{{ eventDropdown.menuStyle }}">
-              <sc-for list="{{ eventDropdown.options }}" as="opt" hint-placeholder-count="2">
-                <div style="{{ opt.style }}" style-hover="{{ opt.hover }}" onClick="{{ opt.onClick }}">{{ opt.label }}</div>
-              </sc-for>
-            </div>
-          </sc-if>
+            <sc-if value="{{ seasonDropdown.open }}" hint-placeholder-val="{{ false }}">
+              <div onClick="{{ seasonDropdown.close }}" style="position:fixed;inset:0;z-index:29"></div>
+              <div style="{{ seasonDropdown.menuStyle }}">
+                <sc-for list="{{ seasonDropdown.options }}" as="opt" hint-placeholder-count="2">
+                  <div style="{{ opt.style }}" style-hover="{{ opt.hover }}" onClick="{{ opt.onClick }}">{{ opt.label }}</div>
+                </sc-for>
+              </div>
+            </sc-if>
+          </div>
         </div>
         <h1 style="margin:0 0 16px;font-family:'Roboto Slab',Georgia,serif;font-size:40px;font-weight:800;letter-spacing:-0.5px;line-height:1;color:#eef1f6;border-bottom:2px solid rgba(255,255,255,0.12);padding-bottom:14px">Rating of the sporting event: <em style="color:{{ accent }};font-style:normal">{{ eventTitle }}</em></h1>
     </div>
@@ -111,7 +115,7 @@
     <div style="background:#0e121a;border:1px solid rgba(255,255,255,0.07);border-radius:18px;padding:18px 20px 22px">
 
       <div style="overflow-x:auto;container-type:inline-size;container-name:grid-container">
-        <div data-grid style="display:grid;grid-template-columns:32px repeat(8, minmax({{ gridColMin }}, 1fr));gap:6px;align-items:start">
+        <div data-grid style="{{ dataGridStyle }}">
           <!-- corner -->
           <div style="position:sticky;left:0;z-index:4;background:#0e121a"></div>
           <sc-for list="{{ headers }}" as="h" hint-placeholder-count="8">
@@ -209,18 +213,6 @@
 
 
     <div style="font-family:'Saira',sans-serif;font-size:11px;color:#5b6473;margin-top:14px;line-height:1.6">{{ ratingsFooterNote }}</div>
-    </sc-if>
-
-    <!-- WIMBLEDON PLACEHOLDER -->
-    <sc-if value="{{ isWimbledon }}" hint-placeholder-val="{{ false }}">
-    <div style="background:#0e121a;border:1px solid rgba(255,255,255,0.07);border-radius:18px;padding:18px 20px 22px">
-      <div style="min-height:320px;display:flex;align-items:center;justify-content:center;border:1px dashed rgba(255,255,255,0.10);border-radius:14px;background:#11151d">
-        <div style="text-align:center;padding:24px">
-          <div style="font-family:'Saira',sans-serif;font-weight:800;font-size:14px;letter-spacing:2.5px;color:{{ accent }};margin-bottom:10px">WIMBLEDON 2026</div>
-          <div style="font-family:'Saira',sans-serif;font-size:13px;color:#7d8696">Draw & ratings coming soon</div>
-        </div>
-      </div>
-    </div>
     </sc-if>
 
   </div>
@@ -328,8 +320,7 @@
 class Component extends DCLogic {
   constructor(props){
     super(props);
-    this.state = { group:'All', sort:'order', view:'bracket', sel:null, hover:null, ready:false, event:'wc', dropdownOpen:false, eventTipHover:false };
-    this.WIMBLEDON_GREEN = '#2f9e59';
+    this.state = { group:'All', sort:'order', view:'bracket', sel:null, hover:null, ready:false, tournament:'pl', season:'2627', openDropdown:null };
     this.VERDICTS = {
       Classic:['An instant classic — football at its absolute peak.','One for the ages. Drama from first whistle to last.','Pure theatre. They will replay this for decades.'],
       Thriller:['A thrilling, end-to-end contest with real quality.','Tense, technical and hugely entertaining throughout.','Two good sides going at it — proper tournament football.'],
@@ -741,60 +732,66 @@ class Component extends DCLogic {
 
   renderVals(){
     if(!this.data) return {};
-    const event = this.state.event;
-    const isWimbledon = event === 'wimbledon';
-    const isPL = event === 'pl2526' || event === 'pl2627';
-    const isWC = event === 'wc';
-    const PL_PURPLE = '#38003c';
-    const accent = isWimbledon ? this.WIMBLEDON_GREEN : (isPL ? PL_PURPLE : (this.props.accentColor ?? '#5b8cff'));
-    const eventTitleMap = {wc:'World Cup 2026', wimbledon:'Wimbledon 2026', pl2526:'Premier League 2025/26', pl2627:'Premier League 2026/27'};
-    const eventTitle = eventTitleMap[event];
+    const tournament = this.state.tournament;
+    const isPL = tournament === 'pl';
+    const isWC = tournament === 'wc';
+    // WC only ever has one season, but we still show it as a (single-option)
+    // dropdown for a consistent tournament/season control pair.
+    const season = isWC ? '2026' : this.state.season;
+    const event = isWC ? 'wc' : ('pl'+season);
+    const PL_PURPLE = '#A66BFF';
+    const accent = isPL ? PL_PURPLE : (this.props.accentColor ?? '#5b8cff');
+    const seasonLabel = isWC ? '2026' : (season === '2526' ? '2025/26' : '2026/27');
+    const eventTitle = isWC ? 'World Cup 2026' : ('Premier League '+seasonLabel);
 
     // The dataset actually being rendered — WC keeps its own {cols, order}
     // shape from build(); PL seasons come from buildPL() keyed by season.
     const activeData = isPL ? this.data[event] : this.data.wc;
 
-    const eventOptionDefs = [
-      {key:'wc', label:'World Cup 2026'},
-      {key:'wimbledon', label:'Wimbledon 2026'},
-      {key:'pl2526', label:'Premier League 2025/26'},
-      {key:'pl2627', label:'Premier League 2026/27'}
+    const tournamentOptions = [
+      {key:'wc', label:'World Cup'},
+      {key:'pl', label:'Premier League'}
     ];
-    const eventDropdown = {
-      label: eventTitle,
-      open: this.state.dropdownOpen,
-      toggle: () => this.setState(s => ({ dropdownOpen: !s.dropdownOpen, eventTipHover:false })),
-      close: () => this.setState({ dropdownOpen: false }),
-      tipEnter: () => this.setState({ eventTipHover: true }),
-      tipLeave: () => this.setState({ eventTipHover: false }),
+    const seasonOptions = isWC
+      ? [{key:'2026', label:'2026'}]
+      : [{key:'2526', label:'2025/26'}, {key:'2627', label:'2026/27'}];
+
+    const dropdownMenuStyle = {position:'absolute', top:'100%', left:'0', marginTop:'8px', background:'#161b25', border:'1px solid rgba(255,255,255,0.08)', borderRadius:'10px', padding:'4px', minWidth:'150px', zIndex:30, boxShadow:'0 12px 28px rgba(0,0,0,0.5)'};
+    const optionStyle = (active) => ({padding:'8px 10px', borderRadius:'7px', fontFamily:"'Saira',sans-serif", fontSize:'12.5px', fontWeight: active ? 700 : 500, color: active ? accent : '#c4cbd6', cursor:'pointer', transition:'background .1s'});
+
+    const tournamentDropdown = {
+      label: tournament === 'wc' ? 'World Cup' : 'Premier League',
+      open: this.state.openDropdown === 'tournament',
+      toggle: () => this.setState(s => ({ openDropdown: s.openDropdown === 'tournament' ? null : 'tournament' })),
+      close: () => this.setState({ openDropdown: null }),
       buttonStyle: {display:'flex', alignItems:'center', gap:'4px', cursor:'pointer', userSelect:'none', position:'relative', zIndex:30},
       caretStyle: {fontSize:'9px', color:accent, opacity:0.75, transform:'translateY(1px)'},
-      menuStyle: {position:'absolute', top:'100%', left:'0', marginTop:'8px', background:'#161b25', border:'1px solid rgba(255,255,255,0.08)', borderRadius:'10px', padding:'4px', minWidth:'150px', zIndex:30, boxShadow:'0 12px 28px rgba(0,0,0,0.5)'},
-      options: eventOptionDefs.map(o => ({
+      menuStyle: dropdownMenuStyle,
+      options: tournamentOptions.map(o => ({
         label: o.label,
-        style: {padding:'8px 10px', borderRadius:'7px', fontFamily:"'Saira',sans-serif", fontSize:'12.5px', fontWeight: o.key===this.state.event ? 700 : 500, color: o.key===this.state.event ? accent : '#c4cbd6', cursor:'pointer', transition:'background .1s'},
+        style: optionStyle(o.key === tournament),
         hover: {background:'rgba(255,255,255,0.06)'},
-        onClick: () => this.setState({ event:o.key, dropdownOpen:false, sel:null, hover:null })
+        // Switching tournament resets to that tournament's default season
+        // (WC only has one; PL defaults to the newer 2026/27) rather than
+        // carrying over a season key the new tournament doesn't have.
+        onClick: () => this.setState({ tournament:o.key, season: o.key==='wc' ? '2026' : '2627', openDropdown:null, sel:null, hover:null })
       }))
     };
 
-    // Small hover tooltip on the tournament label — same dark-card look as
-    // the match hover tooltip (rgba(20,24,34,0.97) bg, soft border/shadow),
-    // just anchored under the trigger instead of following the cursor, and
-    // scaled down to fit a short list of tournament names.
-    const eventTip = {
-      visible: this.state.eventTipHover && !this.state.dropdownOpen,
-      headerText: 'Click here for other tournament options',
-      headerStyle: {fontFamily:"'Saira',sans-serif", fontSize:'9.5px', fontWeight:600, letterSpacing:'1px', color:'#7d8696', textTransform:'uppercase', marginBottom:'8px', lineHeight:1.35, whiteSpace:'nowrap'},
-      style: {position:'absolute', top:'100%', left:'0', marginTop:'8px', zIndex:28, pointerEvents:'none', background:'rgba(20,24,34,0.97)', border:'1px solid rgba(255,255,255,0.10)', borderRadius:'10px', padding:'10px 13px', boxShadow:'0 10px 26px rgba(0,0,0,0.55)', minWidth:'176px'},
-      items: eventOptionDefs.map(o => {
-        const active = o.key === this.state.event;
-        return {
-          label: o.label,
-          dotStyle: {display:'inline-block', width:'5px', height:'5px', borderRadius:'50%', background: active ? accent : '#4a5568', flexShrink:0},
-          textStyle: {fontFamily:"'Saira',sans-serif", fontSize:'12px', fontWeight: active ? 700 : 500, color: active ? accent : '#c4cbd6'}
-        };
-      })
+    const seasonDropdown = {
+      label: seasonLabel,
+      open: this.state.openDropdown === 'season',
+      toggle: () => this.setState(s => ({ openDropdown: s.openDropdown === 'season' ? null : 'season' })),
+      close: () => this.setState({ openDropdown: null }),
+      buttonStyle: {display:'flex', alignItems:'center', gap:'4px', cursor:'pointer', userSelect:'none', position:'relative', zIndex:30},
+      caretStyle: {fontSize:'9px', color:accent, opacity:0.75, transform:'translateY(1px)'},
+      menuStyle: dropdownMenuStyle,
+      options: seasonOptions.map(o => ({
+        label: o.label,
+        style: optionStyle(o.key === season),
+        hover: {background:'rgba(255,255,255,0.06)'},
+        onClick: () => this.setState({ season:o.key, openDropdown:null, sel:null, hover:null })
+      }))
     };
 
     const compact=(this.props.density ?? 'comfortable')==='compact';
@@ -1120,6 +1117,7 @@ class Component extends DCLogic {
 
     const iconW = compact ? 21 : 24;
     const gridColMin = sort === 'rating' ? (iconW*2 + 36 + 16)+'px' : '0px';
+    const dataGridStyle = {display:'grid', gridTemplateColumns:'32px repeat('+headers.length+', minmax('+gridColMin+', 1fr))', gap:'6px', alignItems:'start'};
     const grad=(t)=>'linear-gradient(90deg,'+t.c1+' 0 50%,'+t.c2+' 50% 100%)';
     const scoreCol=(m,side)=> m.winner==='d' ? '#c4cbd6' : ((m.winner===side)?'#ffffff':'#7d8696');
 
@@ -1206,8 +1204,8 @@ class Component extends DCLogic {
       : 'Ratings sourced from IMDb fan votes · – means rating not yet available · scores update automatically after each match';
 
     return {
-      accent, isWC, isWimbledon, isPL, showGridUI: isWC || isPL, showViewSwitch, eventTitle, eventDropdown, eventTip,
-      rows, rowLabelStyle, headers, sortPills, viewSwitch, gridColMin,
+      accent, isWC, isPL, showGridUI: isWC || isPL, showViewSwitch, eventTitle, tournamentDropdown, seasonDropdown,
+      rows, rowLabelStyle, headers, sortPills, viewSwitch, gridColMin, dataGridStyle,
       showSort, showGrid, showBracket, bracketCols, bracketScrollKey, groupRows, groupsBlockStyle, groupStageLabelStyle,
       shownCount, realCount, avgScore, avgLabel, avgLinePos, sortNote,
       scoringNote1, scoringNote2, ratingsFooterNote,
