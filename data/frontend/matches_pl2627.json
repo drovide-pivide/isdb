@@ -5,8 +5,12 @@
     "away": "COV",
     "hg": 3,
     "ag": 0,
-    "excitingness": 5.87,
-    "date": "2026-08-21"
+    "excitingness": 6.11,
+    "date": "2026-08-21",
+    "models": {
+      "final5swing": 6.31,
+      "goalsonly": 6.68
+    }
   },
   {
     "gw": 1,
@@ -14,8 +18,12 @@
     "away": "MUN",
     "hg": 2,
     "ag": 0,
-    "excitingness": 5.92,
-    "date": "2026-08-22"
+    "excitingness": 6.77,
+    "date": "2026-08-22",
+    "models": {
+      "final5swing": 6.48,
+      "goalsonly": 6.42
+    }
   },
   {
     "gw": 1,
@@ -23,8 +31,12 @@
     "away": "CRY",
     "hg": 2,
     "ag": 0,
-    "excitingness": 6.49,
-    "date": "2026-08-22"
+    "excitingness": 6.01,
+    "date": "2026-08-22",
+    "models": {
+      "final5swing": 6.43,
+      "goalsonly": 6.42
+    }
   },
   {
     "gw": 1,
@@ -32,8 +44,12 @@
     "away": "SUN",
     "hg": 2,
     "ag": 1,
-    "excitingness": 6.96,
-    "date": "2026-08-22"
+    "excitingness": 6.01,
+    "date": "2026-08-22",
+    "models": {
+      "final5swing": 6.98,
+      "goalsonly": 6.68
+    }
   },
   {
     "gw": 1,
@@ -41,8 +57,12 @@
     "away": "LED",
     "hg": 0,
     "ag": 1,
-    "excitingness": 5.87,
-    "date": "2026-08-22"
+    "excitingness": 5.71,
+    "date": "2026-08-22",
+    "models": {
+      "final5swing": 6.26,
+      "goalsonly": 6.15
+    }
   },
   {
     "gw": 1,
@@ -50,8 +70,12 @@
     "away": "TOT",
     "hg": 3,
     "ag": 0,
-    "excitingness": 6.76,
-    "date": "2026-08-22"
+    "excitingness": 6.59,
+    "date": "2026-08-22",
+    "models": {
+      "final5swing": 6.75,
+      "goalsonly": 6.68
+    }
   },
   {
     "gw": 1,
@@ -59,8 +83,12 @@
     "away": "AVL",
     "hg": 4,
     "ag": 0,
-    "excitingness": 6.46,
-    "date": "2026-08-23"
+    "excitingness": 7.04,
+    "date": "2026-08-23",
+    "models": {
+      "final5swing": 6.48,
+      "goalsonly": 6.94
+    }
   },
   {
     "gw": 1,
@@ -68,8 +96,12 @@
     "away": "BOU",
     "hg": 2,
     "ag": 1,
-    "excitingness": 8.01,
-    "date": "2026-08-23"
+    "excitingness": 7.44,
+    "date": "2026-08-23",
+    "models": {
+      "final5swing": 7.57,
+      "goalsonly": 6.68
+    }
   },
   {
     "gw": 1,
@@ -77,8 +109,12 @@
     "away": "LIV",
     "hg": 2,
     "ag": 2,
-    "excitingness": 7.74,
-    "date": "2026-08-23"
+    "excitingness": 8.47,
+    "date": "2026-08-23",
+    "models": {
+      "final5swing": 8.23,
+      "goalsonly": 6.94
+    }
   },
   {
     "gw": 1,
@@ -86,8 +122,12 @@
     "away": "CHE",
     "hg": 2,
     "ag": 3,
-    "excitingness": 7.54,
-    "date": "2026-08-24"
+    "excitingness": 7.06,
+    "date": "2026-08-24",
+    "models": {
+      "final5swing": 7.67,
+      "goalsonly": 7.2
+    }
   },
   {
     "gw": 2,
@@ -96,7 +136,11 @@
     "hg": 1,
     "ag": 4,
     "excitingness": 6.9,
-    "date": "2026-08-28"
+    "date": "2026-08-28",
+    "models": {
+      "final5swing": 6.8,
+      "goalsonly": 7.2
+    }
   },
   {
     "gw": 2,
@@ -104,8 +148,12 @@
     "away": "NOT",
     "hg": 2,
     "ag": 2,
-    "excitingness": 7.74,
-    "date": "2026-08-29"
+    "excitingness": 7.53,
+    "date": "2026-08-29",
+    "models": {
+      "final5swing": 7.54,
+      "goalsonly": 6.94
+    }
   },
   {
     "gw": 2,
@@ -113,8 +161,12 @@
     "away": "HUL",
     "hg": 0,
     "ag": 1,
-    "excitingness": 6.1,
-    "date": "2026-08-29"
+    "excitingness": 5.23,
+    "date": "2026-08-29",
+    "models": {
+      "final5swing": 6.06,
+      "goalsonly": 6.15
+    }
   },
   {
     "gw": 2,
@@ -122,8 +174,12 @@
     "away": "EVE",
     "hg": 1,
     "ag": 1,
-    "excitingness": 6.29,
-    "date": "2026-08-29"
+    "excitingness": 6.24,
+    "date": "2026-08-29",
+    "models": {
+      "final5swing": 6.59,
+      "goalsonly": 6.42
+    }
   },
   {
     "gw": 2,
@@ -131,8 +187,12 @@
     "away": "NEW",
     "hg": 0,
     "ag": 2,
-    "excitingness": 6.49,
-    "date": "2026-08-29"
+    "excitingness": 6.46,
+    "date": "2026-08-29",
+    "models": {
+      "final5swing": 6.34,
+      "goalsonly": 6.42
+    }
   },
   {
     "gw": 2,
@@ -140,8 +200,12 @@
     "away": "FLH",
     "hg": 1,
     "ag": 0,
-    "excitingness": 6.6,
-    "date": "2026-08-30"
+    "excitingness": 5.55,
+    "date": "2026-08-30",
+    "models": {
+      "final5swing": 6.44,
+      "goalsonly": 6.15
+    }
   },
   {
     "gw": 2,
@@ -149,8 +213,12 @@
     "away": "BRI",
     "hg": 4,
     "ag": 3,
-    "excitingness": 7.62,
-    "date": "2026-08-30"
+    "excitingness": 8.19,
+    "date": "2026-08-30",
+    "models": {
+      "final5swing": 8.36,
+      "goalsonly": 7.73
+    }
   },
   {
     "gw": 2,
@@ -158,8 +226,12 @@
     "away": "BRE",
     "hg": 1,
     "ag": 1,
-    "excitingness": 6.9,
-    "date": "2026-08-30"
+    "excitingness": 6.3,
+    "date": "2026-08-30",
+    "models": {
+      "final5swing": 6.61,
+      "goalsonly": 6.42
+    }
   },
   {
     "gw": 2,
@@ -167,8 +239,12 @@
     "away": "IPS",
     "hg": 5,
     "ag": 2,
-    "excitingness": 8.48,
-    "date": "2026-08-30"
+    "excitingness": 7.5,
+    "date": "2026-08-30",
+    "models": {
+      "final5swing": 7.87,
+      "goalsonly": 7.73
+    }
   },
   {
     "gw": 2,
@@ -176,7 +252,401 @@
     "away": "ARS",
     "hg": 0,
     "ag": 1,
-    "excitingness": 6.28,
-    "date": "2026-08-31"
+    "excitingness": 6.36,
+    "date": "2026-08-31",
+    "models": {
+      "final5swing": 5.92,
+      "goalsonly": 6.15
+    }
+  },
+  {
+    "gw": 3,
+    "home": "IPS",
+    "away": "LIV",
+    "hg": 0,
+    "ag": 2,
+    "excitingness": 5.88,
+    "date": "2026-09-04",
+    "models": {
+      "final5swing": 6.14,
+      "goalsonly": 6.42
+    }
+  },
+  {
+    "gw": 3,
+    "home": "NEW",
+    "away": "BOU",
+    "hg": 2,
+    "ag": 2,
+    "excitingness": 7.25,
+    "date": "2026-09-05",
+    "models": {
+      "final5swing": 7.56,
+      "goalsonly": 6.94
+    }
+  },
+  {
+    "gw": 3,
+    "home": "MCI",
+    "away": "COV",
+    "hg": 1,
+    "ag": 0,
+    "excitingness": 5.95,
+    "date": "2026-09-05",
+    "models": {
+      "final5swing": 6.32,
+      "goalsonly": 6.15
+    }
+  },
+  {
+    "gw": 3,
+    "home": "NOT",
+    "away": "TOT",
+    "hg": 0,
+    "ag": 0,
+    "excitingness": 5.43,
+    "date": "2026-09-05",
+    "models": {
+      "final5swing": 5.69,
+      "goalsonly": 5.89
+    }
+  },
+  {
+    "gw": 3,
+    "home": "FLH",
+    "away": "CRY",
+    "hg": 2,
+    "ag": 3,
+    "excitingness": 6.79,
+    "date": "2026-09-05",
+    "models": {
+      "final5swing": 7.65,
+      "goalsonly": 7.2
+    }
+  },
+  {
+    "gw": 3,
+    "home": "BRE",
+    "away": "SUN",
+    "hg": 1,
+    "ag": 1,
+    "excitingness": 6.43,
+    "date": "2026-09-05",
+    "models": {
+      "final5swing": 6.75,
+      "goalsonly": 6.42
+    }
+  },
+  {
+    "gw": 3,
+    "home": "BRI",
+    "away": "LED",
+    "hg": 1,
+    "ag": 1,
+    "excitingness": 6.55,
+    "date": "2026-09-05",
+    "models": {
+      "final5swing": 7.06,
+      "goalsonly": 6.42
+    }
+  },
+  {
+    "gw": 3,
+    "home": "HUL",
+    "away": "AVL",
+    "hg": 0,
+    "ag": 0,
+    "excitingness": 5.66,
+    "date": "2026-09-05",
+    "models": {
+      "final5swing": 5.7,
+      "goalsonly": 5.89
+    }
+  },
+  {
+    "gw": 3,
+    "home": "EVE",
+    "away": "MUN",
+    "hg": 2,
+    "ag": 2,
+    "excitingness": 7.52,
+    "date": "2026-09-06",
+    "models": {
+      "final5swing": 7.73,
+      "goalsonly": 6.94
+    }
+  },
+  {
+    "gw": 3,
+    "home": "ARS",
+    "away": "CHE",
+    "hg": 2,
+    "ag": 1,
+    "excitingness": 7.56,
+    "date": "2026-09-06",
+    "models": {
+      "final5swing": 7.32,
+      "goalsonly": 6.68
+    }
+  },
+  {
+    "gw": 4,
+    "home": "BOU",
+    "away": "BRE",
+    "hg": 2,
+    "ag": 2,
+    "excitingness": 6.65,
+    "date": "2026-09-12",
+    "models": {
+      "final5swing": 6.87,
+      "goalsonly": 6.94
+    }
+  },
+  {
+    "gw": 4,
+    "home": "AVL",
+    "away": "NOT",
+    "hg": 1,
+    "ag": 2,
+    "excitingness": 7.05,
+    "date": "2026-09-12",
+    "models": {
+      "final5swing": 6.87,
+      "goalsonly": 6.68
+    }
+  },
+  {
+    "gw": 4,
+    "home": "CHE",
+    "away": "HUL",
+    "hg": 2,
+    "ag": 2,
+    "excitingness": 7.55,
+    "date": "2026-09-12",
+    "models": {
+      "final5swing": 7.48,
+      "goalsonly": 6.94
+    }
+  },
+  {
+    "gw": 4,
+    "home": "CRY",
+    "away": "IPS",
+    "hg": 2,
+    "ag": 3,
+    "excitingness": 7.01,
+    "date": "2026-09-12",
+    "models": {
+      "final5swing": 7.5,
+      "goalsonly": 7.2
+    }
+  },
+  {
+    "gw": 4,
+    "home": "LIV",
+    "away": "FLH",
+    "hg": 0,
+    "ag": 0,
+    "excitingness": 5.73,
+    "date": "2026-09-12",
+    "models": {
+      "final5swing": 5.7,
+      "goalsonly": 5.89
+    }
+  },
+  {
+    "gw": 4,
+    "home": "TOT",
+    "away": "EVE",
+    "hg": 0,
+    "ag": 0,
+    "excitingness": 6.07,
+    "date": "2026-09-12",
+    "models": {
+      "final5swing": 6.29,
+      "goalsonly": 5.89
+    }
+  },
+  {
+    "gw": 4,
+    "home": "SUN",
+    "away": "ARS",
+    "hg": 0,
+    "ag": 2,
+    "excitingness": 6.31,
+    "date": "2026-09-12",
+    "models": {
+      "final5swing": 6.49,
+      "goalsonly": 6.42
+    }
+  },
+  {
+    "gw": 4,
+    "home": "COV",
+    "away": "BRI",
+    "hg": 0,
+    "ag": 5,
+    "excitingness": 6.42,
+    "date": "2026-09-13",
+    "models": {
+      "final5swing": 6.71,
+      "goalsonly": 7.2
+    }
+  },
+  {
+    "gw": 4,
+    "home": "MUN",
+    "away": "MCI",
+    "hg": 0,
+    "ag": 1,
+    "excitingness": 6.31,
+    "date": "2026-09-13",
+    "models": {
+      "final5swing": 5.95,
+      "goalsonly": 6.15
+    }
+  },
+  {
+    "gw": 4,
+    "home": "LED",
+    "away": "NEW",
+    "hg": 4,
+    "ag": 1,
+    "excitingness": 7.31,
+    "date": "2026-09-14",
+    "models": {
+      "final5swing": 6.92,
+      "goalsonly": 7.2
+    }
+  },
+  {
+    "gw": 5,
+    "home": "BRE",
+    "away": "CHE",
+    "hg": 3,
+    "ag": 0,
+    "excitingness": 7.0,
+    "date": "2026-09-18",
+    "models": {
+      "final5swing": 6.35,
+      "goalsonly": 6.68
+    }
+  },
+  {
+    "gw": 5,
+    "home": "TOT",
+    "away": "AVL",
+    "hg": 2,
+    "ag": 3,
+    "excitingness": 6.96,
+    "date": "2026-09-19",
+    "models": {
+      "final5swing": 6.94,
+      "goalsonly": 7.2
+    }
+  },
+  {
+    "gw": 5,
+    "home": "NEW",
+    "away": "HUL",
+    "hg": 2,
+    "ag": 1,
+    "excitingness": 6.3,
+    "date": "2026-09-19",
+    "models": {
+      "final5swing": 6.67,
+      "goalsonly": 6.68
+    }
+  },
+  {
+    "gw": 5,
+    "home": "BRI",
+    "away": "ARS",
+    "hg": 3,
+    "ag": 0,
+    "excitingness": 7.36,
+    "date": "2026-09-19",
+    "models": {
+      "final5swing": 6.49,
+      "goalsonly": 6.68
+    }
+  },
+  {
+    "gw": 5,
+    "home": "EVE",
+    "away": "IPS",
+    "hg": 1,
+    "ag": 0,
+    "excitingness": 5.55,
+    "date": "2026-09-19",
+    "models": {
+      "final5swing": 6.28,
+      "goalsonly": 6.15
+    }
+  },
+  {
+    "gw": 5,
+    "home": "NOT",
+    "away": "COV",
+    "hg": 0,
+    "ag": 1,
+    "excitingness": 5.57,
+    "date": "2026-09-19",
+    "models": {
+      "final5swing": 5.99,
+      "goalsonly": 6.15
+    }
+  },
+  {
+    "gw": 5,
+    "home": "MCI",
+    "away": "SUN",
+    "hg": 5,
+    "ag": 3,
+    "excitingness": 8.03,
+    "date": "2026-09-20",
+    "models": {
+      "final5swing": 8.41,
+      "goalsonly": 7.99
+    }
+  },
+  {
+    "gw": 5,
+    "home": "LED",
+    "away": "CRY",
+    "hg": 0,
+    "ag": 0,
+    "excitingness": 5.13,
+    "date": "2026-09-20",
+    "models": {
+      "final5swing": 5.63,
+      "goalsonly": 5.89
+    }
+  },
+  {
+    "gw": 5,
+    "home": "BOU",
+    "away": "LIV",
+    "hg": 0,
+    "ag": 1,
+    "excitingness": 5.93,
+    "date": "2026-09-20",
+    "models": {
+      "final5swing": 5.88,
+      "goalsonly": 6.15
+    }
+  },
+  {
+    "gw": 5,
+    "home": "FLH",
+    "away": "MUN",
+    "hg": 1,
+    "ag": 1,
+    "excitingness": 6.44,
+    "date": "2026-09-20",
+    "models": {
+      "final5swing": 6.77,
+      "goalsonly": 6.42
+    }
   }
 ]

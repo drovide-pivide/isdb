@@ -191,7 +191,7 @@ def process_raw_file(path: str) -> dict | None:
     all_xg  = [float(s.get("xG") or 0) for s in shots_h + shots_a]
 
     meta = {
-        "match_id":    match["id"],
+        "match_id":    int(match["id"]),
         "season_year": match.get("season", ""),
         "competition": "PL",
         "date":        (match.get("datetime") or "")[:10],
@@ -263,7 +263,7 @@ def fetch_season(season_label: str) -> None:
                 shots_h = [s for s in shot_data if s.get("h_a") == "h"]
                 shots_a = [s for s in shot_data if s.get("h_a") == "a"]
 
-            match["season"] = season_label
+            match["season"] = api_season
             payload = {"match": match, "shots_h": shots_h, "shots_a": shots_a}
             with open(raw_path, "w", encoding="utf-8") as f:
                 json.dump(payload, f, indent=2, ensure_ascii=False)
