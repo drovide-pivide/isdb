@@ -186,6 +186,15 @@ in `notes/model_history.md` § Shipped model and saves it there. Run that
 notebook once; every ordinary scoring run afterwards (including whatever
 runs this automatically once a gameweek) just loads that file.
 
+The same notebook also fits and saves two smaller alternate models
+(`models/excitingness_model_final5swing.joblib`, `models/excitingness_model_goalsonly.joblib`
+— see `notes/model_history.md` § Advanced models). If those files exist,
+this script scores every PL match against them too and writes
+`excitingness_final5swing` / `excitingness_goalsonly` columns, which is what
+lights up the "MODEL" dropdown on the site's PL view. Optional — with only
+the shipped model present, everything still works, the site just won't
+offer anything to switch to.
+
 ```bash
 # first time only, or whenever the shipped model actually changes
 jupyter nbconvert --to notebook --execute nbs/train_final_model.ipynb
@@ -194,8 +203,7 @@ jupyter nbconvert --to notebook --execute nbs/train_final_model.ipynb
 If no saved model exists yet, this script falls back to training fresh for
 that one run and prints a note saying so — so a brand-new checkout doesn't
 just fail — but that trained model isn't persisted unless you also pass
-`--save-model`. `models/excitingness_model.joblib` isn't checked into git
-(it's gitignored, like all `*.joblib`).
+`--save-model`. `models/*.joblib` isn't checked into git (gitignored).
 
 To force a fresh retrain even when a saved model already exists (e.g. after
 touching the World Cup data or the feature set):

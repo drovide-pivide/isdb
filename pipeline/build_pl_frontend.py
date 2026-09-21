@@ -15,12 +15,21 @@ chronological order within the season — postponed/rearranged fixtures may
 therefore land a gameweek or two off from the real BBC/PL numbering, but the
 grouping is stable and good enough for the grid display.
 
+"excitingness" is always the default (shipped) model's score. If the CSV also
+has excitingness_<key> columns — the two alternate models predict_excitingness.py
+scores for the frontend's Advanced selector, e.g. excitingness_final5swing,
+excitingness_goalsonly — they're carried through under "models" using the same
+key, so the site can offer a switch without needing this script to know their
+names in advance. Any excitingness_<key> column found gets included
+automatically; there's nothing to hardcode here when a new one is added.
+
 Schema per match:
   {
     "gw": 1,
     "home": "LIV", "away": "BOU",
     "hg": 4, "ag": 2,
     "excitingness": 8.6,
+    "models": {"final5swing": 8.2, "goalsonly": 7.9},
     "date": "2025-08-15"
   }
 
@@ -44,7 +53,17 @@ def load_rows(scores_path: str) -> list[dict]:
         return list(csv.DictReader(f))
 
 
-def build_season_file(rows: list[dict], season_year: str) -> list[dict]:
+def alt_model_keys(rows: list[dict]) -> list[str]:
+    """Any excitingness_<key> column present in the CSV, in the order they
+    first appear — so a new alternate model just needs predict_excitingness.py
+    to write its column; nothing here needs updating."""
+    if not rows:
+        return []
+    return [c[len("excitingness_"):] for c in rows[0]
+            if c.startswith("excitingness_")]
+
+
+def build_season_file(rows: list[dict], season_year: str, model_keys: list[str]) -> list[dict]:
     season_rows = [r for r in rows if r["season_year"] == season_year]
     # Chronological order; match_id as a stable tiebreaker for same-day fixtures.
     season_rows.sort(key=lambda r: (r["date"], int(r["match_id"])))
@@ -52,7 +71,7 @@ def build_season_file(rows: list[dict], season_year: str) -> list[dict]:
     out = []
     for i, r in enumerate(season_rows):
         gw = i // MATCHES_PER_GW + 1
-        out.append({
+        match = {
             "gw": gw,
             "home": r["home"],
             "away": r["away"],
@@ -60,7 +79,15 @@ def build_season_file(rows: list[dict], season_year: str) -> list[dict]:
             "ag": int(r["away_score"]),
             "excitingness": round(float(r["excitingness"]), 2),
             "date": r["date"],
-        })
+        }
+        models = {}
+        for key in model_keys:
+            val = r.get(f"excitingness_{key}", "")
+            if val not in ("", None):
+                models[key] = round(float(val), 2)
+        if models:
+            match["models"] = models
+        out.append(match)
     return out
 
 
@@ -72,10 +99,13 @@ def main():
     args = ap.parse_args()
 
     rows = load_rows(args.scores)
+    model_keys = alt_model_keys(rows)
+    if model_keys:
+        print(f"[i] found alternate model columns: {', '.join(model_keys)}")
     os.makedirs(args.out, exist_ok=True)
 
     for season_year, label in SEASON_LABELS.items():
-        matches = build_season_file(rows, season_year)
+        matches = build_season_file(rows, season_year, model_keys)
         if not matches:
             continue
         out_path = os.path.join(args.out, f"matches_pl{label}.json")

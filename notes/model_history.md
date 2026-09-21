@@ -97,6 +97,37 @@ Features and standardised coefficients, by absolute size:
 
 ---
 
+## Advanced models (site selector)
+
+The site offers a "MODEL" dropdown on the Premier League view (World Cup has
+no alternate models — one real IMDb rating is the only score source there).
+Three models, all trained the same way (ridge, alpha 30, vote-weighted) —
+only the feature subset differs:
+
+| key | source | features | COMBINED |
+|---|---|---|---|
+| `shipped` (default) | Shipped model, above | 11 | 0.827 |
+| `final5swing` | Feature-set history, row 5 | 8 | 0.638 |
+| `goalsonly` | Feature-set history, row 0 | 1 | 0.524 |
+
+`shipped` and `goalsonly` use feature lists stated explicitly elsewhere in
+this doc. `final5swing`'s 8 features are **not** individually listed in the
+history table above (only rows 0 and 7 get a full list) — `predict_excitingness.py`
+reconstructs it as the shipped model's 11 minus the 3 team-strength features
+(`avg_strength`, `gap_strength`, `upset`), reasoning from the fact that row 7
+= row 5 + team strength, with row 6 in between tried and rejected. Confident,
+but worth knowing it's inferred rather than a literal quote from this table.
+
+All three are trained together by `nbs/train_final_model.ipynb` and saved to
+`models/`. `predict_excitingness.py` scores every PL match against whichever
+of the three `.joblib` files it finds, writing `excitingness` (shipped,
+unchanged) plus `excitingness_final5swing` / `excitingness_goalsonly` when
+present. `build_pl_frontend.py` picks up any `excitingness_<key>` column
+automatically — nothing to update there when adding a fourth model, only
+`MODEL_SPECS` in `predict_excitingness.py` and `MODEL_LABELS` in `index.html`.
+
+---
+
 ## Findings
 
 - Goal count explains ~22% of rating variance on WC data.
@@ -149,5 +180,6 @@ signal (team strength).
 | `model_comparison_metrics.csv` | full table with extra diagnostics |
 | `metric_progression.png` | progression chart |
 | `pipeline/build_pl_frontend.py` | turns `outputs/pl_excitingness.csv` into the site's PL gameweek JSON |
-| `nbs/train_final_model.ipynb` | fits *only* the shipped model above and saves it — run this, not the comparison notebook, when you just need to (re)produce `models/excitingness_model.joblib` |
-| `models/excitingness_model.joblib` | the saved shipped model — bundles the fitted model, `FEATURE_SET`, and metadata (algorithm, training data, coefficients, when it was trained). Gitignored (`*.joblib`); regenerate with the notebook above. `predict_excitingness.py` loads this by default and does not retrain; pass `--train` to force a fresh retrain instead |
+| `nbs/train_final_model.ipynb` | fits and saves all three models above (`shipped`, `final5swing`, `goalsonly`) — run this, not the comparison notebook, when you need to (re)produce `models/*.joblib` |
+| `models/excitingness_model.joblib` | the saved shipped model (default) — bundles the fitted model, feature set, and metadata (algorithm, training data, coefficients, when it was trained). Gitignored (`*.joblib`); regenerate with the notebook above. `predict_excitingness.py` loads this by default and does not retrain; pass `--train` to force a fresh retrain instead |
+| `models/excitingness_model_final5swing.joblib`, `models/excitingness_model_goalsonly.joblib` | the two alternate models for the site's Advanced selector. Same bundle format, also gitignored. Optional — if either is missing, `predict_excitingness.py` just skips that column and the site won't offer it |

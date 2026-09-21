@@ -107,6 +107,25 @@
             </sc-for>
           </div>
         </sc-if>
+        <sc-if value="{{ showModelSelector }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="font-family:'Saira',sans-serif;font-size:11px;letter-spacing:1.5px;color:#7d8696">MODEL</span>
+            <div style="position:relative">
+              <div style="{{ modelDropdown.buttonStyle }};padding:5px 10px;border-radius:7px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08)" onClick="{{ modelDropdown.toggle }}">
+                <span style="font-family:'Saira',sans-serif;font-size:12px;color:#dfe4ec">{{ modelDropdown.label }}</span>
+                <span style="{{ modelDropdown.caretStyle }}">▾</span>
+              </div>
+              <sc-if value="{{ modelDropdown.open }}" hint-placeholder-val="{{ false }}">
+                <div onClick="{{ modelDropdown.close }}" style="position:fixed;inset:0;z-index:29"></div>
+                <div style="{{ modelDropdown.menuStyle }}">
+                  <sc-for list="{{ modelDropdown.options }}" as="opt" hint-placeholder-count="3">
+                    <div style="{{ opt.style }}" style-hover="{{ opt.hover }}" onClick="{{ opt.onClick }}">{{ opt.label }}</div>
+                  </sc-for>
+                </div>
+              </sc-if>
+            </div>
+          </div>
+        </sc-if>
       </div>
     </div>
 
@@ -320,7 +339,7 @@
 class Component extends DCLogic {
   constructor(props){
     super(props);
-    this.state = { group:'All', sort:'order', view:'bracket', sel:null, hover:null, ready:false, tournament:'pl', season:'2627', openDropdown:null };
+    this.state = { group:'All', sort:'order', view:'bracket', sel:null, hover:null, ready:false, tournament:'pl', season:'2627', openDropdown:null, plModel:'shipped' };
     this.VERDICTS = {
       Classic:['An instant classic — football at its absolute peak.','One for the ages. Drama from first whistle to last.','Pure theatre. They will replay this for decades.'],
       Thriller:['A thrilling, end-to-end contest with real quality.','Tense, technical and hugely entertaining throughout.','Two good sides going at it — proper tournament football.'],
@@ -451,6 +470,11 @@ class Component extends DCLogic {
   // gameweeks. Build the same {cols, order} shape the grid renderer
   // expects, keyed 'GW1'..'GWn' instead of MD1..FIN, with the
   // "excitingness" model score standing in for the WC's IMDb rating.
+  // A full PL season is always 38 gameweeks — reserve all of them up front
+  // (like the WC's fixed MD1..FIN columns) so the grid's width is stable
+  // from matchday 1 instead of visibly growing week by week. Gameweeks
+  // with no matches yet just render as an empty column.
+  PL_TOTAL_GAMEWEEKS = 38;
   buildPL(matchesRaw){
     const teamCache = {};
     const teamFor = (code) => {
@@ -462,6 +486,7 @@ class Component extends DCLogic {
     };
     const cols = {};
     const order = [];
+    for(let gw=1; gw<=this.PL_TOTAL_GAMEWEEKS; gw++){ const k='GW'+gw; cols[k]=[]; order.push(k); }
     let gidx = 0;
     matchesRaw.forEach(m => {
       const stageKey = 'GW'+m.gw;
@@ -470,6 +495,7 @@ class Component extends DCLogic {
       const id = stageKey+'-'+(gidx++);
       const match = this.makeMatch(id, stageKey, 'Gameweek '+m.gw, home, away, m.hg, m.ag, true, m.excitingness, null, null);
       match.date = m.date; match.time_et = null;
+      match.scores = {shipped: m.excitingness, ...(m.models || {})};
       cols[stageKey].push(match);
     });
     order.sort((a,b)=>parseInt(a.slice(2))-parseInt(b.slice(2)));
@@ -748,6 +774,43 @@ class Component extends DCLogic {
     // shape from build(); PL seasons come from buildPL() keyed by season.
     const activeData = isPL ? this.data[event] : this.data.wc;
 
+    // Advanced model selector (PL only) — WC only ever has one real score
+    // source (IMDb), so there's nothing to switch there. Each PL match
+    // carries every model's score in m.scores (set in buildPL); this
+    // mutates the displayed rating/bg/fg/tier/verdict on every match to
+    // reflect whichever model is currently selected, so the rest of the
+    // render pipeline below can keep reading m.rating/m.bg/m.fg exactly
+    // like it always has — no other call site needs to know models exist.
+    const MODEL_LABELS = {shipped:'Shipped', final5swing:'Final-5 swing', goalsonly:'Goals only'};
+    let availableModelKeys = ['shipped'];
+    let plModel = 'shipped';
+    if(isPL){
+      const keys = new Set(['shipped']);
+      Object.values(activeData.cols).forEach(list => list.forEach(m => {
+        if(m.scores) Object.keys(m.scores).forEach(k => keys.add(k));
+      }));
+      availableModelKeys = [...keys];
+      plModel = availableModelKeys.includes(this.state.plModel) ? this.state.plModel : 'shipped';
+
+      Object.values(activeData.cols).forEach(list => list.forEach(m => {
+        if(!m.hasScore || !m.scores) return;
+        const r = (m.scores[plModel] ?? m.scores.shipped ?? null);
+        m.rating = r;
+        if(r === null){
+          m.bg = '#1a1f2a'; m.fg = '#7d8696'; m.tier = null;
+          m.verdict = 'Excitingness score not available.';
+          return;
+        }
+        const col = this.ratingColor(r);
+        m.bg = col.bg; m.fg = col.fg;
+        m.tier = this.tier(r);
+        const vl = this.VERDICTS[m.tier] || ['Excitingness score computed.'];
+        const rnd = this.rng('rate'+m.id);   // re-derive deterministically — same first draw as build time
+        m.verdict = vl[Math.floor(rnd()*vl.length)];
+      }));
+    }
+    const showModelSelector = isPL && availableModelKeys.length > 1;
+
     const tournamentOptions = [
       {key:'wc', label:'World Cup'},
       {key:'pl', label:'Premier League'}
@@ -758,6 +821,22 @@ class Component extends DCLogic {
 
     const dropdownMenuStyle = {position:'absolute', top:'100%', left:'0', marginTop:'8px', background:'#161b25', border:'1px solid rgba(255,255,255,0.08)', borderRadius:'10px', padding:'4px', minWidth:'150px', zIndex:30, boxShadow:'0 12px 28px rgba(0,0,0,0.5)'};
     const optionStyle = (active) => ({padding:'8px 10px', borderRadius:'7px', fontFamily:"'Saira',sans-serif", fontSize:'12.5px', fontWeight: active ? 700 : 500, color: active ? accent : '#c4cbd6', cursor:'pointer', transition:'background .1s'});
+
+    const modelDropdown = {
+      label: MODEL_LABELS[plModel] || plModel,
+      open: this.state.openDropdown === 'model',
+      toggle: () => this.setState(s => ({ openDropdown: s.openDropdown === 'model' ? null : 'model' })),
+      close: () => this.setState({ openDropdown: null }),
+      buttonStyle: {display:'flex', alignItems:'center', gap:'4px', cursor:'pointer', userSelect:'none', position:'relative', zIndex:30},
+      caretStyle: {fontSize:'9px', color:'#7d8696', opacity:0.75, transform:'translateY(1px)'},
+      menuStyle: dropdownMenuStyle,
+      options: availableModelKeys.map(key => ({
+        label: MODEL_LABELS[key] || key,
+        style: optionStyle(key === plModel),
+        hover: {background:'rgba(255,255,255,0.06)'},
+        onClick: () => this.setState({ plModel:key, openDropdown:null, sel:null, hover:null })
+      }))
+    };
 
     const tournamentDropdown = {
       label: tournament === 'wc' ? 'World Cup' : 'Premier League',
@@ -865,7 +944,7 @@ class Component extends DCLogic {
 
     const rowLabelStyle={position:'sticky', left:'0', zIndex:3, height:H+'px', display:'flex', alignItems:'center', justifyContent:'flex-end', paddingRight:'8px', fontFamily:"'DM Mono',monospace", fontSize:'10.5px', color:'#5b6473', background:'#0e121a'};
     const headers = isPL
-      ? order.map(k => ({abbr:k, name:'GAMEWEEK '+k.slice(2), color:accent}))
+      ? order.map(k => ({abbr:k, name:'GAMEWEEK '+k.slice(2), color: activeData.cols[k].length > 0 ? accent : '#3a3f4a'}))
       : [
       {abbr:'MD1', name:'GROUP D1', color:'#eef1f6'},
       {abbr:'MD2', name:'GROUP D2', color:'#eef1f6'},
@@ -1116,7 +1195,20 @@ class Component extends DCLogic {
     const sortNote = sort==='rating' ? 'ranked best → worst per stage' : 'in fixture order';
 
     const iconW = compact ? 21 : 24;
-    const gridColMin = sort === 'rating' ? (iconW*2 + 36 + 16)+'px' : '0px';
+    // On WC's 8 columns, bumping the min-width in Rating mode (to fit the
+    // two flag badges) barely changes anything visually — there's already
+    // enough room. On PL's 38 columns that same bump forces a much wider
+    // grid, so bubbles look a totally different size in Rating vs Schedule.
+    // Keep PL's minimum constant across both sort modes instead, so bubble
+    // size stays as stable as it already is on WC.
+    // WC only bumps the column minimum in Rating mode (needs room for the
+    // flag badges) — in Schedule mode it relies on having few enough
+    // columns (8) that 1fr naturally gives each one a comfortable size.
+    // PL has up to 38 columns, so that same reliance on natural sizing
+    // let cells shrink to near-nothing. Give PL the same non-zero floor
+    // WC uses for its Rating mode, in both sort modes — the grid scrolls
+    // further sideways, but cells never go smaller than WC's own minimum.
+    const gridColMin = (sort === 'rating' || isPL) ? (iconW*2 + 36 + 16)+'px' : '0px';
     const dataGridStyle = {display:'grid', gridTemplateColumns:'32px repeat('+headers.length+', minmax('+gridColMin+', 1fr))', gap:'6px', alignItems:'start'};
     const grad=(t)=>'linear-gradient(90deg,'+t.c1+' 0 50%,'+t.c2+' 50% 100%)';
     const scoreCol=(m,side)=> m.winner==='d' ? '#c4cbd6' : ((m.winner===side)?'#ffffff':'#7d8696');
@@ -1205,6 +1297,7 @@ class Component extends DCLogic {
 
     return {
       accent, isWC, isPL, showGridUI: isWC || isPL, showViewSwitch, eventTitle, tournamentDropdown, seasonDropdown,
+      modelDropdown, showModelSelector,
       rows, rowLabelStyle, headers, sortPills, viewSwitch, gridColMin, dataGridStyle,
       showSort, showGrid, showBracket, bracketCols, bracketScrollKey, groupRows, groupsBlockStyle, groupStageLabelStyle,
       shownCount, realCount, avgScore, avgLabel, avgLinePos, sortNote,

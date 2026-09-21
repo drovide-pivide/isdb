@@ -85,6 +85,50 @@ FEATURE_SET = [
     "avg_strength", "gap_strength", "upset",
 ]
 
+# The three models offered on the frontend's Advanced selector. "shipped"
+# is FEATURE_SET / DEFAULT_MODEL_PATH above (the default everywhere else
+# in this script); the other two come straight from notes/model_history.md's
+# feature-set-history table, picked to be genuinely different rather than
+# three near-duplicate incremental steps:
+#
+#   goalsonly    row 0 in the doc — 1 feature, the plain baseline. Exact:
+#                the doc states this feature set outright.
+#   final5swing  row 5 in the doc (COMBINED 0.638, its second-best row,
+#                "won 28/30 CV seeds") — 8 features. The doc never
+#                enumerates row 5's exact 8 by name (only rows 0 and 7,
+#                the shipped model, get a full feature list), so this is
+#                a reconstruction: row 7 = row 5's 8 features + 3
+#                team-strength features (avg_strength, gap_strength,
+#                upset), since row 6 in between was tried and rejected.
+#                So row 5's 8 = the shipped 11 minus those 3. Confident,
+#                but flagging it as inferred rather than a literal quote.
+MODELS_DIR = DEFAULT_MODEL_PATH.parent
+GOALSONLY_FEATURES = ["total_goals"]
+FINAL5SWING_FEATURES = [f for f in FEATURE_SET if f not in ("avg_strength", "gap_strength", "upset")]
+
+MODEL_SPECS = {
+    "shipped": {
+        "path": DEFAULT_MODEL_PATH,
+        "label": "Shipped (11 features)",
+        "features": FEATURE_SET,
+        "model_history_row": "Shipped model",
+    },
+    "final5swing": {
+        "path": MODELS_DIR / "excitingness_model_final5swing.joblib",
+        "label": "Final-5 swing (8 features)",
+        "features": FINAL5SWING_FEATURES,
+        "model_history_row": "Feature-set history, row 5",
+    },
+    "goalsonly": {
+        "path": MODELS_DIR / "excitingness_model_goalsonly.joblib",
+        "label": "Goals-only baseline (1 feature)",
+        "features": GOALSONLY_FEATURES,
+        "model_history_row": "Feature-set history, row 0",
+    },
+}
+
+
+
 # Team strength. WC = FIFA world ranking just before the tournament;
 # PL = preseason expected finish. Different scales, so both are converted to a
 # within-competition percentile before use — that is what lets the feature
@@ -371,19 +415,31 @@ def load_existing_scores(path: str) -> pd.DataFrame | None:
 # Main
 # ---------------------------------------------------------------------------
 
-def build_model_bundle(model: Pipeline, n_training_rows: int) -> dict:
-    """Bundle a fitted model with the metadata in notes/model_history.md's
-    'Shipped model' section, so a saved .joblib file is self-documenting —
-    what algorithm, what feature set, what it was trained on, and its
-    known caveats — regardless of whether it came from --save-model or
-    nbs/train_final_model.ipynb. Both call this exact function so the two
-    paths can never drift into different bundle schemas."""
+def build_model_bundle(model: Pipeline, n_training_rows: int,
+                        feature_set: list[str] | None = None,
+                        key: str = "shipped", label: str | None = None,
+                        model_history_row: str | None = None) -> dict:
+    """Bundle a fitted model with metadata, so a saved .joblib file is
+    self-documenting — what algorithm, what feature set, what it was
+    trained on, and its known caveats — regardless of whether it came
+    from --save-model or nbs/train_final_model.ipynb. Every model this
+    project ships (the default plus the two alternates offered on the
+    frontend's Advanced selector) goes through this exact function, so
+    they can never drift into different bundle schemas.
+
+    feature_set defaults to this script's own FEATURE_SET (the shipped
+    11-feature model); pass a shorter list to bundle one of the simpler
+    historical variants from notes/model_history.md's feature-set-history
+    table instead (see nbs/train_final_model.ipynb)."""
     import datetime
+    feature_set = feature_set or FEATURE_SET
     ridge = model.named_steps["ridge"]
-    coefficients = dict(zip(FEATURE_SET, ridge.coef_.round(3).tolist()))
+    coefficients = dict(zip(feature_set, ridge.coef_.round(3).tolist()))
     return {
         "model": model,
-        "feature_set": FEATURE_SET,
+        "feature_set": feature_set,
+        "key": key,
+        "label": label or key,
         "meta": {
             "algorithm": f"Ridge regression (alpha={RIDGE_ALPHA}), vote-weighted, "
                          f"symmetric features only",
@@ -391,10 +447,11 @@ def build_model_bundle(model: Pipeline, n_training_rows: int) -> dict:
                           f"{n_training_rows} rows after excluding extra-time matches",
             "n_training_rows": n_training_rows,
             "label": "IMDb episode rating, 1-10 scale",
-            "n_features": len(FEATURE_SET),
+            "n_features": len(feature_set),
             "standardized_coefficients": coefficients,
             "trained_at": datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds"),
-            "model_history_ref": "notes/model_history.md \u00a7 Shipped model",
+            "model_history_ref": "notes/model_history.md \u00a7 " +
+                                  (model_history_row or "Shipped model"),
             "caveats": (
                 "Unvalidated on Premier League data (no PL excitingness labels exist) \u2014 "
                 "trust the ranking more than the absolute score, which is compressed "
@@ -511,6 +568,40 @@ def main() -> None:
         new_out = pd.DataFrame(columns=score_cols)
 
     out = pd.concat([existing[score_cols], new_out], ignore_index=True) if already else new_out
+
+    # ---- alternate models for the frontend's Advanced selector -------------
+    # These aren't cached per-match like the primary column above — a ridge
+    # predict on ~400 rows is negligible, so it's simpler to just always
+    # score every match fresh against whichever alternate model files exist.
+    alt_keys = [k for k in MODEL_SPECS if k != "shipped"]
+    if alt_keys:
+        X_pl_full = None
+        for key in alt_keys:
+            spec = MODEL_SPECS[key]
+            if not spec["path"].exists():
+                print(f"note: no saved model at {spec['path']} — skipping "
+                      f"excitingness_{key} column (run nbs/train_final_model.ipynb "
+                      f"to produce it)")
+                continue
+            if X_pl_full is None:
+                pl_maps = {yr: pct_map(d) for yr, d in PL_EXPECTED.items()}
+                X_pl_full = build_matrix(pl, lambda r: shot_features(pl_cache[r.match_id]), pl_maps)
+                X_pl_full.insert(0, "match_id", pl.match_id.values)
+
+            import joblib
+            alt_bundle = joblib.load(spec["path"])
+            alt_model = alt_bundle["model"]
+            alt_features = alt_bundle.get("feature_set") or spec["features"]
+            alt_pred = np.clip(alt_model.predict(X_pl_full[alt_features].values), 1.0, 10.0)
+
+            alt_scores = pd.DataFrame({
+                "match_id": X_pl_full.match_id.values,
+                f"excitingness_{key}": alt_pred.round(2),
+            })
+            out = out.merge(alt_scores, on="match_id", how="left")
+            print(f"scored {len(alt_scores)} match(es) against '{spec['label']}' "
+                  f"-> excitingness_{key}")
+
     out = out.sort_values("excitingness", ascending=False).reset_index(drop=True)
     out.insert(0, "rank", out.index + 1)
     out.to_csv(args.out, index=False)
