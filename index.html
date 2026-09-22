@@ -222,8 +222,21 @@
     </div>
     </sc-if>
 
-    <p style="margin:18px 0 7px;font-family:'Saira',sans-serif;font-size:13px;font-weight:400;color:#9aa3b2;line-height:1.6">{{ scoringNote1 }}</p>
-    <p style="margin:0 0 14px;font-family:'Saira',sans-serif;font-size:13px;font-weight:400;color:#9aa3b2;line-height:1.6">{{ scoringNote2 }}</p>
+    <sc-if value="{{ isPL }}" hint-placeholder-val="{{ true }}">
+      <div style="margin:18px 0 14px;font-family:'Saira',sans-serif;font-size:13px;font-weight:400;color:#9aa3b2;line-height:1.6">
+        <p style="margin:0 0 7px"><strong style="color:#dfe4ec;font-weight:600">Training.</strong> Every match is scored by an excitingness model trained on World Cup 2022 and World Cup 2026, where IMDb episode ratings stand in as the crowd's own excitement score for real matches.</p>
+        <p style="margin:0 0 4px"><strong style="color:#dfe4ec;font-weight:600">Model selection.</strong> Three candidate feature sets went head to head; the strongest one shipped, judged equally on:</p>
+        <ul style="margin:0;padding-left:20px">
+          <li><strong style="color:#c4cbd6;font-weight:600">score calibration</strong>, how close predictions land to the real scale (World Cup)</li>
+          <li><strong style="color:#c4cbd6;font-weight:600">rank correlation</strong>, whether the most exciting matches actually rank highest (World Cup)</li>
+          <li><strong style="color:#c4cbd6;font-weight:600">rank agreement</strong>, whether it surfaces Premier League 2025/26's most-nominated thrillers near the top</li>
+        </ul>
+      </div>
+    </sc-if>
+    <sc-if value="{{ isWC }}" hint-placeholder-val="{{ false }}">
+      <p style="margin:18px 0 7px;font-family:'Saira',sans-serif;font-size:13px;font-weight:400;color:#9aa3b2;line-height:1.6">{{ scoringNote1 }}</p>
+      <p style="margin:0 0 14px;font-family:'Saira',sans-serif;font-size:13px;font-weight:400;color:#9aa3b2;line-height:1.6">{{ scoringNote2 }}</p>
+    </sc-if>
 
           <!-- GRADIENT LEGEND -->
     <div style="display:flex;flex-direction:column;gap:10px;background:#11151d;border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:15px 18px;min-width:248px">
@@ -1440,12 +1453,9 @@ class Component extends DCLogic {
       }
     }
 
-    const scoringNote1 = isPL
-      ? 'Scoring method: an excitingness model — trained on World Cup matches, where IMDb episode ratings act as the crowd-sourced label — applied to Premier League matches.'
-      : 'Scoring method (as of Jun 19): retrieving directly from IMDb, testing the front-end to early users.';
-    const scoringNote2 = isPL
-      ? 'Unvalidated on PL data: trust the ranking more than the absolute number, which is compressed toward the mean.'
-      : 'Proposed: using match events and statistics to predict the match excitingness score, on an IMDb scale of 1–10.';
+    // WC-only: the PL scoring note is a static rich block in the template.
+    const scoringNote1 = 'Scoring method (as of Jun 19): retrieving directly from IMDb, testing the front-end to early users.';
+    const scoringNote2 = 'Proposed: using match events and statistics to predict the match excitingness score, on an IMDb scale of 1–10.';
     const ratingsFooterNote = isPL
       ? 'Scores from ISDb\u2019s excitingness model, run on real match xG timelines · – means not yet scored · updates after each gameweek'
       : 'Ratings sourced from IMDb fan votes · – means rating not yet available · scores update automatically after each match';
