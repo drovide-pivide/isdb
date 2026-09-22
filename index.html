@@ -152,7 +152,7 @@
           <sc-for list="{{ rows }}" as="row" hint-placeholder-count="24">
             <div style="{{ rowLabelStyle }}">{{ row.label }}</div>
             <sc-for list="{{ row.cells }}" as="cell" hint-placeholder-count="8">
-              <div class="isdb-cell" style="{{ cell.style }}" style-hover="{{ cell.hover }}" onClick="{{ cell.onClick }}" onMouseEnter="{{ cell.onEnter }}" onMouseMove="{{ cell.onMove }}" onMouseLeave="{{ cell.onLeave }}">
+              <div class="isdb-cell" data-mid="{{ cell.mid }}" style="{{ cell.style }}" style-hover="{{ cell.hover }}" onClick="{{ cell.onClick }}" onMouseEnter="{{ cell.onEnter }}" onMouseMove="{{ cell.onMove }}" onMouseLeave="{{ cell.onLeave }}">
                 <img class="cell-flag" src="{{ cell.homeFlag }}" style="{{ cell.homeFlagStyle }}" />
                 <div style="{{ cell.scoreRowStyle }}">{{ cell.score }}</div>
                 <img class="cell-flag" src="{{ cell.awayFlag }}" style="{{ cell.awayFlagStyle }}" />
@@ -422,6 +422,119 @@ class Component extends DCLogic {
     el.querySelectorAll('.cell-flag[data-hover-shown]').forEach(f => {
       f.style.display = 'none';
       delete f.dataset.hoverShown;
+    });
+  }
+
+  // FLIP-style reorder animation for the ratings grid. In Rating sort
+  // mode, switching the excitingness model re-ranks matches within each
+  // gameweek column. Call _flipCapture(selector) right before the
+  // setState that triggers the re-sort: it records each cell's on-screen
+  // position and color (keyed by data-mid, so a match is tracked even if
+  // the framework reuses a different DOM node for it), then plays every
+  // bubble from where it was to where it now is.
+  _flipCapture(selector){
+    const reduce = typeof window !== 'undefined' && window.matchMedia
+      && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if(reduce || typeof Element === 'undefined' || !Element.prototype.animate) return;
+
+    // Read positions first. getBoundingClientRect includes any in-flight
+    // animation transform, so a second model switch mid-animation starts
+    // each bubble from where it visually is right now — no snapping.
+    const before = new Map();
+    document.querySelectorAll(selector).forEach(el => {
+      const mid = el.getAttribute('data-mid');
+      if(!mid) return;
+      before.set(mid, {rect: el.getBoundingClientRect(), bg: getComputedStyle(el).backgroundColor});
+    });
+
+    // Only now stop any running animations, so they don't fight the new ones.
+    (this._flipAnims || []).forEach(a => a.cancel());
+    this._flipAnims = [];
+
+    // A single rAF: it runs after the framework has patched the DOM but
+    // BEFORE the browser paints, so the inverse transforms are applied in
+    // the same frame as the new layout — no one-frame flash of the final
+    // positions (which is what the old double-rAF version caused).
+    if(this._flipRAF) cancelAnimationFrame(this._flipRAF);
+    this._flipRAF = requestAnimationFrame(() => {
+      this._flipRAF = null;
+      this._flipPlay(selector, before);
+    });
+  }
+
+  _flipPlay(selector, before){
+    const els = [...document.querySelectorAll(selector)];
+    if(!els.length) return;
+
+    // Read phase: measure everything before writing anything, so the
+    // browser does one layout pass instead of one per cell.
+    const grid = els[0].closest('[data-grid]');
+    const gridRect = grid ? grid.getBoundingClientRect() : {left:0, width:1};
+    const jobs = [];
+    els.forEach(el => {
+      const mid = el.getAttribute('data-mid');
+      if(!mid) return;
+      const to = el.getBoundingClientRect();
+      const toBg = getComputedStyle(el).backgroundColor;
+      const prev = before.get(mid);
+      jobs.push({el, to, toBg, prev});
+    });
+
+    // Write phase.
+    const EASE = 'cubic-bezier(.22,.9,.24,1)'; // quick start, long soft settle
+    const MAX_STAGGER = 140;                  // ms, left-most → right-most column
+    jobs.forEach(({el, to, toBg, prev}) => {
+      const colT = gridRect.width > 0 ? Math.max(0, Math.min(1, (to.left - gridRect.left) / gridRect.width)) : 0;
+      const delay = Math.round(colT * MAX_STAGGER);
+
+      // Match wasn't on screen before — fade/scale it in gently.
+      if(!prev){
+        const a = el.animate(
+          [{opacity:0, transform:'scale(.88)'}, {opacity:1, transform:'scale(1)'}],
+          {duration:360, delay, easing:EASE, fill:'backwards'}
+        );
+        this._flipAnims.push(a);
+        return;
+      }
+
+      const dx = prev.rect.left - to.left;
+      const dy = prev.rect.top - to.top;
+      const moved = Math.abs(dx) > 0.5 || Math.abs(dy) > 0.5;
+      const recolored = prev.bg !== toBg;
+      if(!moved && !recolored) return;
+
+      // Color-only change (same slot, new rating): just crossfade the fill.
+      if(!moved){
+        const a = el.animate(
+          [{backgroundColor:prev.bg}, {backgroundColor:toBg}],
+          {duration:420, delay, easing:'ease-out', fill:'backwards'}
+        );
+        this._flipAnims.push(a);
+        return;
+      }
+
+      // Longer moves take a bit longer, but capped so nothing drags.
+      const dist = Math.hypot(dx, dy);
+      const duration = Math.round(Math.min(760, 420 + dist * 0.6));
+      // Risers lift slightly and sit above fallers, so crossing paths
+      // read as one bubble passing over another rather than a jumble.
+      const rising = dy > 0; // was lower on screen, now higher
+      const lift = rising ? 1.05 : 0.98;
+      el.style.zIndex = rising ? '8' : '7';
+
+      const a = el.animate([
+        // Lift shadow uses filter rather than box-shadow, so the cell's
+        // stage outline and selection ring (both box-shadow) stay intact.
+        {transform:'translate('+dx+'px,'+dy+'px) scale(1)', backgroundColor:prev.bg, filter:'drop-shadow(0 0 0 rgba(0,0,0,0))'},
+        {transform:'translate('+(dx*0.45)+'px,'+(dy*0.45)+'px) scale('+lift+')', offset:0.45,
+         filter: rising ? 'drop-shadow(0 8px 12px rgba(0,0,0,0.45))' : 'drop-shadow(0 0 0 rgba(0,0,0,0))'},
+        {transform:'translate(0px,0px) scale(1)', backgroundColor:toBg, filter:'drop-shadow(0 0 0 rgba(0,0,0,0))'}
+      ], {duration, delay, easing:EASE, fill:'backwards', composite:'replace'});
+
+      const clear = () => { el.style.zIndex = ''; };
+      a.onfinish = clear;
+      a.oncancel = clear;
+      this._flipAnims.push(a);
     });
   }
 
@@ -872,7 +985,10 @@ class Component extends DCLogic {
         label: MODEL_LABELS[key] || key,
         style: optionStyle(key === plModel),
         hover: {background:'rgba(255,255,255,0.06)'},
-        onClick: () => this.setState({ plModel:key, openDropdown:null, sel:null, hover:null })
+        onClick: () => {
+          this._flipCapture('[data-grid] .isdb-cell[data-mid]');
+          this.setState({ plModel:key, openDropdown:null, sel:null, hover:null });
+        }
       }))
     };
 
@@ -940,7 +1056,7 @@ class Component extends DCLogic {
         const iconW = compact ? 21 : 24;
         const iconH = compact ? 16 : 18;
 
-        if(!m) return {score:'', style:emptyStyle, scoreRowStyle:{display:'none'}, hover:undefined, onClick:undefined, onEnter:undefined, onMove:undefined, onLeave:undefined, decidedIcon1Src:null, decidedIcon1Style:{display:'none'}, decidedIcon2Src:null, decidedIcon2Style:{display:'none'}};
+        if(!m) return {mid:'', score:'', style:emptyStyle, scoreRowStyle:{display:'none'}, hover:undefined, onClick:undefined, onEnter:undefined, onMove:undefined, onLeave:undefined, decidedIcon1Src:null, decidedIcon1Style:{display:'none'}, decidedIcon2Src:null, decidedIcon2Style:{display:'none'}};
         const seld=m.id===selId;
         const stageColor = {'MD1':'rgba(238,241,246,0.18)','MD2':'rgba(238,241,246,0.18)','MD3':'rgba(238,241,246,0.18)','R32':'rgba(91,140,255,0.35)','R16':'rgba(91,140,255,0.35)','QF':'rgba(91,140,255,0.35)','SF':'rgba(91,140,255,0.35)','FIN':'rgba(255,77,141,0.45)'}[m.stageKey] ?? 'rgba(255,255,255,0.12)';
         const outline = `inset 0 1px 0 rgba(255,255,255,0.13), inset 0 -1px 0 rgba(0,0,0,0.25), 0 0 0 1px ${stageColor}`;
@@ -965,6 +1081,7 @@ class Component extends DCLogic {
         const decidedIcon1Style = decidedIcon1Src ? this.decidedIconPos(0, iconTypes.length) : {display:'none'};
         const decidedIcon2Style = decidedIcon2Src ? this.decidedIconPos(1, iconTypes.length) : {display:'none'};
         return {
+          mid: m.id,
           homeFlag: m.home.flag, awayFlag: m.away.flag,
           hasTeams, hasScore: m.hasScore,
           score: m.hasScore ? (m.rating !== null ? m.rating.toFixed(1) : '–') : '',
