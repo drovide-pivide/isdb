@@ -1,0 +1,42 @@
+name: db-keep-alive
+
+# Only needed if you're on Supabase's free tier — it pauses a project after
+# roughly a week of low database activity, and a paused project has to be
+# restored by hand from the dashboard. The rest of this pipeline only
+# touches the DB once a week (data-pipeline.yml's Monday cron), which sits
+# right at that edge, so this runs a trivial daily query to stay well clear
+# of it.
+#
+# Not needed on Neon: its free tier just autosuspends compute between
+# connections and wakes itself on the next query, with no weekly window to
+# stay under and nothing to restore. Delete this workflow if that's what
+# you're using.
+on:
+  schedule:
+    - cron: "0 12 * * *"
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: pip install psycopg2-binary
+
+      - name: SELECT 1
+        run: |
+          python3 -c "
+          import os, psycopg2
+          conn = psycopg2.connect(os.environ['DATABASE_URL'])
+          with conn.cursor() as cur:
+              cur.execute('select 1')
+              cur.fetchone()
+          conn.close()
+          print('ok')
+          "

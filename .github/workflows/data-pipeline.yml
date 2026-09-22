@@ -1,0 +1,85 @@
+name: data-pipeline
+
+# Runs the regular data-retrieval jobs against Postgres — nothing here ever
+# touches the git repo. Set DATABASE_URL as a repo secret first:
+#   Settings -> Secrets and variables -> Actions -> New repository secret
+#   Name: DATABASE_URL
+#   Value: postgresql://user:password@host:5432/dbname  (from Neon/Supabase)
+#
+# Schedule: fires every morning at 06:00 UTC, but the check-matchday job
+# below only lets the actual fetch run if yesterday (UTC) is a date with a
+# real Premier League fixture, per .github/pl_matchdays_2026_27.json — the
+# real 2026/27 fixture calendar (source: fixturedownload.com, cross-checked
+# against the official PL release), not a guessed day-of-week pattern. That
+# file needs regenerating for 2027/28 next summer, and refreshing sooner if
+# TV picks or postponements move fixtures around — see MIGRATION.md.
+#
+# Manual runs (workflow_dispatch) always go regardless of date.
+on:
+  schedule:
+    - cron: "0 6 * * *"
+  workflow_dispatch:
+    inputs:
+      pl_season:
+        description: "PL competition key for match_stats_fetch.py (see COMPETITIONS in the script)"
+        default: "pl2627"
+        required: false
+
+jobs:
+  check-matchday:
+    runs-on: ubuntu-latest
+    outputs:
+      is_matchday: ${{ steps.check.outputs.is_matchday }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: check
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "is_matchday=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          python3 .github/scripts/check_matchday.py
+
+  fetch-and-score:
+    needs: check-matchday
+    if: needs.check-matchday.outputs.is_matchday == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      PL_SEASON: ${{ github.event.inputs.pl_season || 'pl2627' }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          pip install -r db/requirements.txt
+          pip install requests pandas numpy scikit-learn scipy joblib
+          pip uninstall -y understatapi || true
+          pip install jeke-understat-scrapper
+
+      - name: Sofascore — WC2026 (scores + rebuilds frontend_matches)
+        run: python match_stats_fetch.py --competition wc2026
+        working-directory: pipeline
+
+      - name: Sofascore — Premier League
+        run: python match_stats_fetch.py --competition "$PL_SEASON"
+        working-directory: pipeline
+
+      - name: Understat — Premier League xG timeline
+        run: python pl_xg_timeline_fetch.py
+        working-directory: pipeline
+
+      - name: Score Premier League matches for excitingness
+        run: python predict_excitingness.py --top 0
+        working-directory: .
+
+      - name: Rebuild PL frontend rows
+        run: python build_pl_frontend.py
+        working-directory: pipeline

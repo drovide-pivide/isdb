@@ -14,31 +14,34 @@ Per match it fetches four endpoints:
   /event/{id}/incidents    → goals and cards with exact minute
   /event/{id}/graph        → attack momentum, one value per minute
 
-Outputs
--------
-  data/match_stats/raw/{comp}_{id}.json    raw payload per match (resumable cache)
-  data/frontend/matches_wc2026.json        SAME schema the website already consumes
-  data/match_stats/{comp}_match_stats.csv  ML features (goals, cards, fouls,
-                                           momentum, score state, shot quality)
+Outputs (Postgres, via db/db.py — set DATABASE_URL before running):
+  raw_cache (source='sofascore_match')  raw payload per match (resumable cache)
+  frontend_matches (competition='wc2026')  SAME schema the website already consumes
+  match_features                        ML features (goals, cards, fouls,
+                                         momentum, score state, shot quality)
 
 Frontend compatibility
 ----------------------
-matches_wc2026.json keeps the exact field set the existing HTML expects:
+The frontend_matches row for wc2026 keeps the exact field set the existing
+HTML expects:
   home, away, hg, ag, et_hg, et_ag, pens_hg, pens_ag, source, match_id, date,
-  time_et, stage, group, stadium, city, country_played, imdb_score,
+  time_et, stage, group_name, stadium, city, country_played, imdb_score,
   oneline_comment
 
 Match identity (match_id 1..104, stadium, city, group, time_et) still comes
-from data/schedule/schedule_matches.json, which is hand-curated static
-reference data rather than a fetched source. Sofascore supplies the scores.
-imdb_score comes from data/imdb/wc2026.json, and any existing
-oneline_comment in the current frontend file is preserved.
+from the wc_schedule table, which is hand-curated static reference data
+rather than a fetched source (seed it with migrate_existing_data.py, or edit
+schedule_matches.json and re-run --seed-only). Sofascore supplies the scores.
+imdb_score comes from the imdb_ratings table, and any existing
+oneline_comment already in frontend_matches is preserved.
 
 Usage
 -----
   pip install requests
+  pip install -r ../db/requirements.txt
+  export DATABASE_URL="postgresql://..."
 
-  # WC2026: fetch from Sofascore and rebuild the website JSON
+  # WC2026: fetch from Sofascore and rebuild the website table
   python match_stats_fetch.py --competition wc2026
 
   # WC2022 and PL (ML features only, no website output)
@@ -49,7 +52,7 @@ Usage
   # Rebuild outputs from the cache without any network calls
   python match_stats_fetch.py --competition wc2026 --features-only
 
-  # Preview without writing the website JSON
+  # Preview without writing to frontend_matches
   python match_stats_fetch.py --competition wc2026 --dry-run
 """
 
@@ -65,6 +68,9 @@ from collections import defaultdict
 
 import requests
 
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "db"))
+import db  # noqa: E402
+
 API = "https://api.sofascore.com/api/v1"
 
 HEADERS = {
@@ -78,8 +84,7 @@ HEADERS = {
     "Origin": "https://www.sofascore.com",
 }
 
-# Paths are relative to the pipeline/ folder, matching the other scripts.
-RAW_DIR = "../data/match_stats/raw"
+CACHE_SOURCE = "sofascore_match"
 DELAY   = 1.2   # seconds between matches — be polite
 
 # Sofascore unique-tournament ids
@@ -89,11 +94,6 @@ COMPETITIONS = {
     "pl2025": {"tournament": 17, "year": "25/26",     "label": "Premier League 25/26"},
     "pl2627": {"tournament": 17, "year": "26/27",     "label": "Premier League 26/27"},
 }
-
-# Paths for the WC2026 website pipeline
-SCHEDULE_PATH = "../data/schedule/schedule_matches.json"
-IMDB_PATH     = "../data/imdb/wc2026.json"
-FRONTEND_PATH = "../data/frontend/matches_wc2026.json"
 
 
 # ===========================================================================
@@ -547,7 +547,6 @@ def build_feature_row(raw: dict, competition: str) -> dict:
 
 def fetch_competition(comp: str, features_only: bool) -> list:
     cfg = COMPETITIONS[comp]
-    os.makedirs(RAW_DIR, exist_ok=True)
 
     if not features_only:
         print(f"\nResolving season for {cfg['label']}...")
@@ -562,36 +561,33 @@ def fetch_competition(comp: str, features_only: bool) -> list:
         print(f"  {len(events)} finished matches found")
 
         for i, ev in enumerate(events, 1):
-            eid      = ev["id"]
-            raw_path = os.path.join(RAW_DIR, f"{comp}_{eid}.json")
+            eid       = ev["id"]
+            cache_key = f"{comp}_{eid}"
 
             hn = (ev.get("homeTeam") or {}).get("nameCode", "?")
             an = (ev.get("awayTeam") or {}).get("nameCode", "?")
 
-            if os.path.exists(raw_path):
+            if db.cache_exists(CACHE_SOURCE, cache_key):
                 print(f"  [{i:>3}/{len(events)}] {comp} {eid}  {hn} vs {an} — cached, skipping")
                 continue
 
             print(f"  [{i:>3}/{len(events)}] {comp} {eid}  {hn} vs {an} ...", end=" ", flush=True)
             raw = fetch_match(eid)
-            with open(raw_path, "w", encoding="utf-8") as f:
-                json.dump(raw, f, indent=2, ensure_ascii=False)
+            db.cache_put(CACHE_SOURCE, cache_key, raw, match_id=int(eid))
 
             print(f"{len(raw['incidents'])} incidents, {len(raw['graph'])} momentum pts")
             time.sleep(DELAY)
 
     # Build feature rows from the cache
-    print("\nComputing features from cached files...")
+    print("\nComputing features from cached payloads...")
     rows = []
-    for fname in sorted(os.listdir(RAW_DIR)):
-        if not (fname.startswith(f"{comp}_") and fname.endswith(".json")):
+    for cache_key, raw in db.cache_all(CACHE_SOURCE):
+        if not cache_key.startswith(f"{comp}_"):
             continue
         try:
-            with open(os.path.join(RAW_DIR, fname), encoding="utf-8") as f:
-                raw = json.load(f)
             rows.append(build_feature_row(raw, comp))
         except Exception as e:
-            print(f"  [skip] {fname}: {e}")
+            print(f"  [skip] {cache_key}: {e}")
 
     rows.sort(key=lambda r: (r["date"], r["event_id"] or 0))
     return rows
@@ -640,13 +636,8 @@ def report_stat_coverage(rows: list) -> None:
 
 
 def write_features(rows: list, comp: str) -> None:
-    path = f"../data/match_stats/{comp}_match_stats.csv"
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    with open(path, "w", newline="", encoding="utf-8") as f:
-        w = csv.DictWriter(f, fieldnames=FEATURE_COLS, extrasaction="ignore")
-        w.writeheader()
-        w.writerows(rows)
-    print(f"[✓] Features CSV     : {path}  ({len(rows)} rows)")
+    n = db.upsert_rows("match_features", rows, ["event_id"])
+    print(f"[✓] match_features   : {n} rows upserted (competition={comp})")
 
 
 # ===========================================================================
@@ -763,34 +754,29 @@ def build_imdb_lookups(episodes: list):
 
 
 
-def build_frontend(rows: list, schedule_path: str, imdb_path: str,
-                   frontend_path: str, dry_run: bool) -> None:
+def build_frontend(rows: list, dry_run: bool, out_json: str | None = None) -> None:
     # -- schedule: match identity and venue metadata --------------------
-    if not os.path.exists(schedule_path):
-        print(f"[!] Schedule not found at {schedule_path} — skipping website output")
+    schedule = db.read_rows("wc_schedule")
+    if not schedule:
+        print("[!] wc_schedule is empty — seed it first: "
+              "python3 ../migrate_existing_data.py --seed-only")
         return
-    with open(schedule_path, encoding="utf-8") as f:
-        sched_data = json.load(f)
-    schedule = sched_data.get("matches", sched_data)
-    print(f"[✓] Schedule         : {schedule_path}  ({len(schedule)} matches)")
+    print(f"[✓] Schedule         : wc_schedule table  ({len(schedule)} matches)")
 
     # -- IMDb ratings ---------------------------------------------------
-    imdb_by_pair, imdb_by_date = {}, {}
-    if os.path.exists(imdb_path):
-        with open(imdb_path, encoding="utf-8") as f:
-            imdb_data = json.load(f)
-        episodes = imdb_data.get("episodes", imdb_data) if isinstance(imdb_data, dict) else imdb_data
+    episodes = db.read_rows("imdb_ratings")
+    imdb_by_pair, imdb_by_date = ({}, {})
+    if episodes:
         imdb_by_pair, imdb_by_date = build_imdb_lookups(episodes)
-        print(f"[\u2713] IMDb file        : {imdb_path}  ({len(episodes)} episodes)")
+        print(f"[\u2713] IMDb ratings     : imdb_ratings table  ({len(episodes)} episodes)")
     else:
-        print(f"[!] IMDb file not found at {imdb_path} — imdb_score will be null")
+        print("[!] imdb_ratings is empty — imdb_score will be null")
 
     # -- preserve existing comments -------------------------------------
-    existing = {}
-    if os.path.exists(frontend_path):
-        with open(frontend_path, encoding="utf-8") as f:
-            for m in json.load(f):
-                existing[m.get("match_id")] = m
+    existing = {
+        m["match_id"]: m
+        for m in db.read_rows("frontend_matches", where="competition = %s", params=("wc2026",))
+    }
 
     # -- index Sofascore rows by (date, home, away) and by team pair -----
     by_pair = {}
@@ -813,10 +799,11 @@ def build_frontend(rows: list, schedule_path: str, imdb_path: str,
         pair_key = frozenset([home, away])
         if pair_key in imdb_by_pair:
             imdb_score = imdb_by_pair[pair_key]
-        elif s.get("date") in imdb_by_date and len(imdb_by_date[s["date"]]) == 1:
-            imdb_score = imdb_by_date[s["date"]][0]
+        elif str(s.get("date")) in imdb_by_date and len(imdb_by_date[str(s["date"])]) == 1:
+            imdb_score = imdb_by_date[str(s["date"])][0]
 
         out.append({
+            "competition": "wc2026",
             "home": home,
             "away": away,
             "hg":   row["home_score"] if row else None,
@@ -830,7 +817,7 @@ def build_frontend(rows: list, schedule_path: str, imdb_path: str,
             "date":           s.get("date"),
             "time_et":        s.get("time_et"),
             "stage":          s.get("stage"),
-            "group":          s.get("group"),
+            "group_name":     s.get("group_name"),
             "stadium":        s.get("stadium"),
             "city":           s.get("city"),
             "country_played": s.get("country_played"),
@@ -846,13 +833,27 @@ def build_frontend(rows: list, schedule_path: str, imdb_path: str,
 
     if dry_run:
         print("\n[dry-run] First 2 entries:")
-        print(json.dumps(out[:2], indent=2, ensure_ascii=False))
+        print(json.dumps(out[:2], indent=2, ensure_ascii=False, default=str))
         return
 
-    os.makedirs(os.path.dirname(frontend_path) or ".", exist_ok=True)
-    with open(frontend_path, "w", encoding="utf-8") as f:
-        json.dump(out, f, indent=2, ensure_ascii=False)
-    print(f"[✓] Updated          : {frontend_path}")
+    n = db.upsert_rows("frontend_matches", out, ["competition", "match_id"])
+    print(f"[✓] frontend_matches : {n} rows upserted (competition=wc2026)")
+
+    if out_json:
+        # legacy shape: "group" instead of "group_name", no competition key,
+        # date/matched as plain strings — matches the old JSON file exactly
+        legacy = []
+        for m in out:
+            d = {k: v for k, v in m.items() if k not in ("competition", "group_name")}
+            d["group"] = m.get("group_name")
+            if hasattr(d.get("date"), "isoformat"):
+                d["date"] = d["date"].isoformat()
+            legacy.append(d)
+        os.makedirs(out_json, exist_ok=True)
+        path = os.path.join(out_json, "matches_wc2026.json")
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(legacy, f, indent=2, ensure_ascii=False)
+        print(f"    also wrote {path}")
 
 
 # ===========================================================================
@@ -878,9 +879,9 @@ def main() -> None:
                    help="Rebuild outputs from the cache, no network calls")
     p.add_argument("--dry-run", action="store_true",
                    help="Print the website JSON preview instead of writing it")
-    p.add_argument("--schedule", default=SCHEDULE_PATH)
-    p.add_argument("--imdb",     default=IMDB_PATH)
-    p.add_argument("--frontend", default=FRONTEND_PATH)
+    p.add_argument("--out-json", default=None,
+                   help="also write the legacy matches_wc2026.json to this directory "
+                        "(only needed if the frontend still reads static JSON)")
     args = p.parse_args()
 
     rows = fetch_competition(args.competition, args.features_only)
@@ -890,7 +891,7 @@ def main() -> None:
     # Only WC2026 drives the website
     if args.competition == "wc2026":
         print()
-        build_frontend(rows, args.schedule, args.imdb, args.frontend, args.dry_run)
+        build_frontend(rows, args.dry_run, args.out_json)
 
 
 if __name__ == "__main__":

@@ -10,14 +10,13 @@ for Understat's AJAX-based data loading:
   pip uninstall understatapi -y
   pip install jeke-understat-scrapper
 
-Outputs:
-  data/xg_timeline/pl/pl2526_match_{id}.json   — raw shots per PL 2025/26 match
-  data/xg_timeline/pl/pl2627_match_{id}.json   — raw shots per PL 2026/27 match
-  data/xg_timeline/pl/pl_features.csv          — one row per match, all features
+Outputs (Postgres, via db/db.py — set DATABASE_URL before running):
+  raw_cache (source='xg_pl')   — raw shots per match, one row per (season, match id)
+  pl_xg_features                — one row per match, all features
 
 Run this from the pipeline/ folder.
 
-Resumable: any match whose JSON already exists in data/xg_timeline/pl/ is skipped.
+Resumable: any match already present in raw_cache is skipped.
 
 Usage:
   python pl_xg_timeline_fetch.py
@@ -29,17 +28,19 @@ import csv
 import json
 import os
 import re
+import sys
 import time
 from collections import defaultdict
 from itertools import groupby
+
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "db"))
+import db  # noqa: E402
 
 # Imported lazily inside fetch_season() so that --features-only works offline,
 # without requiring the scraper package to be installed.
 UnderstatClient = None
 
-# Paths are relative to the pipeline/ folder, matching the other scripts.
-RAW_DIR   = "../data/xg_timeline/pl"
-FEAT_PATH = "../data/xg_timeline/pl/pl_features.csv"
+CACHE_SOURCE = "xg_pl"
 
 # Maps filename label → Understat API season parameter
 # 2025/26 → label "2526", API "2025"
@@ -147,42 +148,29 @@ FEATURE_COLS = [
 ALL_COLS = META_COLS + FEATURE_COLS
 
 
-def write_csv(rows: list, path: str) -> None:
-    os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
-    with open(path, "w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=ALL_COLS, extrasaction="ignore")
-        writer.writeheader()
-        writer.writerows(rows)
-    print(f"\n✓ Features CSV written to {path}  ({len(rows)} rows)")
+def write_features(rows: list) -> None:
+    n = db.upsert_rows("pl_xg_features", rows, ["match_id"])
+    print(f"\n✓ pl_xg_features: {n} rows upserted")
 
 
-def load_existing_rows(path: str) -> dict:
-    """match_id (int) -> row dict, from a previously written features CSV.
+def load_existing_rows() -> dict:
+    """match_id (int) -> row dict, from what's already in pl_xg_features.
     Lets run() skip reprocessing (and reprinting) matches that haven't
-    changed since the last run instead of walking every raw file every time."""
-    if not os.path.exists(path):
-        return {}
-    with open(path, encoding="utf-8") as f:
-        out = {}
-        for row in csv.DictReader(f):
-            try:
-                row["match_id"] = int(row["match_id"])
-            except (KeyError, ValueError):
-                continue
-            out[row["match_id"]] = row
-        return out
+    changed since the last run instead of walking every cached payload
+    every time."""
+    out = {}
+    for row in db.read_rows("pl_xg_features"):
+        out[int(row["match_id"])] = row
+    return out
 
 
 # ---------------------------------------------------------------------------
-# Load a saved raw file and compute its feature row
+# Process a cached raw payload and compute its feature row
 # ---------------------------------------------------------------------------
 
-def process_raw_file(path: str) -> dict | None:
-    try:
-        with open(path, encoding="utf-8") as f:
-            raw = json.load(f)
-    except Exception as e:
-        print(f"    [skip] could not load {path}: {e}")
+def process_raw_payload(raw: dict, cache_key: str) -> dict | None:
+    if raw is None:
+        print(f"    [skip] no cached payload for {cache_key}")
         return None
 
     match   = raw["match"]
@@ -235,20 +223,20 @@ def fetch_season(season_label: str) -> None:
 
     for date, group_iter in groupby(finished, key=lambda m: (m.get("datetime") or "")[:10]):
         group = list(group_iter)
-        group_paths = [os.path.join(RAW_DIR, f"pl{season_label}_match_{m['id']}.json") for m in group]
+        group_keys = [f"pl{season_label}_match_{m['id']}" for m in group]
 
-        if all(os.path.exists(p) for p in group_paths):
+        if all(db.cache_exists(CACHE_SOURCE, k) for k in group_keys):
             print(f"  {date} — all {len(group)} matches already saved, skipping")
             continue
 
         for i, match in enumerate(group, 1):
-            mid      = match["id"]
-            raw_path = os.path.join(RAW_DIR, f"pl{season_label}_match_{mid}.json")
+            mid       = match["id"]
+            cache_key = f"pl{season_label}_match_{mid}"
 
             home = (match.get("h") or {}).get("short_title", "?")
             away = (match.get("a") or {}).get("short_title", "?")
 
-            if os.path.exists(raw_path):
+            if db.cache_exists(CACHE_SOURCE, cache_key):
                 print(f"  [{date} {i}/{len(group)}] pl{season_label} match {mid}  {home} vs {away} — already saved, skipping")
                 continue
 
@@ -265,8 +253,7 @@ def fetch_season(season_label: str) -> None:
 
             match["season"] = api_season
             payload = {"match": match, "shots_h": shots_h, "shots_a": shots_a}
-            with open(raw_path, "w", encoding="utf-8") as f:
-                json.dump(payload, f, indent=2, ensure_ascii=False)
+            db.cache_put(CACHE_SOURCE, cache_key, payload, match_id=int(mid), season_year=int(api_season))
 
             print(f"{len(shots_h) + len(shots_a)} shots")
             time.sleep(DELAY)
@@ -277,47 +264,43 @@ def fetch_season(season_label: str) -> None:
 # ---------------------------------------------------------------------------
 
 def run(features_only: bool) -> None:
-    os.makedirs(RAW_DIR, exist_ok=True)
-
     if not features_only:
         for season_label in SEASONS:
             fetch_season(season_label)
 
-    print("\nComputing features from saved raw files...")
-    existing = load_existing_rows(FEAT_PATH)
+    print("\nComputing features from cached raw payloads...")
+    existing = load_existing_rows()
     valid_prefixes = tuple(f"pl{label}_match_" for label in SEASONS)
-    raw_files = sorted(
-        f for f in os.listdir(RAW_DIR)
-        if f.startswith(valid_prefixes) and f.endswith(".json")
-    )
+    cached = [(k, payload) for k, payload in db.cache_all(CACHE_SOURCE) if k.startswith(valid_prefixes)]
+    cached.sort(key=lambda kp: kp[0])
 
     rows = []
     new_count = 0
-    for fname in raw_files:
-        m   = re.search(r"_match_(\d+)\.json$", fname)
+    for cache_key, payload in cached:
+        m   = re.search(r"_match_(\d+)$", cache_key)
         mid = int(m.group(1)) if m else None
 
         if mid is not None and mid in existing:
             rows.append(existing[mid])
             continue
 
-        row = process_raw_file(os.path.join(RAW_DIR, fname))
+        row = process_raw_payload(payload, cache_key)
         if row:
             rows.append(row)
             new_count += 1
             score = f"{row['home_score']}–{row['away_score']}"
-            print(f"  {fname:<38}  {row['home']} vs {row['away']}  "
+            print(f"  {cache_key:<34}  {row['home']} vs {row['away']}  "
                   f"{score}  shots={row['total_shots']}  xg={row['total_xg']}")
 
     if new_count == 0:
-        print(f"  all {len(rows)} matches already in {FEAT_PATH}, nothing new to process")
+        print(f"  all {len(rows)} matches already in pl_xg_features, nothing new to process")
     else:
         reused = len(rows) - new_count
         print(f"  processed {new_count} new match(es)"
-              + (f"; reused {reused} already in {FEAT_PATH}" if reused else ""))
+              + (f"; reused {reused} already in pl_xg_features" if reused else ""))
 
     rows.sort(key=lambda r: (r["season_year"], r["match_id"]))
-    write_csv(rows, FEAT_PATH)
+    write_features(rows)
 
 
 def main() -> None:

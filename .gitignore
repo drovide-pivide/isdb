@@ -1,22 +1,30 @@
-# macOS
+# --- secrets --------------------------------------------------------------
+.env
+
+# --- OS / editor cruft ------------------------------------------------------
 .DS_Store
 **/.DS_Store
-
-# Backup files
 *.bak
 
-# Python
+# --- python ----------------------------------------------------------------
 __pycache__/
 *.pyc
+.venv/
 
-# Derived model artifacts (rebuilt from raw JSON, see README)
-data/xg_timeline/wc/wc_features.csv
-data/xg_timeline/wc/wc_labelled.csv
-pl_excitingness_latest.csv
-*.joblib
-
-# Notebook outputs
+# --- data that now lives in Postgres, not in the repo ----------------------
+# Everything scraped or computed by the pipeline is now in the DB (see
+# MIGRATION.md). teams.json and data/schedule/schedule_matches.json are
+# intentionally NOT listed here — they're hand-curated reference data, still
+# edited as JSON and seeded into the DB with `migrate_existing_data.py
+# --seed-only` whenever you change them.
+data/match_stats/raw/
+data/xg_timeline/pl/*.json
+data/xg_timeline/wc/*.json
+data/xg_timeline/pl/*.csv
+data/xg_timeline/wc/*.csv
+data/imdb/
+data/frontend/
 outputs/
 
-# Scratch
-*.zip
+# models/*.joblib is intentionally kept in git — it's a small, versioned
+# code artifact (the shipped model), not scraped data.
