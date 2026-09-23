@@ -78,6 +78,7 @@ import requests
 # (it broke TLS verification specifically when combined with this proxy).
 PROXY_URL = os.environ.get("SOFASCORE_PROXY_URL")
 PROXIES = {"http": PROXY_URL, "https": PROXY_URL} if PROXY_URL else None
+print(f"[i] SOFASCORE_PROXY_URL: {'set (' + PROXY_URL.split('@')[-1] + ')' if PROXY_URL else 'not set — requests go out directly'}")
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "db"))
 import db  # noqa: E402
