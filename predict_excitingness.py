@@ -61,6 +61,9 @@ from sklearn.linear_model import Ridge
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "db"))
+import db  # noqa: E402
+
 # ---------------------------------------------------------------------------
 # Config
 # ---------------------------------------------------------------------------
@@ -76,6 +79,25 @@ EXCLUDE_EXTRA_TIME = True     # WC extra-time matches distort the 75-90+ window
 DEFAULT_MODEL_PATH = Path(__file__).resolve().parent / "models" / "excitingness_model.joblib"
 
 WINDOWS = ["0-15", "15-30", "30-45", "45-60", "60-75", "75-90plus"]
+
+# The DB stores hyphenated CSV column names (e.g. "xg_home_0-15") with the
+# hyphen replaced by an underscore, since Postgres won't accept a hyphen in
+# an unquoted identifier (see db/db.py's upsert_rows). base_features() below
+# indexes df[f"xg_home_{wdw}"] using the original hyphenated WINDOWS labels,
+# so every DataFrame read back from wc_xg_features / wc_labelled /
+# pl_xg_features needs those columns restored to their hyphenated form
+# before it's used — this is the one place that matters, since everything
+# else those tables carry is referenced by its already-underscored name.
+_HYPHEN_RENAME = {
+    f"{prefix}_{w.replace('-', '_')}": f"{prefix}_{w}"
+    for w in WINDOWS
+    for prefix in ("xg_home", "xg_away", "xg_diff")
+}
+
+
+def restore_window_hyphens(df: pd.DataFrame) -> pd.DataFrame:
+    return df.rename(columns={k: v for k, v in _HYPHEN_RENAME.items() if k in df.columns})
+
 
 # The shipped feature set. See the notebook's model-comparison section: this
 # beat every alternative on combined WC calibration + rank and the PL check.
@@ -159,22 +181,12 @@ DEFAULT_STRENGTH_PCT = 0.6    # used for a team with no ranking entry (e.g. prom
 # Paths
 # ---------------------------------------------------------------------------
 
-def find_data_dir(explicit: str | None = None) -> Path:
-    if explicit:
-        p = Path(explicit)
-        if not (p / "xg_timeline").exists():
-            sys.exit(f"error: {p} does not look like the data/ directory")
-        return p
+def find_pipeline_dir() -> Path | None:
+    """Where wc_xg_timeline_fetch.py / pl_xg_timeline_fetch.py live, needed
+    only by --fetch and a from-scratch --train run. No longer tied to a
+    data/ directory now that the pipeline reads/writes Postgres."""
     here = Path(__file__).resolve().parent
-    for cand in [Path("data"), Path("../data"), here / "data", here / "../data",
-                 here.parent / "data"]:
-        if (cand / "xg_timeline").exists():
-            return cand.resolve()
-    sys.exit("error: could not locate data/ — pass --data-dir")
-
-
-def find_pipeline_dir(data_dir: Path) -> Path | None:
-    for cand in [data_dir.parent / "pipeline", Path("pipeline"), Path("../pipeline")]:
+    for cand in [here / "pipeline", Path("pipeline"), Path("../pipeline")]:
         if cand.exists():
             return cand.resolve()
     return None
@@ -298,56 +310,55 @@ def build_matrix(df: pd.DataFrame, shot_lookup, strength_maps) -> pd.DataFrame:
 # Data loading
 # ---------------------------------------------------------------------------
 
-def ensure_wc_labels(data_dir: Path, pipeline_dir: Path | None) -> pd.DataFrame:
-    """Load the labelled WC training set, building it from raw files if needed."""
-    lab_path = data_dir / "xg_timeline/wc/wc_labelled.csv"
-    feat_path = data_dir / "xg_timeline/wc/wc_features.csv"
-
-    if not lab_path.exists():
-        if not feat_path.exists():
+def ensure_wc_labels(pipeline_dir: Path | None) -> pd.DataFrame:
+    """Load the labelled WC training set (wc_labelled table), building it
+    from wc_xg_features + imdb_ratings if the table is still empty."""
+    if not db.table_exists_and_has_rows("wc_labelled"):
+        if not db.table_exists_and_has_rows("wc_xg_features"):
             if not pipeline_dir:
-                sys.exit(f"error: {feat_path} missing and pipeline/ not found to rebuild it")
-            print("wc_features.csv missing — rebuilding from cached shot JSON ...")
+                sys.exit("error: wc_xg_features is empty and pipeline/ not found to rebuild it")
+            print("wc_xg_features empty — rebuilding from cached shot JSON ...")
             import subprocess
             subprocess.run([sys.executable, "wc_xg_timeline_fetch.py", "--features-only"],
                            cwd=str(pipeline_dir), check=True)
-        if not pipeline_dir:
-            sys.exit(f"error: {lab_path} missing and pipeline/ not found to build it")
-        print("wc_labelled.csv missing — joining features to IMDb ratings ...")
-        sys.path.insert(0, str(pipeline_dir))
+
+        print("wc_labelled empty — joining features to IMDb ratings ...")
+        if pipeline_dir:
+            sys.path.insert(0, str(pipeline_dir))
         from match_stats_fetch import title_to_codes      # reuse the repo's matcher
 
         alias = {"CAM": "CMR"}                             # BallDontLie -> IMDb code
         title_fix = {"Cura\u00e7ao": "CUW"}                # accent-stripping edge case
 
         pair = {}
-        for fname, yr in [("wc2022.json", 2022), ("wc2026.json", 2026)]:
-            path = data_dir / "imdb" / fname
-            if not path.exists():
+        for ep in db.read_rows("imdb_ratings"):
+            title = ep.get("title") or ""
+            yr = ep.get("year")
+            if not yr:
                 continue
-            for ep in json.load(open(path))["episodes"]:
-                title = ep.get("title", "")
-                codes = title_to_codes(title)
-                for name, code in title_fix.items():
-                    if name in title and code not in codes:
-                        codes.append(code)
-                if len(codes) == 2:
-                    pair[(yr, frozenset(codes))] = (ep.get("rating"), ep.get("votes"))
+            codes = title_to_codes(title)
+            for name, code in title_fix.items():
+                if name in title and code not in codes:
+                    codes.append(code)
+            if len(codes) == 2:
+                pair[(int(yr), frozenset(codes))] = (ep.get("rating"), ep.get("votes"))
 
-        wc = pd.read_csv(feat_path)
+        wc = db.read_df("wc_xg_features")
+        wc = restore_window_hyphens(wc)
         got = [pair.get((int(r.season_year),
                          frozenset([alias.get(r.home, r.home), alias.get(r.away, r.away)])),
                         (np.nan, np.nan)) for _, r in wc.iterrows()]
         wc["imdb_rating"] = [g[0] for g in got]
         wc["imdb_votes"] = [g[1] for g in got]
         wc = wc.dropna(subset=["imdb_rating"])
-        wc.to_csv(lab_path, index=False)
-        print(f"  built wc_labelled.csv: {len(wc)} labelled matches")
+        n = db.upsert_rows("wc_labelled", wc.to_dict("records"), ["match_id"])
+        print(f"  built wc_labelled: {n} labelled matches")
 
-    lab = pd.read_csv(lab_path)
+    lab = db.read_df("wc_labelled")
+    lab = restore_window_hyphens(lab)
     if EXCLUDE_EXTRA_TIME and "extra_time" in lab.columns:
         n0 = len(lab)
-        lab = lab[~lab.extra_time].reset_index(drop=True)
+        lab = lab[~lab.extra_time.astype(bool)].reset_index(drop=True)
         print(f"training matches: {n0} -> {len(lab)} (extra-time matches excluded)")
     else:
         print(f"training matches: {len(lab)}")
@@ -374,39 +385,40 @@ def fetch_latest(pipeline_dir: Path | None, season: str | None) -> None:
         sys.exit("error: fetch failed (is `jeke-understat-scrapper` installed?)")
 
 
-def load_pl(data_dir: Path) -> tuple[pd.DataFrame, dict]:
-    feat = data_dir / "xg_timeline/pl/pl_features.csv"
-    if not feat.exists():
-        sys.exit(f"error: {feat} not found — run with --fetch first")
-    pl = pd.read_csv(feat)
+def load_pl() -> tuple[pd.DataFrame, dict]:
+    pl = db.read_df("pl_xg_features")
+    pl = restore_window_hyphens(pl)
+    if pl.empty:
+        sys.exit("error: pl_xg_features is empty — run with --fetch first")
     cache = {}
     missing = []
     for mid in pl.match_id:
-        hits = glob.glob(str(data_dir / f"xg_timeline/pl/pl*_match_{mid}.json"))
-        if hits:
-            cache[mid] = pl_shots(json.load(open(hits[0])))
+        payload = db.cache_get_by_match("xg_pl", int(mid))
+        if payload is not None:
+            cache[mid] = pl_shots(payload)
         else:
             missing.append(mid)
     if missing:
-        print(f"warning: {len(missing)} matches have no raw shot file; "
+        print(f"warning: {len(missing)} matches have no cached raw shot payload; "
               f"their shot-derived features will be zero")
         for mid in missing:
             cache[mid] = []
     return pl, cache
 
 
-def load_existing_scores(path: str) -> pd.DataFrame | None:
-    """Previously written excitingness CSV at `path`, if any.
+def load_existing_scores() -> pd.DataFrame | None:
+    """Previously scored matches already in pl_excitingness, if any.
 
     Matches already scored there are reused as-is rather than re-run
     through the model — cheap either way (it's a vectorized ridge predict
     on a few hundred rows), but this keeps an already-published score from
     silently drifting on a later run if the model or its training data
-    changes, and avoids reprinting the whole season every time."""
-    if not os.path.exists(path):
-        return None
+    changes, and avoids reprocessing the whole season every time."""
     try:
-        return pd.read_csv(path)
+        df = db.read_df("pl_excitingness")
+        if df.empty:
+            return None
+        return df.rename(columns={"big_chances_60_75": "big_chances_60-75"})
     except Exception:
         return None
 
@@ -469,9 +481,9 @@ def main() -> None:
                     help="fetch new finished PL matches from Understat before scoring")
     ap.add_argument("--season", default=None,
                     help="season label to fetch (e.g. 2627); default fetches all configured")
-    ap.add_argument("--data-dir", default=None, help="path to data/ (auto-detected)")
-    ap.add_argument("-o", "--out", default="pl_excitingness_latest.csv",
-                    help="output CSV path")
+    ap.add_argument("-o", "--out", default=None,
+                    help="also write the scored matches to this CSV path "
+                         "(pl_excitingness table in the DB is always updated)")
     ap.add_argument("--top", type=int, default=15, help="how many to print (0 = none)")
     ap.add_argument("--model", default=str(DEFAULT_MODEL_PATH),
                     help="path to a saved model (joblib, from --save-model or "
@@ -482,9 +494,7 @@ def main() -> None:
     ap.add_argument("--save-model", default=None, help="also save the fitted model to PATH")
     args = ap.parse_args()
 
-    data_dir = find_data_dir(args.data_dir)
-    pipeline_dir = find_pipeline_dir(data_dir)
-    print(f"data dir: {data_dir}")
+    pipeline_dir = find_pipeline_dir()
 
     if args.fetch:
         fetch_latest(pipeline_dir, args.season)
@@ -499,11 +509,11 @@ def main() -> None:
             print(f"note: no saved model at {model_path} — training fresh this run. "
                   f"Run nbs/train_final_model.ipynb once to save one so future runs "
                   f"load instead of retraining.")
-        lab = ensure_wc_labels(data_dir, pipeline_dir)
+        lab = ensure_wc_labels(pipeline_dir)
         wc_cache = {}
         for _, r in lab.iterrows():
-            p = data_dir / f"xg_timeline/wc/wc{int(r.season_year)}_match_{r.match_id}.json"
-            wc_cache[r.match_id] = wc_shots(json.load(open(p))) if p.exists() else []
+            payload = db.cache_get_by_match("xg_wc", int(r.match_id), int(r.season_year))
+            wc_cache[r.match_id] = wc_shots(payload) if payload else []
 
         wc_maps = {yr: pct_map(d) for yr, d in FIFA_RANK.items()}
         X_wc = build_matrix(lab, lambda r: shot_features(wc_cache[r.match_id]), wc_maps)
@@ -538,14 +548,14 @@ def main() -> None:
         print(f"saved model -> {args.save_model}")
 
     # ---- score the Premier League -----------------------------------------
-    pl, pl_cache = load_pl(data_dir)
+    pl, pl_cache = load_pl()
 
-    existing = load_existing_scores(args.out)
+    existing = load_existing_scores()
     already = set(existing.match_id) if existing is not None else set()
     new_pl = pl[~pl.match_id.isin(already)].reset_index(drop=True)
 
     if already:
-        print(f"{len(already)} match(es) already scored in {args.out} — reusing; "
+        print(f"{len(already)} match(es) already scored in pl_excitingness — reusing; "
               f"{len(new_pl)} new")
 
     score_cols = ["match_id", "season_year", "date", "home", "away",
@@ -604,15 +614,19 @@ def main() -> None:
 
     out = out.sort_values("excitingness", ascending=False).reset_index(drop=True)
     out.insert(0, "rank", out.index + 1)
-    out.to_csv(args.out, index=False)
+
+    n = db.upsert_rows("pl_excitingness", out.to_dict("records"), ["match_id"])
+    print(f"\n[✓] pl_excitingness: {n} rows upserted")
+    if args.out:
+        out.to_csv(args.out, index=False)
+        print(f"    also wrote {args.out}")
 
     if len(new_pl) == 0:
-        print(f"\nall {len(out)} matches already scored in {args.out}, nothing new to infer")
+        print(f"all {len(out)} matches already scored, nothing new to infer")
     else:
-        print(f"\nscored {len(new_pl)} new match(es)  (mean {pred.mean():.2f}, std {pred.std():.2f})")
+        print(f"scored {len(new_pl)} new match(es)  (mean {pred.mean():.2f}, std {pred.std():.2f})")
         if already:
-            print(f"reused {len(out) - len(new_pl)} already-scored match(es) from {args.out}")
-    print(f"wrote {args.out}")
+            print(f"reused {len(out) - len(new_pl)} already-scored match(es)")
 
     if args.top:
         print(f"\nMost exciting ({args.top}):")

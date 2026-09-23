@@ -1,0 +1,63 @@
+name: data-pipeline-manual
+
+# The two fetchers that don't belong on an unattended weekly cron:
+#   - wc_xg_timeline_fetch.py needs a paid/rate-limited GOAT API key, and
+#     World Cup matches only need backfilling occasionally (once a
+#     tournament's group stage etc. finishes), not every week.
+#   - update_imdb.py drives a real Chromium via Playwright and needs an
+#     explicit IMDb title id per World Cup, so it isn't "run this on a
+#     schedule" shaped — trigger it by hand when a new batch of episode
+#     ratings is worth pulling.
+#
+# Secrets needed (Settings -> Secrets and variables -> Actions):
+#   DATABASE_URL   same one the main workflow uses
+#   GOAT_API_KEY   only if you run the wc-xg job
+on:
+  workflow_dispatch:
+    inputs:
+      job:
+        description: "Which job to run"
+        type: choice
+        options: [wc-xg, imdb]
+        required: true
+      imdb_title_id:
+        description: "IMDb title id (imdb job only), e.g. tt32915471 for WC2026, tt12729982 for WC2022"
+        required: false
+
+jobs:
+  wc-xg:
+    if: github.event.inputs.job == 'wc-xg'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: |
+          pip install -r db/requirements.txt
+          pip install requests
+      - name: Fetch WC2022 + WC2026 xG timeline
+        run: python wc_xg_timeline_fetch.py --api-key "${{ secrets.GOAT_API_KEY }}"
+        working-directory: pipeline
+
+  imdb:
+    if: github.event.inputs.job == 'imdb'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: |
+          pip install -r db/requirements.txt
+          pip install playwright
+          playwright install --with-deps chromium
+      - name: Fetch IMDb episode ratings
+        run: python update_imdb.py "${{ github.event.inputs.imdb_title_id }}"
+        working-directory: pipeline

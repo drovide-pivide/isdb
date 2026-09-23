@@ -2,19 +2,19 @@
 wc_xg_timeline_fetch.py
 ------------------------
 Fetches shot-level data for WC2022 and WC2026, computes xG-by-minute
-timeline features, and writes:
+timeline features, and writes to Postgres (via db/db.py — set DATABASE_URL
+before running):
 
-  data/xg_timeline/wc/wc2022_match_{id}.json   — raw shots per WC2022 match
-  data/xg_timeline/wc/wc2026_match_{id}.json   — raw shots per WC2026 match
-  data/xg_timeline/wc/wc_features.csv          — one row per match, all features
+  raw_cache (source='xg_wc')   — raw shots per match, one row per (year, match id)
+  wc_xg_features                — one row per match, all features
 
 WC2022 and WC2026 both have full xG coverage. WC2018 does not and is excluded.
 Momentum is sourced from Sofascore separately for all competitions.
 
 Run this from the pipeline/ folder.
 
-Resumable: any match whose JSON already exists in data/xg_timeline/wc/ is skipped,
-so re-running after an interruption picks up exactly where it left off.
+Resumable: any match already present in raw_cache is skipped, so re-running
+after an interruption picks up exactly where it left off.
 
 Rate limiting
   Set the DELAY constant below to match your tier:
@@ -44,6 +44,9 @@ import sys
 import time
 from collections import defaultdict
 
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "db"))
+import db  # noqa: E402
+
 # Imported lazily via _requests() so that --features-only works offline,
 # without requiring the `requests` package to be installed.
 requests = None
@@ -61,9 +64,7 @@ def _requests():
     return requests
 
 BASE_URL  = "https://api.balldontlie.io/fifa/worldcup/v1"
-# Paths are relative to the pipeline/ folder, matching the other scripts.
-RAW_DIR   = "../data/xg_timeline/wc"
-FEAT_PATH = "../data/xg_timeline/wc/wc_features.csv"
+CACHE_SOURCE = "xg_wc"
 
 SEASONS = [2022, 2026]  # both have full xG; 2018 excluded (no xG data)
 
@@ -254,26 +255,19 @@ FEATURE_COLS = [
 ALL_COLS = META_COLS + FEATURE_COLS
 
 
-def write_csv(rows: list[dict], path: str) -> None:
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    with open(path, "w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=ALL_COLS, extrasaction="ignore")
-        writer.writeheader()
-        writer.writerows(rows)
-    print(f"\n✓ Features CSV written to {path}  ({len(rows)} rows)")
+def write_features(rows: list[dict]) -> None:
+    n = db.upsert_rows("wc_xg_features", rows, ["match_id"])
+    print(f"\n✓ wc_xg_features: {n} rows upserted")
 
 
 # ---------------------------------------------------------------------------
 # Main pipeline
 # ---------------------------------------------------------------------------
 
-def process_raw_file(path: str) -> dict | None:
-    """Load a saved raw JSON and recompute features without an API call."""
-    try:
-        with open(path, encoding="utf-8") as f:
-            raw = json.load(f)
-    except Exception as e:
-        print(f"    [skip] could not load {path}: {e}")
+def process_raw_payload(raw: dict, cache_key: str) -> dict | None:
+    """Recompute features from a cached raw payload without an API call."""
+    if raw is None:
+        print(f"    [skip] no cached payload for {cache_key}")
         return None
 
     match = raw["match"]
@@ -288,8 +282,6 @@ def process_raw_file(path: str) -> dict | None:
 
 
 def run(api_key: str, features_only: bool) -> None:
-    os.makedirs(RAW_DIR, exist_ok=True)
-
     # ── Steps 1 & 2: fetch match list, then shots for each match ──────────
     # Skipped entirely under --features-only so no network is touched.
     if not features_only:
@@ -300,39 +292,35 @@ def run(api_key: str, features_only: bool) -> None:
         print(f"  {len(finished)} finished matches found (out of {len(all_matches)} total)")
 
         for i, match in enumerate(finished, 1):
-            mid  = match["id"]
-            year = (match.get("season") or {}).get("year", "wc")
-            raw_path = os.path.join(RAW_DIR, f"wc{year}_match_{mid}.json")
-
-            if os.path.exists(raw_path):
-                home = (match.get("home_team") or {}).get("abbreviation", "?")
-                away = (match.get("away_team") or {}).get("abbreviation", "?")
-                print(f"  [{i:>3}/{len(finished)}] wc{year} match {mid:>4}  {home} vs {away} — already saved, skipping")
-                continue
+            mid       = match["id"]
+            year      = (match.get("season") or {}).get("year", "wc")
+            cache_key = f"wc{year}_match_{mid}"
 
             home = (match.get("home_team") or {}).get("abbreviation", "?")
             away = (match.get("away_team") or {}).get("abbreviation", "?")
+
+            if db.cache_exists(CACHE_SOURCE, cache_key):
+                print(f"  [{i:>3}/{len(finished)}] wc{year} match {mid:>4}  {home} vs {away} — already saved, skipping")
+                continue
+
             print(f"  [{i:>3}/{len(finished)}] wc{year} match {mid:>4}  {home} vs {away} ...", end=" ", flush=True)
 
             shots = fetch_shots(api_key, mid)
             time.sleep(DELAY)
 
             payload = {"match": match, "shots": shots}
-            with open(raw_path, "w", encoding="utf-8") as f:
-                json.dump(payload, f, indent=2, ensure_ascii=False)
+            year_int = int(year) if str(year).isdigit() else None
+            db.cache_put(CACHE_SOURCE, cache_key, payload, match_id=int(mid), season_year=year_int)
 
             print(f"{len(shots)} shots")
 
-    # ── Step 3: compute features from all saved raw files ─────────────────
-    print("\nComputing features from saved raw files...")
+    # ── Step 3: compute features from every cached raw payload ────────────
+    print("\nComputing features from cached raw payloads...")
     rows = []
-    raw_files = sorted(
-        f for f in os.listdir(RAW_DIR)
-        if f.startswith("wc") and f.endswith(".json")
-    )
+    cached = db.cache_all(CACHE_SOURCE)
 
-    for fname in raw_files:
-        row = process_raw_file(os.path.join(RAW_DIR, fname))
+    for cache_key, payload in cached:
+        row = process_raw_payload(payload, cache_key)
         if row:
             rows.append(row)
             mid   = row["match_id"]
@@ -344,7 +332,7 @@ def run(api_key: str, features_only: bool) -> None:
 
     # Sort by match_id
     rows.sort(key=lambda r: r["match_id"])
-    write_csv(rows, FEAT_PATH)
+    write_features(rows)
 
 
 # ---------------------------------------------------------------------------

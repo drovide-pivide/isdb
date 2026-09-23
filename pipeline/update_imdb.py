@@ -16,9 +16,13 @@ Usage:
 
 import argparse
 import json
+import os
 import re
 import sys
 import time
+
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "db"))
+import db  # noqa: E402
 
 from playwright.sync_api import sync_playwright
 
@@ -205,7 +209,8 @@ def main():
     parser.add_argument("--season", type=int, default=None,
                         help="Fetch only this season (default: all)")
     parser.add_argument("--output", default=None,
-                        help="Save results to a JSON file")
+                        help="also save results to a JSON file (imdb_ratings table "
+                             "in the DB is always updated)")
     parser.add_argument("--delay", type=float, default=0.5,
                         help="Delay between season requests in seconds (default: 0.5)")
     args = parser.parse_args()
@@ -260,6 +265,22 @@ def main():
 
     print_table(series_name, all_episodes)
 
+    db_rows = [{
+        "episode_id": ep.get("id"),
+        "series_title_id": title_id,
+        "title": ep.get("title"),
+        "season": ep.get("season"),
+        "episode": ep.get("episode"),
+        "year": ep.get("year"),
+        "month": ep.get("month"),
+        "day": ep.get("day"),
+        "rating": ep.get("rating"),
+        "votes": ep.get("votes"),
+        "url": ep.get("url"),
+    } for ep in all_episodes if ep.get("id")]
+    n = db.upsert_rows("imdb_ratings", db_rows, ["episode_id"])
+    print(f"imdb_ratings: {n} rows upserted")
+
     if args.output:
         out = {
             "title_id": title_id,
@@ -269,7 +290,7 @@ def main():
         }
         with open(args.output, "w", encoding="utf-8") as f:
             json.dump(out, f, indent=2, ensure_ascii=False)
-        print(f"Results saved to {args.output}")
+        print(f"Results also saved to {args.output}")
 
 
 if __name__ == "__main__":
