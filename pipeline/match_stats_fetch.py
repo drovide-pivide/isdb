@@ -232,10 +232,11 @@ def to_num(value, default=0.0) -> float:
     return float(m.group()) if m else default
 
 
-# Stat labels that could not be found, and every label Sofascore did return.
-# A stat that is never found in any match means the label below is wrong, not
-# that the value is genuinely zero — the check at the end of the run reports it.
-MISSING_STATS: set = set()
+# Per-label hit/miss counters, so the end-of-run report can tell "this label
+# is wrong" (0 hits) apart from "Sofascore just didn't publish this stat for
+# a few matches" (some hits, some misses — routine, not a bug).
+STAT_HITS: dict = {}
+STAT_MISSES: dict = {}
 SEEN_STAT_LABELS: set = set()
 
 
@@ -244,15 +245,17 @@ def get_stat(stats: dict, *names, default=0.0):
     Look up a stat by any of several possible Sofascore labels.
 
     A miss returns the default but is also recorded, so the end-of-run check
-    can distinguish "this stat was genuinely 0" from "the label is wrong and
-    every row is silently 0".
+    can distinguish "this label is wrong — never matches" from "this stat is
+    just genuinely absent for this particular match".
     """
+    key = names[0]
     for n in names:
         if n in stats:
             h, a = stats[n]
+            STAT_HITS[key] = STAT_HITS.get(key, 0) + 1
             return to_num(h, default), to_num(a, default)
     if stats:                      # only count a miss when stats were returned
-        MISSING_STATS.add(names[0])
+        STAT_MISSES[key] = STAT_MISSES.get(key, 0) + 1
     return default, default
 
 
@@ -291,6 +294,7 @@ def parse_incidents(incidents: list, home_id: int) -> dict:
     h = a = 0
     lead_changes   = 0
     prev_leader    = "level"
+    last_nonlevel_leader = "level"   # most recent leader that wasn't "level"
     time_level     = 0
     time_home_lead = 0
     time_away_lead = 0
@@ -319,8 +323,15 @@ def parse_incidents(incidents: list, home_id: int) -> dict:
             a += 1
 
         leader = "home" if h > a else ("away" if a > h else "level")
-        if leader != "level" and prev_leader != "level" and leader != prev_leader:
+        # A lead change is home->away or away->home, whether or not the
+        # score passed through "level" on the way — and with one goal at a
+        # time it always does, so comparing only to the immediately-previous
+        # state (which is "level" in exactly this case) can never fire.
+        # Compare instead to the last leader that wasn't "level".
+        if leader != "level" and last_nonlevel_leader != "level" and leader != last_nonlevel_leader:
             lead_changes += 1
+        if leader != "level":
+            last_nonlevel_leader = leader
         if leader == "home":
             away_was_behind = True
         elif leader == "away":
@@ -607,12 +618,27 @@ def report_stat_coverage(rows: list) -> None:
 
     print("\nChecking stat coverage...")
 
-    if MISSING_STATS:
-        print(f"  [!] Labels never found in any match: {sorted(MISSING_STATS)}")
+    # A label with 0 hits across every match is genuinely wrong — Sofascore
+    # never returns it under that name. A label with *some* hits and *some*
+    # misses is routine: not every match publishes every stat (e.g. a very
+    # one-sided game may have no recorded "Big chances missed"), and isn't
+    # something to act on.
+    never_found = sorted(k for k in STAT_MISSES if STAT_HITS.get(k, 0) == 0)
+    partial = sorted(
+        (k, STAT_HITS.get(k, 0), STAT_HITS.get(k, 0) + STAT_MISSES[k])
+        for k in STAT_MISSES if STAT_HITS.get(k, 0) > 0
+    )
+
+    if never_found:
+        print(f"  [!] Labels never found in any match: {never_found}")
         print(f"      Sofascore returned these labels instead:")
         for label in sorted(SEEN_STAT_LABELS):
             print(f"        - {label}")
         print(f"      Update the get_stat(...) calls in build_feature_row().")
+
+    if partial:
+        summary = ", ".join(f"{k} ({hits}/{total})" for k, hits, total in partial)
+        print(f"  [i] Labels missing from a few matches, present in most (routine): {summary}")
 
     # Numeric columns that are zero everywhere
     skip = {"event_id", "competition", "date", "home", "away",
@@ -629,9 +655,11 @@ def report_stat_coverage(rows: list) -> None:
 
     if all_zero:
         print(f"  [!] Columns that are zero in all {len(rows)} rows: {all_zero}")
-        print(f"      Likely a wrong stat label — check the matching get_stat() call.")
+        print(f"      If the matching get_stat() call above looks right, this is")
+        print(f"      more likely a bug in that column's own Python logic (e.g. a")
+        print(f"      condition that can never be satisfied) than a wrong label.")
 
-    if not MISSING_STATS and not all_zero:
+    if not never_found and not all_zero:
         print(f"  [\u2713] All stat columns have data")
 
 
@@ -647,6 +675,27 @@ def write_features(rows: list, comp: str) -> None:
 def norm(s: str) -> str:
     s = unicodedata.normalize("NFKD", str(s or ""))
     return "".join(c for c in s if not unicodedata.combining(c)).lower().strip()
+
+
+# Sofascore spells a handful of team codes differently than this project's
+# own schedule/teams.json — not a name-formatting difference norm() can
+# bridge, a genuinely different 3-letter code for the same country.
+# Confirmed empirically against real WC2026 fetch data: for each of these,
+# the same match showed up under both codes on the same date, more than
+# once, for the same pair of teams. See MIGRATION.md for how this was found
+# and how to add another entry if a future tournament turns up more.
+SOFASCORE_CODE_ALIASES = {
+    "CUR": "CUW",   # Curaçao
+    "IRA": "IRQ",   # Iraq
+    "IRI": "IRN",   # Iran
+    "DCO": "COD",   # DR Congo
+    "DZA": "ALG",   # Algeria
+}
+
+
+def canonical_code(code: str) -> str:
+    """Sofascore's code -> this project's code, where they differ."""
+    return SOFASCORE_CODE_ALIASES.get(code, code)
 
 
 # ---------------------------------------------------------------------------
@@ -781,7 +830,9 @@ def build_frontend(rows: list, dry_run: bool, out_json: str | None = None) -> No
     # -- index Sofascore rows by (date, home, away) and by team pair -----
     by_pair = {}
     for r in rows:
-        by_pair[(norm(r["home"]), norm(r["away"]))] = r
+        home = canonical_code(r["home"])
+        away = canonical_code(r["away"])
+        by_pair[(norm(home), norm(away))] = r
 
     out, matched = [], 0
     for s in schedule:
