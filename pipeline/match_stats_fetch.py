@@ -66,7 +66,9 @@ import time
 import unicodedata
 from collections import defaultdict
 
-import requests
+from curl_cffi import requests  # impersonates a real Chrome TLS handshake —
+# plain `requests` gets blocked from GitHub Actions' well-known runner IPs;
+# see MIGRATION.md's troubleshooting notes for how this was diagnosed.
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "db"))
 import db  # noqa: E402
@@ -105,7 +107,7 @@ def get_json(path: str, retries: int = 3):
     url = f"{API}{path}"
     for attempt in range(retries):
         try:
-            r = requests.get(url, headers=HEADERS, timeout=20)
+            r = requests.get(url, headers=HEADERS, timeout=20, impersonate="chrome")
             if r.status_code == 404:
                 return None
             if r.status_code == 429:
@@ -115,7 +117,7 @@ def get_json(path: str, retries: int = 3):
                 continue
             r.raise_for_status()
             return r.json()
-        except requests.RequestException as e:
+        except requests.RequestsError as e:
             if attempt == retries - 1:
                 print(f"    [warn] {path} failed: {e}")
                 return None

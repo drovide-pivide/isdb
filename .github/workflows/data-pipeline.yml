@@ -60,7 +60,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r db/requirements.txt
-          pip install requests pandas numpy scikit-learn scipy joblib
+          pip install curl_cffi pandas numpy scikit-learn scipy joblib
           pip uninstall -y understatapi || true
           pip install jeke-understat-scrapper
 

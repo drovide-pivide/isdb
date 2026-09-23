@@ -212,3 +212,42 @@ Wrapping each script's `main()` with them (or adding a step to the GitHub
 Actions workflow that runs before/after) turns "did last Monday's job
 actually succeed?" into a one-row query instead of a log search — worth
 adding once you've run this for real a few times and want that visibility.
+
+## Troubleshooting: Sofascore blocking requests from GitHub Actions
+
+`match_stats_fetch.py` talks to Sofascore's internal, undocumented API —
+there's no official key or authentication, which also means there's no
+official promise it'll keep working. In practice, it actively fingerprints
+and blocks automated traffic:
+
+- **From a residential connection** (your own machine), a plain `requests`
+  call with spoofed browser headers mostly works, but can intermittently
+  fail with a `ConnectionResetError` — retrying the same command again
+  usually succeeds.
+- **From GitHub Actions' runners**, the same request can fail hard with a
+  clean `403 Forbidden` instead — GitHub's runner IPs are well-known
+  datacenter ranges, which anti-bot systems flag far more confidently than
+  a home IP. A retry doesn't reliably fix this one.
+
+The fix already in place: `match_stats_fetch.py` uses
+[`curl_cffi`](https://github.com/lexiforest/curl_cffi) instead of plain
+`requests`, via `impersonate="chrome"` — it reproduces a real Chrome TLS
+handshake (not just headers), which is enough to get past the block as of
+when this was written. If it stops being enough in the future (anti-bot
+systems evolve), the next escalations, roughly in order of cost:
+
+1. Try a different `impersonate` target (e.g. a specific Chrome version, or
+   `"safari"`) — sometimes one fingerprint is flagged before others.
+2. Route the request through a residential/rotating proxy service — direct
+   fix for IP-reputation-based blocking specifically, but an ongoing cost.
+3. Switch to full Playwright browser automation for this script too (same
+   approach `update_imdb.py` already uses for IMDb) — most robust, most
+   invasive change.
+4. Run this one job on a self-hosted runner (e.g. your own machine) instead
+   of GitHub-hosted infrastructure, so requests come from a normal
+   residential IP — free, but means the job depends on that machine being
+   reachable at run time, which cuts against the point of automating it.
+
+`pl_xg_timeline_fetch.py` (Understat) and `wc_xg_timeline_fetch.py`
+(BallDontLie, a real authenticated API) haven't shown this problem — this
+is specific to Sofascore.
