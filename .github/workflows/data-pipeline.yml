@@ -48,6 +48,7 @@ jobs:
     timeout-minutes: 30
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      SOFASCORE_PROXY_URL: ${{ secrets.SOFASCORE_PROXY_URL }}
       PL_SEASON: ${{ github.event.inputs.pl_season || 'pl2627' }}
 
     steps:

@@ -68,6 +68,17 @@ from collections import defaultdict
 
 import requests
 
+# Sofascore blocks datacenter IPs outright (confirmed: GitHub Actions and even
+# a completely separate cloud sandbox both got a clean 403, with or without
+# curl_cffi's browser-TLS impersonation — the IP was always the real signal,
+# not the TLS fingerprint). Route through a residential proxy from a CI
+# environment by setting SOFASCORE_PROXY_URL; unset locally, where a normal
+# residential IP already works. See MIGRATION.md's troubleshooting notes for
+# how this was diagnosed, including why curl_cffi was tried and dropped again
+# (it broke TLS verification specifically when combined with this proxy).
+PROXY_URL = os.environ.get("SOFASCORE_PROXY_URL")
+PROXIES = {"http": PROXY_URL, "https": PROXY_URL} if PROXY_URL else None
+
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "db"))
 import db  # noqa: E402
 
@@ -105,7 +116,7 @@ def get_json(path: str, retries: int = 3):
     url = f"{API}{path}"
     for attempt in range(retries):
         try:
-            r = requests.get(url, headers=HEADERS, timeout=20)
+            r = requests.get(url, headers=HEADERS, proxies=PROXIES, timeout=20)
             if r.status_code == 404:
                 return None
             if r.status_code == 429:

@@ -212,3 +212,90 @@ Wrapping each script's `main()` with them (or adding a step to the GitHub
 Actions workflow that runs before/after) turns "did last Monday's job
 actually succeed?" into a one-row query instead of a log search — worth
 adding once you've run this for real a few times and want that visibility.
+
+## Troubleshooting: Sofascore blocking requests from GitHub Actions
+
+`match_stats_fetch.py` talks to Sofascore's internal, undocumented API —
+there's no official key or authentication, which also means there's no
+official promise it'll keep working. In practice, it actively blocks
+automated traffic from datacenter IPs:
+
+- **From a residential connection** (your own machine), a plain `requests`
+  call with spoofed browser headers mostly works, but can intermittently
+  fail with a `ConnectionResetError` — retrying the same command again
+  usually succeeds.
+- **From a datacenter IP** — confirmed on both GitHub Actions' runners and,
+  separately, the sandbox this migration was built in — the same request
+  fails hard with a clean `403 Forbidden`. A retry doesn't fix this one.
+
+**What was tried, and what actually worked:**
+
+1. **`curl_cffi` with Chrome TLS impersonation** — the theory was that
+   Sofascore was fingerprinting the TLS handshake itself, not just the IP.
+   Tested directly: still a clean 403 from a datacenter IP. Ruled out —
+   impersonation alone was never enough, so the block is IP-based, not
+   fingerprint-based.
+2. **A residential proxy (IPRoyal)** — routes the request through a normal
+   consumer IP instead of a datacenter one. This is what actually works:
+   confirmed with a real 200 response and real data.
+3. One snag along the way, in case it recurs: combining `curl_cffi`'s
+   impersonation with this specific proxy produced a TLS certificate
+   verification error (`no alternative certificate subject name matches
+   target hostname`) — a known category of `curl_cffi`-proxy interaction bug,
+   not a problem with the proxy itself. Confirmed by testing the identical
+   proxy with plain `requests`, which worked cleanly. Since impersonation
+   was never actually necessary (see point 1), the fix was simply to drop
+   `curl_cffi` again and use plain `requests` with the proxy — simpler, and
+   avoids the bug entirely rather than working around it.
+
+**Current setup:** `match_stats_fetch.py` uses plain `requests`. If the
+`SOFASCORE_PROXY_URL` environment variable is set, it's used as both the
+HTTP and HTTPS proxy; if unset, requests go out directly (correct for local
+runs, where a residential IP already works fine unproxied).
+
+**To use this yourself:**
+1. Sign up for a residential proxy provider (pay-as-you-go, no minimum
+   commitment — at this project's volume, cost is negligible; see
+   `test_proxy.py` below for how to confirm a specific provider actually
+   works before committing to it).
+2. Add the proxy's connection string as a GitHub secret named
+   `SOFASCORE_PROXY_URL`, in the same `http://user:pass@host:port` shape as
+   `DATABASE_URL`.
+3. Locally, leave `SOFASCORE_PROXY_URL` unset — a residential IP doesn't
+   need it.
+
+**`test_proxy.py`**, in the repo root, tests this in isolation before
+wiring anything into the real pipeline: hits the exact endpoint that
+returned 403, with and without a proxy, and with and without `curl_cffi`'s
+impersonation (`--plain` flag), so a failure points at the right cause
+instead of requiring a guess.
+
+```bash
+pip install curl_cffi requests
+python3 test_proxy.py --no-proxy      # confirms the block reproduces locally
+export PROXY_URL="http://user:pass@host:port"   # from your provider
+python3 test_proxy.py --plain
+```
+
+Note `test_proxy.py` reads `PROXY_URL` (a local, throwaway name for testing)
+while the real pipeline and GitHub Actions read `SOFASCORE_PROXY_URL` (the
+actual secret name) — same value, deliberately different variable name, so
+testing never risks touching the real secret.
+
+If a future proxy provider's connection genuinely doesn't work even with
+plain `requests` (not just a `curl_cffi` quirk), the next escalations,
+roughly in order of cost:
+
+1. Try a different proxy provider or a fresh session — one blocked IP in a
+   rotating pool doesn't mean the whole pool is blocked.
+2. Switch to full Playwright browser automation for this script too (same
+   approach `update_imdb.py` already uses for IMDb) — more invasive, but
+   addresses fingerprinting if it turns out to matter after all.
+3. Run this one job on a self-hosted runner (e.g. your own machine) instead
+   of GitHub-hosted infrastructure — free, but means the job depends on
+   that machine being reachable at run time, which cuts against the point
+   of automating it.
+
+`pl_xg_timeline_fetch.py` (Understat) and `wc_xg_timeline_fetch.py`
+(BallDontLie, a real authenticated API) haven't shown this problem — this
+is specific to Sofascore.
