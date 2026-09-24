@@ -217,64 +217,62 @@ adding once you've run this for real a few times and want that visibility.
 
 `match_stats_fetch.py` talks to Sofascore's internal, undocumented API —
 there's no official key or authentication, which also means there's no
-official promise it'll keep working. In practice, it actively blocks
-automated traffic from datacenter IPs:
+official promise it'll keep working. In practice, it blocks automated
+traffic reaching it from datacenter IPs.
 
-- **From a residential connection** (your own machine), a plain `requests`
-  call with spoofed browser headers mostly works, but can intermittently
-  fail with a `ConnectionResetError` — retrying the same command again
-  usually succeeds.
-- **From a datacenter IP** — confirmed on both GitHub Actions' runners and,
-  separately, the sandbox this migration was built in — the same request
-  fails hard with a clean `403 Forbidden`. A retry doesn't fix this one.
+**This took several rounds of testing to actually pin down, and it's worth
+recording the wrong turns along the way — they're the reason the final
+answer is trustworthy.**
 
-**What was tried, and what actually worked:**
+1. **Residential connection (your own machine):** plain `requests` with
+   spoofed browser headers mostly works, occasionally failing with a
+   `ConnectionResetError` that clears on retry.
+2. **Datacenter IP, no proxy** (GitHub Actions, and separately the cloud
+   sandbox this migration was built in): a clean `403 Forbidden`, with or
+   without `curl_cffi`'s Chrome TLS impersonation. **First wrong
+   conclusion:** since impersonation alone didn't help, it was assumed the
+   block was purely IP-based and the TLS fingerprint didn't matter.
+3. **Datacenter IP, through a residential proxy (IPRoyal), plain
+   `requests`:** worked locally (5/5) — seemed to confirm point 2's
+   conclusion. But 0/5 from GitHub Actions itself, across two different
+   proxy country settings. **Second wrong conclusion, briefly
+   considered:** that this specific proxy provider's pool was unreliable
+   from datacenter clients specifically.
+4. **The actual answer:** `curl_cffi` impersonation, pinned to
+   `chrome124` specifically (not the generic `"chrome"` alias, which
+   independently broke TLS verification through this proxy — a
+   `curl_cffi`/proxy interaction bug, unrelated to blocking), **combined
+   with** the same residential proxy: **5/5 from GitHub Actions.** Neither
+   the IP nor the fingerprint alone was suf­ficient from a datacenter
+   origin — Sofascore's detection evidently weighs both together, and a
+   mismatch between "claims to be a residential IP" and "connection
+   signature looks like a Linux server's Python HTTP client" is itself a
+   signal, independent of either piece alone.
 
-1. **`curl_cffi` with Chrome TLS impersonation** — the theory was that
-   Sofascore was fingerprinting the TLS handshake itself, not just the IP.
-   Tested directly: still a clean 403 from a datacenter IP. Ruled out —
-   impersonation alone was never enough, so the block is IP-based, not
-   fingerprint-based.
-2. **A residential proxy (IPRoyal)** — routes the request through a normal
-   consumer IP instead of a datacenter one. This is what actually works:
-   confirmed with a real 200 response and real data.
-3. One snag along the way, in case it recurs: combining `curl_cffi`'s
-   impersonation with this specific proxy produced a TLS certificate
-   verification error (`no alternative certificate subject name matches
-   target hostname`) — a known category of `curl_cffi`-proxy interaction bug,
-   not a problem with the proxy itself. Confirmed by testing the identical
-   proxy with plain `requests`, which worked cleanly. Since impersonation
-   was never actually necessary (see point 1), the fix was simply to drop
-   `curl_cffi` again and use plain `requests` with the proxy — simpler, and
-   avoids the bug entirely rather than working around it.
-
-**Current setup:** `match_stats_fetch.py` uses plain `requests`. If the
-`SOFASCORE_PROXY_URL` environment variable is set, it's used as both the
-HTTP and HTTPS proxy; if unset, requests go out directly (correct for local
-runs, where a residential IP already works fine unproxied).
+**Current setup:** `match_stats_fetch.py` uses `curl_cffi` with
+`impersonate="chrome124"` always. If `SOFASCORE_PROXY_URL` is set, it's
+used as both the HTTP and HTTPS proxy; if unset (correct for local runs,
+where this already works unproxied), requests go out directly.
 
 **To use this yourself:**
 1. Sign up for a residential proxy provider (pay-as-you-go, no minimum
-   commitment — at this project's volume, cost is negligible; see
-   `test_proxy.py` below for how to confirm a specific provider actually
-   works before committing to it).
+   commitment — at this project's volume, cost is negligible).
 2. Add the proxy's connection string as a GitHub secret named
    `SOFASCORE_PROXY_URL`, in the same `http://user:pass@host:port` shape as
    `DATABASE_URL`.
-3. Locally, leave `SOFASCORE_PROXY_URL` unset — a residential IP doesn't
-   need it.
+3. Locally, leave `SOFASCORE_PROXY_URL` unset.
 
 **`test_proxy.py`**, in the repo root, tests this in isolation before
 wiring anything into the real pipeline: hits the exact endpoint that
-returned 403, with and without a proxy, and with and without `curl_cffi`'s
-impersonation (`--plain` flag), so a failure points at the right cause
-instead of requiring a guess.
+returned 403, with flags for no-proxy, plain-requests-only, and a specific
+`--impersonate` target, so a failure points at the right cause instead of
+requiring a guess.
 
 ```bash
 pip install curl_cffi requests
-python3 test_proxy.py --no-proxy      # confirms the block reproduces locally
+python3 test_proxy.py --no-proxy               # confirms the block reproduces locally
 export PROXY_URL="http://user:pass@host:port"   # from your provider
-python3 test_proxy.py --plain
+python3 test_proxy.py --impersonate chrome124
 ```
 
 Note `test_proxy.py` reads `PROXY_URL` (a local, throwaway name for testing)
@@ -282,16 +280,27 @@ while the real pipeline and GitHub Actions read `SOFASCORE_PROXY_URL` (the
 actual secret name) — same value, deliberately different variable name, so
 testing never risks touching the real secret.
 
-If a future proxy provider's connection genuinely doesn't work even with
-plain `requests` (not just a `curl_cffi` quirk), the next escalations,
+**`.github/workflows/test-proxy.yml`** runs the same tests from GitHub's
+own infrastructure — the environment that actually matters, since local
+and CI results diverged here in a way that mattered. Keep it in the repo;
+it's reusable for any future proxy provider or Sofascore behavior change,
+not a one-off for this investigation.
+
+If a future `impersonate` target or provider genuinely stops working —
+confirmed via `test-proxy.yml`, not just a guess — the next escalations,
 roughly in order of cost:
 
-1. Try a different proxy provider or a fresh session — one blocked IP in a
-   rotating pool doesn't mean the whole pool is blocked.
-2. Switch to full Playwright browser automation for this script too (same
-   approach `update_imdb.py` already uses for IMDb) — more invasive, but
-   addresses fingerprinting if it turns out to matter after all.
-3. Run this one job on a self-hosted runner (e.g. your own machine) instead
+1. Try a different `curl_cffi` impersonation target (see
+   `curl_cffi.requests.BrowserTypeLiteral` for the full list) — a specific
+   version can break while others still work, as happened with the generic
+   `"chrome"` alias.
+2. Try a different proxy provider — one blocked/misbehaving provider
+   doesn't mean the approach itself is wrong.
+3. Switch to full Playwright browser automation for this script too (same
+   approach `update_imdb.py` already uses for IMDb) — most invasive, but
+   addresses fingerprinting at a deeper level if `curl_cffi`'s impersonation
+   ever stops being convincing enough on its own.
+4. Run this one job on a self-hosted runner (e.g. your own machine) instead
    of GitHub-hosted infrastructure — free, but means the job depends on
    that machine being reachable at run time, which cuts against the point
    of automating it.
