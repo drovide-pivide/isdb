@@ -29,12 +29,12 @@ jobs:
         with:
           python-version: "3.12"
 
-      - run: pip install requests
+      - run: pip install requests curl_cffi
 
       - name: Baseline — confirm the block reproduces without a proxy
         run: python3 test_proxy.py --no-proxy --plain || true
 
-      - name: Test the proxy, repeated
+      - name: Test the proxy — plain requests (IP fix only)
         env:
           SOFASCORE_PROXY_URL: ${{ secrets.SOFASCORE_PROXY_URL }}
         run: |
@@ -51,5 +51,25 @@ jobs:
           done
           echo ""
           echo "===================================="
-          echo "  $pass passed, $fail failed (of $N)"
+          echo "  plain requests: $pass passed, $fail failed (of $N)"
+          echo "===================================="
+
+      - name: Test the proxy — curl_cffi impersonation (IP fix + fingerprint fix)
+        env:
+          SOFASCORE_PROXY_URL: ${{ secrets.SOFASCORE_PROXY_URL }}
+        run: |
+          N="${{ github.event.inputs.attempts || '5' }}"
+          pass=0
+          fail=0
+          for i in $(seq 1 "$N"); do
+            echo "--- attempt $i/$N ---"
+            if PROXY_URL="$SOFASCORE_PROXY_URL" python3 test_proxy.py --impersonate chrome124; then
+              pass=$((pass + 1))
+            else
+              fail=$((fail + 1))
+            fi
+          done
+          echo ""
+          echo "===================================="
+          echo "  curl_cffi impersonate=chrome124: $pass passed, $fail failed (of $N)"
           echo "===================================="
