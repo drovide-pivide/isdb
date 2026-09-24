@@ -38,9 +38,9 @@ HEADERS = {
 }
 
 
-def run(proxy_url: str | None, plain: bool = False) -> int:
+def run(proxy_url: str | None, plain: bool = False, impersonate: str = "chrome") -> int:
     proxies = {"https": proxy_url, "http": proxy_url} if proxy_url else None
-    mode = "plain requests, no impersonation" if plain else "curl_cffi, impersonate=chrome"
+    mode = "plain requests, no impersonation" if plain else f"curl_cffi, impersonate={impersonate}"
     where = f"through proxy ({proxy_url.split('@')[-1]})" if proxy_url else "without a proxy"
 
     print(f"Testing {where} — {mode}...")
@@ -52,7 +52,7 @@ def run(proxy_url: str | None, plain: bool = False) -> int:
             r = plain_requests.get(URL, headers=HEADERS, proxies=proxies, timeout=20)
         else:
             from curl_cffi import requests as cffi_requests  # only needed for this path
-            r = cffi_requests.get(URL, headers=HEADERS, proxies=proxies, timeout=20, impersonate="chrome")
+            r = cffi_requests.get(URL, headers=HEADERS, proxies=proxies, timeout=20, impersonate=impersonate)
     except Exception as e:
         print(f"FAILED — request errored out before getting a response: {type(e).__name__}: {e}")
         return 1
@@ -89,10 +89,13 @@ def main() -> None:
     ap.add_argument("--plain", action="store_true",
                      help="use plain requests instead of curl_cffi's browser impersonation — "
                           "isolates whether a proxy failure is curl_cffi-specific")
+    ap.add_argument("--impersonate", default="chrome",
+                     help="curl_cffi impersonation target, e.g. chrome124, chrome120, edge101 "
+                          "(ignored with --plain). Default: chrome")
     args = ap.parse_args()
 
     if args.no_proxy:
-        sys.exit(run(None, plain=args.plain))
+        sys.exit(run(None, plain=args.plain, impersonate=args.impersonate))
 
     proxy_url = os.environ.get("PROXY_URL")
     if not proxy_url:
@@ -102,7 +105,7 @@ def main() -> None:
         print("or run with --no-proxy to test the unproxied (expected-to-fail) case first.")
         sys.exit(1)
 
-    sys.exit(run(proxy_url, plain=args.plain))
+    sys.exit(run(proxy_url, plain=args.plain, impersonate=args.impersonate))
 
 
 if __name__ == "__main__":
