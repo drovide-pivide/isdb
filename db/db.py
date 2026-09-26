@@ -54,6 +54,28 @@ def _dsn() -> str:
     return dsn
 
 
+def _sqlalchemy_dsn() -> str:
+    """Same as _dsn(), but with the driver pinned explicitly to psycopg2.
+
+    _cursor() connects with a raw psycopg2.connect(_dsn()) call, which never
+    goes through SQLAlchemy's dialect resolution and is unaffected by this.
+    read_df() is the one place that hands the DSN to SQLAlchemy's
+    create_engine(), and a bare "postgresql://..." URL leaves SQLAlchemy to
+    pick a default DBAPI driver for the postgresql dialect — which package
+    it picks for a driver-less URL is version-dependent, and on newer
+    SQLAlchemy releases (2.x) it can resolve to `psycopg` (v3, a different
+    package from psycopg2 that this project never installs) instead of
+    `psycopg2`, raising ModuleNotFoundError: No module named 'psycopg'.
+    Rewriting the scheme to "postgresql+psycopg2://..." pins the dialect
+    explicitly so this never depends on SQLAlchemy's default resolution."""
+    dsn = _dsn()
+    if dsn.startswith("postgresql://"):
+        return dsn.replace("postgresql://", "postgresql+psycopg2://", 1)
+    if dsn.startswith("postgres://"):
+        return dsn.replace("postgres://", "postgresql+psycopg2://", 1)
+    return dsn
+
+
 @contextmanager
 def _cursor(commit: bool = False):
     conn = psycopg2.connect(_dsn())
@@ -256,7 +278,7 @@ def read_df(table_or_sql: str, params: tuple | dict | None = None):
     sql = table_or_sql
     if re.fullmatch(r"[a-zA-Z_][a-zA-Z0-9_]*", table_or_sql):
         sql = f"select * from {table_or_sql}"
-    engine = create_engine(_dsn())
+    engine = create_engine(_sqlalchemy_dsn())
     try:
         return pd.read_sql(sql, engine, params=params)
     finally:
