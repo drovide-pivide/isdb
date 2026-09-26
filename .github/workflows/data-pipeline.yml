@@ -6,15 +6,29 @@ name: data-pipeline
 #   Name: DATABASE_URL
 #   Value: postgresql://user:password@host:5432/dbname  (from Neon/Supabase)
 #
-# Schedule: fires every morning at 06:00 UTC, but the check-matchday job
-# below only lets the actual fetch run if yesterday (UTC) is a date with a
-# real Premier League fixture, per .github/pl_matchdays_2026_27.json — the
-# real 2026/27 fixture calendar (source: fixturedownload.com, cross-checked
-# against the official PL release), not a guessed day-of-week pattern. That
-# file needs regenerating for 2027/28 next summer, and refreshing sooner if
-# TV picks or postponements move fixtures around — see MIGRATION.md.
+# Runs every morning at 06:00 UTC, unconditionally — no matchday gate.
+# The old check-matchday gate existed to avoid burning paid proxy bandwidth
+# on non-matchdays. There's no proxy anymore (see fetch-sofascore below), so
+# that reason is gone — and gating by "was yesterday a matchday" meant a
+# missed run (your Mac off) wouldn't retry until the NEXT scheduled
+# matchday, which could be a two-week gap. Running daily instead means
+# match_stats_fetch.py's own cache-check (db.cache_exists()) just finds
+# nothing new on non-matchdays and finishes fast — and anything missed
+# gets picked up the very next time your Mac is online, not weeks later.
 #
-# Manual runs (workflow_dispatch) always go regardless of date.
+# fetch-sofascore needs a real residential IP — Sofascore blocks GitHub's
+# datacenter IPs and the commercial residential proxy this project used to
+# rely on eventually got its own IP/ASN flagged by Sofascore specifically
+# (see MIGRATION.md). So this job runs on your own self-hosted runner (your
+# Mac) instead. If your Mac is offline when this fires, the job just queues
+# and waits — up to 24 hours — then runs automatically the moment your
+# runner comes back online. No custom retry logic needed.
+#
+# score-and-build doesn't touch Sofascore at all (just Understat + Postgres),
+# so it stays on GitHub's free hosted runner and only waits for
+# fetch-sofascore to finish first.
+#
+# Manual runs (workflow_dispatch) work exactly the same as the schedule.
 on:
   schedule:
     - cron: "0 6 * * *"
@@ -26,37 +40,29 @@ on:
         required: false
 
 jobs:
-  check-matchday:
-    runs-on: ubuntu-latest
-    outputs:
-      is_matchday: ${{ steps.check.outputs.is_matchday }}
-    steps:
-      - uses: actions/checkout@v4
-
-      - id: check
-        run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            echo "is_matchday=true" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-          python3 .github/scripts/check_matchday.py
-
-  fetch-and-score:
-    needs: check-matchday
-    if: needs.check-matchday.outputs.is_matchday == 'true'
-    runs-on: ubuntu-latest
+  fetch-sofascore:
+    # Your Mac, registered as a self-hosted runner (Gabriellas-MacBook-Air).
+    # Targeting just "self-hosted" is enough as long as this is the only
+    # self-hosted runner on this repo — the registration didn't get a custom
+    # label added, so its actual labels are self-hosted/macOS/ARM64 only.
+    # Installed as a background service (`./svc.sh install && ./svc.sh start`)
+    # so it survives reboots and doesn't need a terminal window open.
+    runs-on: self-hosted
     timeout-minutes: 60
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
-      SOFASCORE_PROXY_URL: ${{ secrets.SOFASCORE_PROXY_URL }}
       PL_SEASON: ${{ github.event.inputs.pl_season || 'pl2627' }}
 
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
+      # No actions/setup-python here — this is your own Mac, not a fresh
+      # ephemeral VM, so it uses whatever Python is already on the runner
+      # service's PATH. If the runner service doesn't pick up your normal
+      # shell's Python (e.g. a conda env activated in .zshrc but not loaded
+      # by the background service), fix that before relying on the schedule
+      # — check with `which python3` from a run's log, or a manual
+      # workflow_dispatch test run first.
 
       - name: Install dependencies
         run: |
@@ -71,6 +77,27 @@ jobs:
       - name: Sofascore — Premier League
         run: python match_stats_fetch.py --competition "$PL_SEASON"
         working-directory: pipeline
+
+  score-and-build:
+    needs: fetch-sofascore
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      PL_SEASON: ${{ github.event.inputs.pl_season || 'pl2627' }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          pip uninstall -y understatapi || true
+          pip install -r db/requirements.txt pandas numpy scikit-learn scipy joblib jeke-understat-scrapper
+          python -c "import psycopg2; print('psycopg2 OK:', psycopg2.__version__)"
 
       - name: Understat — Premier League xG timeline
         run: python pl_xg_timeline_fetch.py
