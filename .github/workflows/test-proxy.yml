@@ -35,6 +35,16 @@ jobs:
 
       - run: pip install requests curl_cffi
 
+      - name: Check what IP the proxy actually hands out (is it rotating?)
+        env:
+          SOFASCORE_PROXY_URL: ${{ secrets.SOFASCORE_PROXY_URL }}
+        run: |
+          N="${{ github.event.inputs.attempts || '5' }}"
+          for i in $(seq 1 "$N"); do
+            ip=$(curl -s --max-time 15 -x "$SOFASCORE_PROXY_URL" https://api.ipify.org || echo "request failed")
+            echo "attempt $i/$N -> $ip"
+          done
+
       - name: Baseline — confirm the block reproduces without a proxy
         run: python3 test_proxy.py --no-proxy --plain || true
 
