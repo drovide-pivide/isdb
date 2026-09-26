@@ -17,6 +17,10 @@ on:
         description: "How many times to test the proxy"
         default: "5"
         required: false
+      impersonate:
+        description: "curl_cffi impersonation target to test (e.g. chrome124, chrome136, chrome142)"
+        default: "chrome124"
+        required: false
 
 jobs:
   test:
@@ -59,11 +63,12 @@ jobs:
           SOFASCORE_PROXY_URL: ${{ secrets.SOFASCORE_PROXY_URL }}
         run: |
           N="${{ github.event.inputs.attempts || '5' }}"
+          TARGET="${{ github.event.inputs.impersonate || 'chrome124' }}"
           pass=0
           fail=0
           for i in $(seq 1 "$N"); do
             echo "--- attempt $i/$N ---"
-            if PROXY_URL="$SOFASCORE_PROXY_URL" python3 test_proxy.py --impersonate chrome124; then
+            if PROXY_URL="$SOFASCORE_PROXY_URL" python3 test_proxy.py --impersonate "$TARGET"; then
               pass=$((pass + 1))
             else
               fail=$((fail + 1))
@@ -71,5 +76,5 @@ jobs:
           done
           echo ""
           echo "===================================="
-          echo "  curl_cffi impersonate=chrome124: $pass passed, $fail failed (of $N)"
+          echo "  curl_cffi impersonate=$TARGET: $pass passed, $fail failed (of $N)"
           echo "===================================="
